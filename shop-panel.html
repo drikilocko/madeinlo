@@ -86,6 +86,20 @@
         }
         .login-btn:hover { transform: scale(1.02); }
 
+        .public-btn {
+            width: 100%;
+            background: transparent;
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 0.9rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.8rem;
+            transition: all 0.3s;
+        }
+        .public-btn:hover { border-color: var(--primary); color: var(--primary); }
+
         /* DASHBOARD SECTION */
         #dashboard { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
 
@@ -195,8 +209,13 @@
                     <input type="password" id="login-pass" placeholder="••••••••" required>
                 </div>
                 <button type="submit" class="login-btn" id="submit-login">Connexion</button>
+                <button type="button" class="public-btn" id="public-access-btn">Voir sans connexion</button>
+                <div id="login-error" style="color: #ff5252; font-size: 0.8rem; margin-top: 1rem; display: none;">Identifiants incorrects.</div>
             </form>
-            <div id="login-error" style="color: #ff5252; font-size: 0.8rem; margin-top: 1rem; display: none;">Identifiants incorrects.</div>
+            <div id="public-shops" style="display:none; margin-top: 1.5rem;">
+                <h3 style="margin: 0 0 0.8rem; font-size: 0.9rem; text-transform: uppercase; opacity: 0.6;">Boutiques disponibles</h3>
+                <div id="public-shops-list"></div>
+            </div>
         </div>
     </div>
 
@@ -224,16 +243,64 @@
 
     <script>
         let currentShop = null;
+        let publicMode = false;
 
-        // AUTH CHECK
+        // PUBLIC ACCESS
+        document.getElementById('public-access-btn').addEventListener('click', async () => {
+            publicMode = true;
+            document.getElementById('login-error').style.display = 'none';
+            const res = await fetch('api/shops.php');
+            const shops = await res.json();
+            const list = document.getElementById('public-shops-list');
+            const container = document.getElementById('public-shops');
+            
+            if (shops.length === 0) {
+                list.innerHTML = '<p style="opacity:0.5; font-size:0.85rem;">Aucune boutique disponible.</p>';
+                container.style.display = 'block';
+                return;
+            }
+
+            list.innerHTML = shops.map(s => `
+                <div style="padding: 0.8rem; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 0.6rem; cursor: pointer; transition: all 0.3s; display: flex; justify-content: space-between; align-items: center;"
+                     onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'"
+                     onclick="viewPublicShop(${s.id}, '${s.name.replace(/'/g, "\\'")}')">
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.9rem;">${s.name}</div>
+                        <div style="opacity: 0.5; font-size: 0.75rem;">${s.address || ''}</div>
+                    </div>
+                    <i class="fas fa-arrow-right" style="opacity: 0.4;"></i>
+                </div>
+            `).join('');
+            container.style.display = 'block';
+        });
+
+        async function viewPublicShop(id, name) {
+            currentShop = { id, name };
+            publicMode = true;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('shop-title').textContent = name;
+            document.getElementById('shop-addr').textContent = 'Mode public';
+            document.querySelector('.logout-btn').style.display = 'none';
+            fetchInventory();
+        }
+
+        // AUTH CHECK - only for logged-in users
         async function checkAuth() {
-            const res = await fetch('api/shop-auth.php', {
-                method: 'POST',
-                body: JSON.stringify({ action: 'check' })
-            });
-            if (res.ok) {
-                const data = await res.json();
-                showDashboard(data.shop_id, data.shop_name);
+            if (publicMode) return;
+            try {
+                const res = await fetch('api/shop-auth.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'check' })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status === 'authenticated') {
+                        showDashboard(data.shop_id, data.shop_name);
+                    }
+                }
+            } catch (e) {
+                // ignore auth check errors
             }
         }
         checkAuth();
@@ -263,9 +330,11 @@
 
         function showDashboard(id, name) {
             currentShop = { id, name };
+            publicMode = false;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
             document.getElementById('shop-title').textContent = name;
+            document.querySelector('.logout-btn').style.display = 'inline-flex';
             fetchInventory();
         }
 
@@ -281,6 +350,7 @@
             }
 
             stock.forEach(item => {
+                const canSell = !publicMode;
                 const card = `
                     <div class="product-card">
                         <img src="${item.image_url}" alt="${item.name}">
@@ -289,9 +359,9 @@
                             <p>${item.category}</p>
                             <span class="stock-badge">${item.qty} EN STOCK</span>
                         </div>
-                        <button class="sell-btn" onclick="reportSale(${item.product_id})" title="Signaler une vente">
+                        ${canSell ? `<button class="sell-btn" onclick="reportSale(${item.product_id})" title="Signaler une vente">
                             <i class="fas fa-minus"></i>
-                        </button>
+                        </button>` : ''}
                     </div>
                 `;
                 list.innerHTML += card;
@@ -299,6 +369,7 @@
         }
 
         async function reportSale(prodId) {
+            if (!currentShop || publicMode) return;
             if (!confirm('Souhaitez-vous signaler la vente de cet article ?')) return;
 
             const res = await fetch('api/shop-stock.php', {
@@ -312,6 +383,10 @@
         }
 
         function logout() {
+            if (publicMode) {
+                window.location.reload();
+                return;
+            }
             fetch('api/shop-auth.php', { method: 'POST', body: JSON.stringify({ action: 'logout' }) })
             .then(() => window.location.reload());
         }
