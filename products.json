@@ -1,0 +1,66 @@
+[
+    {
+        "id": "1",
+        "name": "",
+        "image_url": "img/collection/1.png",
+        "category": "hauts",
+        "description": "description vide",
+        "price": "10000 FCFA"
+    },
+    {
+        "id": "2",
+        "name": "",
+        "image_url": "img/collection/2.png",
+        "category": "accessoires",
+        "description": "description vide",
+        "price": "10000 FCFA"
+    },
+    {
+        "id": "3",
+        "name": "",
+        "image_url": "img/collection/3.png",
+        "category": "bas",
+        "description": "description vide",
+        "price": "10000 FCFA"
+    },
+    {
+        "id": "4",
+        "name": "",
+        "image_url": "img/collection/4.png",
+        "category": "accessoires",
+        "description": "description vide",
+        "price": "10000 FCFA"
+    },
+    {
+        "id": "5",
+        "name": "",
+        "image_url": "img/collection/5.png",
+        "category": "hauts",
+        "description": "description vide",
+        "price": "10000 FCFA"
+    },
+    {
+        "id": "6",
+        "name": "",
+        "image_url": "img/collection/1.png",
+        "category": "bas",
+        "description": "description vide",
+        "price": "10000 FCFA"
+    },
+    {
+        "id": "7",
+        "name": "",
+        "image_url": "img/collection/2.png",
+        "category": "accessoires",
+        "description": "description vide",
+        "price": "10000 FCFA"
+    },
+    {
+        "id": "8",
+        "name": "",
+        "image_url": "img/collection/3.png",
+        "category": "hauts",
+        "description": "description vide",
+        "price": "10000 FCFA"
+    }
+]

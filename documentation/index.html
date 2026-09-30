@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie Documentaire - Zoom</title>
+
+    <!-- Google Fonts: Anton -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Google Fonts: Anton, Montserrat & Merriweather -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- GSAP for legendary animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <!-- Lenis for ultra smooth scrolling -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        :root {
+            --bg-color: #000;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            scrollbar-width: none; /* Cache la scrollbar sur Firefox */
+            -ms-overflow-style: none;  /* Cache la scrollbar sur IE/Edge */
+        }
+
+        html::-webkit-scrollbar {
+            display: none; /* Cache la scrollbar sur Chrome/Safari */
+        }
+
+        /* HUD HUD HUD */
+
+        /* Fixed HUD (Camera Viewfinder Interface) */
+        .hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Zoom Slider on the right */
+        .zoom-slider {
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 90vh;
+            /* OCCUPE TOUTE LA SECTION */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .zoom-tick {
+            width: 25px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .zoom-tick.major {
+            width: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+
+        .zoom-indicator-wrapper {
+            position: absolute;
+            right: 65px;
+            top: 0%;
+            height: 100%;
+            width: 20px;
+        }
+
+        .zoom-indicator {
+            position: absolute;
+            top: 0;
+            /* Animated by GSAP */
+            right: 0;
+            width: 0;
+            height: 0;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            border-right: 20px solid #fff;
+            transform: translateY(-50%);
+            filter: drop-shadow(0 0 6px #fff);
+        }
+
+        /* Gallery System */
+        .gallery {
+            position: relative;
+        }
+
+        .slide {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            isolation: isolate;
+            /* FIXES CHROME MIX-BLEND-MODE BUG */
+        }
+
+        /* The scaling wrapper */
+        .img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-origin: center center;
+            will-change: transform, border-radius, filter, clip-path;
+            /* Added slight border radius to make the dezoom feel more cinematic */
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* Setup images */
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Start zoomed in so there's room to dezoom nicely */
+            transform: scale(1.1);
+            will-change: transform, filter;
+        }
+
+        /* Edge Blur Layer (Vignette) OPTIMISÉ POUR LA FLUIDITÉ */
+        .vignette-blur {
+            position: absolute;
+            inset: -5%;
+            /* Exceed bounds slightly */
+            pointer-events: none;
+
+            /* The mask focuses the blur only on the edges, PAS D'OMBRE NOIRE */
+            -webkit-mask-image: radial-gradient(ellipse at center, transparent 35%, black 80%);
+            mask-image: radial-gradient(ellipse at center, transparent 35%, black 80%);
+
+            /* STATE FIXE: on anime l'opacité (gpu acceléré) plutôt que le blur dynamique */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            opacity: 0;
+
+            z-index: 2;
+            will-change: opacity;
+        }
+
+        /* Text Overlay System */
+        .text-overlay {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 70%;
+            pointer-events: none;
+            z-index: 10;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .align-left {
+            left: 8%;
+            text-align: left;
+            justify-content: flex-start;
+        }
+
+        .align-right {
+            right: 15%;
+            /* avoids zoom slider */
+            text-align: right;
+            justify-content: flex-end;
+        }
+
+        .align-center {
+            left: 0;
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .text-overlay h1 {
+            font-family: 'Anton', sans-serif;
+            font-size: clamp(3rem, 9vw, 7rem);
+            line-height: 1.05;
+            margin: 0;
+            color: #fff;
+            /* Solide */
+            text-transform: uppercase;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 4vh;
+            left: 5vw;
+            font-family: 'Anton', sans-serif;
+            font-size: 15vh;
+            line-height: 1;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.5);
+            /* Semi-transparent over the image */
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Pour les mots et les lettres splittés */
+        .word {
+            display: inline-block;
+            white-space: nowrap;
+            margin-right: 0.25em;
+        }
+
+        .char {
+            display: inline-block;
+            opacity: 0;
+            will-change: opacity, transform;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav-glass">
+        <div class="nav-container-centered">
+            <a href="../index.html" class="logo">Made in Lo</a>
+            <div class="nav-left">
+                <a href="../documentation/index.html">Documentation</a>
+            </div>
+            <div class="nav-right">
+                <a href="../index.html">Shop</a>
+            </div>
+            <div class="burger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <!-- Camera HUD Layer -->
+    <div class="hud">
+        <!-- Les petites bandes de réglage zoom -->
+        <div class="zoom-slider">
+            <div class="zoom-tick major"></div>
+            <div class="zoom-tick"></div>
+            <div class="zoom-tick"></div>
+            <div class="zoom-tick major"></div>
+            <div class="zoom-tick"></div>
+            <div class="zoom-tick"></div>
+            <div class="zoom-tick major"></div>
+            <div class="zoom-tick"></div>
+            <div class="zoom-tick"></div>
+            <div class="zoom-tick major"></div>
+            <div class="zoom-tick"></div>
+            <div class="zoom-tick"></div>
+            <div class="zoom-tick major"></div>
+
+            <div class="zoom-indicator-wrapper">
+                <div class="zoom-indicator"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Images Gallery -->
+    <div class="gallery">
+        <!-- 5 slides containing images 1.png to 5.png -->
+        <div class="slide" style="z-index: 1;">
+            <div class="slide-number">1.</div>
+            <div class="img-wrapper">
+                <img src="img/1.png" alt="Slide 1">
+                <div class="vignette-blur"></div>
+            </div>
+            <div class="text-overlay align-left">
+                <h1 class="split-text">Made in Lo<br>redefined<br>the style</h1>
+            </div>
+        </div>
+        <div class="slide" style="z-index: 2;">
+            <div class="slide-number">2.</div>
+            <div class="img-wrapper">
+                <img src="img/2.png" alt="Slide 2">
+                <div class="vignette-blur"></div>
+            </div>
+            <div class="text-overlay align-right">
+                <h1 class="split-text">Wear Your Identity</h1>
+            </div>
+        </div>
+        <div class="slide" style="z-index: 3;">
+            <div class="slide-number">3.</div>
+            <div class="img-wrapper">
+                <img src="img/3.png" alt="Slide 3">
+                <div class="vignette-blur"></div>
+            </div>
+            <div class="text-overlay align-left">
+                <h1 class="split-text">Rare fit<br>high vibes and mood</h1>
+            </div>
+        </div>
+        <div class="slide" style="z-index: 4;">
+            <div class="slide-number">4.</div>
+            <div class="img-wrapper">
+                <img src="img/4.png" alt="Slide 4">
+                <div class="vignette-blur"></div>
+            </div>
+            <div class="text-overlay align-right">
+                <h1 class="split-text">AFRICA identity in our fit</h1>
+            </div>
+        </div>
+        <div class="slide" style="z-index: 5;">
+            <div class="slide-number">5.</div>
+            <div class="img-wrapper">
+                <img src="img/5.png" alt="Slide 5">
+                <div class="vignette-blur"></div>
+            </div>
+            <div class="text-overlay align-center">
+                <h1 class="split-text">Own Your Vibes</h1>
+            </div>
+        </div>
+        <!-- Final Slide (Horizontal Split Text) -->
+        <div class="slide" style="z-index: 6; background: #000; align-items: flex-end; justify-content: center; padding-bottom: 5vh;">
+            <div class="text-overlay align-center" style="width: 100%; position: relative; top: auto; transform: none; padding: 0 4rem;">
+                <h1 class="split-text"
+                    style="font-size: clamp(3rem, 10vw, 15rem); text-transform: uppercase; line-height: 0.9; letter-spacing: -3px;">
+                    From logic to fabric.<br>The architecture of style.<br>Discover the process.
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Init Lenis smooth scroll
+        const lenis = new Lenis({
+            duration: 2.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+        });
+
+        // Loop raf (Sync with GSAP)
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+        gsap.ticker.lagSmoothing(0);
+
+        function raf(time) {
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Helper pour spliter le texte mot par mot puis lettre par lettre (supporte les <br>)
+        document.querySelectorAll('.split-text').forEach(el => {
+            // Transforme les sauts de lignes en balises traitables
+            let html = el.innerHTML.replace(/<br\s*\/?>/gi, ' <br> ').replace(/\n/g, ' ');
+            el.innerHTML = '';
+            html.split(/\s+/).forEach(word => {
+                if (!word.trim()) return;
+                if (word === '<br>') {
+                    el.appendChild(document.createElement('br'));
+                    return;
+                }
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'word';
+                word.split('').forEach(char => {
+                    const charSpan = document.createElement('span');
+                    charSpan.className = 'char';
+                    charSpan.innerHTML = char;
+                    wordSpan.appendChild(charSpan);
+                });
+                el.appendChild(wordSpan);
+            });
+        });
+
+        // --- EFFET DE FLOU CINÉMATIQUE À L'ARRIVÉE (3 SECONDES) ---
+        gsap.fromTo(['nav', '.gallery', '.hud'],
+            { filter: 'blur(30px)', opacity: 0 },
+            { filter: 'blur(0px)', opacity: 1, duration: 3, ease: 'power2.out', delay: 0.2 }
+        );
+
+        const slides = document.querySelectorAll('.slide');
+
+        slides.forEach((slide, i) => {
+            const imgWrapper = slide.querySelector('.img-wrapper');
+            const vignette = slide.querySelector('.vignette-blur');
+            const img = slide.querySelector('img');
+
+            // --- IMAGE SORTANTE (Quand la suivante arrive) ---
+            if (i < slides.length - 1) {
+                const nextSlide = slides[i + 1];
+
+                // 1. Dezoom the container and add progressive blur
+                gsap.to(imgWrapper, {
+                    scale: 0.92, // Dezoom factor (Léger et doux pour éviter d'énormes bordures noires)
+                    borderRadius: "24px", // Rounded corners
+                    filter: "blur(12px)", // Flou progressif (SANS effet assombrissant noir)
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: nextSlide,
+                        start: "top bottom", // trigger when incoming slide hits bottom of window
+                        end: "top top",      // complete when incoming slide hits top of window
+                        scrub: true
+                    }
+                });
+
+                // 2. Opacité progressive du Vignette Blur (beaucoup plus fluide)
+                gsap.to(vignette, {
+                    opacity: 1,
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: nextSlide,
+                        start: "top bottom",
+                        end: "top top",
+                        scrub: true
+                    }
+                });
+            }
+
+            // --- IMAGE ENTRANTE (Enveloppe distorse en arc + Rendu propre) ---
+            if (i > 0 && imgWrapper) {
+                gsap.fromTo(imgWrapper, {
+                    clipPath: "ellipse(120% 100% at 50% 100%)" // Forme d'arc bien courbée au début 
+                }, {
+                    clipPath: "ellipse(200% 200% at 50% 50%)", // Se met totalement à plat (recouvre tout) à la fin
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: slide,
+                        start: "top bottom",
+                        end: "top top",
+                        scrub: true
+                    }
+                });
+            }
+
+            // Subtle parallax, grayscale -> color, and unblur on the incoming image
+            if (img) {
+                gsap.fromTo(img,
+                    {
+                        scale: 1.15,
+                        filter: "grayscale(1) blur(5px)"
+                    },
+                    {
+                        scale: 1,
+                        filter: "grayscale(0) blur(0px)",
+                        ease: "none",
+                        scrollTrigger: {
+                            trigger: slide,
+                            start: "top bottom",
+                            end: "top top",
+                            scrub: true
+                        }
+                    }
+                );
+            }
+
+            // --- ANIMATION TEXTE (Lettre par lettre) ---
+            const chars = slide.querySelectorAll('.char');
+            if (chars.length) {
+                if (i === 0) {
+                    gsap.fromTo(chars,
+                        { opacity: 0, y: 50 },
+                        { opacity: 1, y: 0, stagger: 0.04, duration: 0.8, ease: "back.out(1.5)", delay: 0.5 }
+                    );
+                } else {
+                    gsap.fromTo(chars,
+                        { opacity: 0, y: 50 },
+                        {
+                            opacity: 1, y: 0, stagger: 0.04, duration: 0.8, ease: "back.out(1.5)",
+                            scrollTrigger: {
+                                trigger: slide,
+                                start: "top 30%", // Démarre l'animation quand la tuile est presque installée
+                                toggleActions: "play reverse play reverse"
+                            }
+                        }
+                    );
+                }
+            }
+        });
+
+        // Zoom Slider Track animation
+        gsap.to(".zoom-indicator", {
+            top: "100%",
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".gallery",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: true
+            }
+        });
+
+        // Fade in zoom slider on scroll and fade out when stabilized
+        let scrollTimeout;
+        const zoomSlider = document.querySelector('.zoom-slider');
+
+        lenis.on('scroll', () => {
+            zoomSlider.style.opacity = '1';
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                zoomSlider.style.opacity = '0';
+            }, 600); // Fades out 600ms after scroll stabilizes
+        });
+    </script>
+</body>
+
+</html>

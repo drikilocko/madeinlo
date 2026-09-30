@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made in Lo — Shop</title>
+    <!-- Ajout de la police depuis Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- NOUVEAU : Ajout de la police Merriweather -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Lien vers la feuille de style externe -->
+    <!-- NOUVEAU : Ajout de Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- NOUVEAU : Préchargement des images critiques de la page d'accueil -->
+    <link rel="preload" as="image" href="img/2.png">
+    <link rel="preload" as="image" href="img/3.png">
+    <link rel="preload" as="image" href="img/4.png">
+    <link rel="preload" as="image" href="img/5.png">
+    <link rel="preload" as="image" href="img/6.png">
+    <link rel="preload" as="image" href="img/7.png">
+    <link rel="preload" as="image" href="img/8.png">
+    <link rel="preload" as="image" href="img/9.png">
+</head>
+<body>
+
+    <!-- NOUVEAU : Préloader -->
+    <div id="preloader">
+        <div class="preloader-content">
+            <!-- Note: J'ai utilisé le chemin 'video/1.mp4' comme dans le reste de votre site.
+                 Si la vidéo est à la racine, changez pour '1.mp4' -->
+            <div class="spinner"></div> <!-- NOUVEAU : Spinner de chargement -->
+            <video class="preloader-video" src="video/1.mp4" autoplay muted loop playsinline></video>
+            <button id="enter-button">Appuyer pour commencer</button>
+        </div>
+    </div>
+
+    <header>
+        
+    </header>
+
+    <nav class="nav-transparent">
+        <div class="nav-container">
+            <!-- Le logo ou le titre du site peut aller ici -->
+            <a href="index.html" class="logo">Made in Lo</a>
+            <!-- Les liens pointent vers les IDs des sections ci-dessous -->
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="#collection">Collection</a>
+                <a href="#a-propos">À Propos</a>
+                <a href="#help">Help</a>
+            </div>
+            <div class="burger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Section Accueil (Home) -->
+        <section id="home">
+            <div class="photo-container">
+                
+                
+                <!-- Conteneur pour la première paire d'images -->
+                <div class="dist-photo-wrapper">
+                    <img src="img/2.png" alt="Image distribuée 1" class="distributed-photo photo-recto">
+                    <img src="img/3.png" alt="Nouvelle image 1" class="distributed-photo photo-verso">
+                </div>
+                <div class="dist-photo-wrapper">
+                    <img src="img/4.png" alt="Image distribuée 2" class="distributed-photo photo-recto">
+                    <img src="img/5.png" alt="Nouvelle image 2" class="distributed-photo photo-verso">
+                </div>
+                <div class="dist-photo-wrapper hide-on-mobile">
+                    <img src="img/6.png" alt="Image distribuée 3" class="distributed-photo photo-recto">
+                    <img src="img/7.png" alt="Nouvelle image 3" class="distributed-photo photo-verso">
+                </div>
+                <div class="dist-photo-wrapper hide-on-mobile">
+                    <img src="img/8.png" alt="Image distribuée 4" class="distributed-photo photo-recto">
+                    <img src="img/9.png" alt="Nouvelle image 4" class="distributed-photo photo-verso">
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Carrousel de Logos -->
+        <section id="logo-carousel" class="overflow-hidden">
+            <div class="logo-slider">
+                <!-- Remplacez ces images par les vôtres -->
+                <img src="img/logo1.png" alt="Logo Partenaire 1">
+                <img src="img/logo2.png" alt="Logo Partenaire 2">
+                <img src="img/logo3.png" alt="Logo Partenaire 3">
+                <img src="img/logo4.png" alt="Logo Partenaire 4">
+                <img src="img/logo5.png" alt="Logo Partenaire 5">
+                <!-- Duplication pour un effet de boucle infinie -->
+                <img src="img/logo1.png" alt="Logo Partenaire 1">
+                <img src="img/logo2.png" alt="Logo Partenaire 2">
+                <img src="img/logo3.png" alt="Logo Partenaire 3">
+                <img src="img/logo4.png" alt="Logo Partenaire 4">
+                <img src="img/logo5.png" alt="Logo Partenaire 5">
+                <!-- Triplication pour un effet infini encore plus fluide -->
+                <img src="img/logo1.png" alt="Logo Partenaire 1">
+                <img src="img/logo2.png" alt="Logo Partenaire 2">
+                <img src="img/logo3.png" alt="Logo Partenaire 3">
+                <img src="img/logo4.png" alt="Logo Partenaire 4">
+                <img src="img/logo5.png" alt="Logo Partenaire 5">
+            </div>
+        </section>
+
+        <!-- Section À Propos (vidéo) -->
+        <section id="a-propos">
+            <!-- Ajout de la vidéo -->
+            <video id="about-video" src="video/1.mp4" autoplay muted loop playsinline>
+                Votre navigateur ne supporte pas la lecture de vidéos.
+            </video>
+        </section>
+
+        <!-- Section Scrollytelling : Notre Vision -->
+        <section id="our-vision">
+            <div class="scrolly-container">
+                <div class="scrolly-images">
+                    <!-- Remplacez ces images par celles qui correspondent à chaque paragraphe -->
+                    <img src="img/2.png" alt="Image illustrant la fusion des styles" class="scrolly-image" data-step="1">
+                    <img src="img/4.png" alt="Image illustrant l'inspiration de Lomé" class="scrolly-image" data-step="2">
+                    <img src="img/6.png" alt="Image illustrant le mouvement mondial" class="scrolly-image" data-step="3">
+                </div>
+                <div class="scrolly-text">
+                    <div class="step" data-step="1">
+                        <img src="img/2.png" alt="Vignette illustrant la fusion des styles" class="scrolly-image" data-step="1">
+                        <p>Chez Made in Lo, nous sommes les <em>pionniers d'un mouvement</em> qui fusionne le style streetwear moderne avec le <em>riche héritage</em> des textiles africains. Chaque création est une ode à l'artisanat togolais, une <em>expression audacieuse</em> de la culture contemporaine et un pont entre les traditions et l'innovation.</p>
+                    </div>
+                    <div class="step" data-step="2">
+                        <img src="img/4.png" alt="Vignette illustrant l'inspiration de Lomé" class="scrolly-image" data-step="2">
+                        <p>Enracinés à Lomé, au Togo, nous puisons notre inspiration dans l'<em>énergie vibrante</em> de la ville et la richesse de ses savoir-faire. Notre mission est de porter fièrement ces couleurs sur la scène internationale, en créant une mode consciente et inspirante, un <em>fragment de notre culture</em>.</p>
+                    </div>
+                    <div class="step" data-step="3">
+                        <img src="img/6.png" alt="Vignette illustrant le mouvement mondial" class="scrolly-image" data-step="3">
+                        <p>Nous vous invitons à <em>rejoindre notre mouvement mondial</em>. Une aventure où la mode raconte une histoire, où chaque couture est un lien et où chaque collection est un pas vers un futur synonyme de paix et d'unité. Portez Made in Lo et devenez ambassadeur d'une vision qui <em>célèbre la diversité</em> et la connexion humaine 🕊️🌍. #MADEINLO</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOUVEAU : Section Caractéristiques Clés (Zig-Zag) -->
+        <section id="key-features">
+            <div class="features-container">
+                <h2 class="features-title">Nos Atouts Uniques</h2>
+                
+                <!-- Atout 1 -->
+                <div class="feature-row">
+                    <div class="feature-image">
+                        <img src="img/13.png" alt="Artisanat togolais authentique">
+                    </div>
+                    <div class="feature-text">
+                        <h3>Artisanat Authentique</h3>
+                        <p>Chaque pièce est le fruit d'un <em>savoir-faire togolais ancestral</em>, garantissant une qualité et une <em>histoire unique</em> que vous ne trouverez nulle part ailleurs.</p>
+                    </div>
+                </div>
+
+                <!-- Atout 2 (inversé) -->
+                <div class="feature-row feature-row-reverse">
+                    <div class="feature-image">
+                        <img src="img/14.png" alt="Designs modernes et streetwear">
+                    </div>
+                    <div class="feature-text">
+                        <h3>Design Streetwear Innovant</h3>
+                        <p>Nous marions les motifs traditionnels avec les coupes et les tendances du streetwear moderne pour créer un style <em>audacieux et contemporain</em>.</p>
+                    </div>
+                </div>
+
+                <!-- Atout 3 -->
+                <div class="feature-row">
+                    <div class="feature-image">
+                        <img src="img/15.png" alt="Mode consciente et inspirante">
+                    </div>
+                    <div class="feature-text">
+                        <h3>Mode Consciente et Inspirante</h3>
+                        <p>Nous créons plus que des vêtements ; nous bâtissons un mouvement pour une mode qui a du sens, qui <em>célèbre la diversité</em> et la connexion humaine.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section 4 : Galerie d'images Parallaxe -->
+        <section id="image-gallery" class="overflow-hidden">
+            <div class="gallery-container">
+                <div class="gallery-column">
+                    <img src="img/2.png" alt="Image de la galerie 1">
+                    <img src="img/3.png" alt="Image de la galerie 2">
+                    <img src="img/4.png" alt="Image de la galerie 3">
+                    <img src="img/5.png" alt="Image de la galerie 4">
+                </div>
+                <div class="gallery-column middle-column">
+                    <img src="img/6.png" alt="Image de la galerie 5">
+                    <img src="img/7.png" alt="Image de la galerie 6">
+                    <img src="img/8.png" alt="Image de la galerie 7">
+                    <img src="img/9.png" alt="Image de la galerie 8">
+                    <img src="img/2.png" alt="Image de la galerie 9">
+                </div>
+                <div class="gallery-column">
+                    <img src="img/5.png" alt="Image de la galerie 10">
+                    <img src="img/4.png" alt="Image de la galerie 11">
+                    <img src="img/3.png" alt="Image de la galerie 12">
+                    <img src="img/6.png" alt="Image de la galerie 13">
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Collection -->
+        <section id="collection">
+            <h2>Notre Collection</h2>
+            <p class="collection-intro">Découvrez nos créations uniques, conçues avec passion et savoir-faire. Chaque pièce raconte une histoire.</p>
+
+            <!-- NOUVEAU : Filtres de catégories -->
+            <div class="collection-filters">
+                <button class="filter-btn active">Tout</button>
+                <button class="filter-btn">Hauts</button>
+                <button class="filter-btn">Bas</button>
+                <button class="filter-btn">Accessoires</button>
+            </div>
+
+            <div class="collection-grid" id="collection-grid">
+                <!-- Les produits seront chargés ici par JavaScript -->
+            </div>
+
+            <!-- NOUVEAU : Bouton "Voir plus" -->
+            <a href="#" class="btn-see-more">Voir plus</a>
+        </section>
+
+        <!-- Intersection avec l'image 11.png -->
+        <div class="intersection-bg" id="intersection-1"></div>
+
+        <!-- Intersection avec l'image 12.png -->
+        <div class="intersection-bg" id="intersection-2"></div>
+
+        <!-- Section Suggestions -->
+        <section id="suggestions">
+            <h2>Vos Suggestions</h2>
+            <p>Nous adorons entendre vos idées ! Partagez vos suggestions avec nous.</p>
+            <form id="suggestion-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prenom">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nom">Nom</label>
+                        <input type="text" id="nom" name="nom" required>
+                    </div>
+                </div>
+                <textarea id="suggestion-text" name="suggestion" rows="5" placeholder="Votre suggestion ici..." required aria-label="Votre suggestion"></textarea>
+                <button type="submit" class="btn-whatsapp">Envoyer via WhatsApp</button>
+            </form>
+        </section>
+
+        <!-- Section Aide (Help) -->
+        <section id="help">
+            <h2>Page d'Aide</h2>
+            <p class="help-intro">Vous avez besoin d'aide ? Vous trouverez ici les réponses aux questions les plus fréquentes.</p>
+
+            <div class="faq-container">
+                <!-- Élément FAQ 1 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <img src="img/4.png" alt="Illustration pour la question 1" class="faq-hover-image">
+                        <div class="faq-content-wrapper">
+                            <h3>Où puis-je acheter vos créations ?</h3>
+                            <div class="faq-arrow"></div>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content-wrapper">
+                            <p>Pour le moment, nos collections sont disponibles via nos réseaux sociaux et lors d'événements exclusifs. Suivez-nous sur Instagram pour ne manquer aucune annonce !</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Élément FAQ 2 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <img src="img/13.png" alt="Illustration pour la question 2" class="faq-hover-image">
+                        <div class="faq-content-wrapper">
+                            <h3>Quels matériaux utilisez-vous ?</h3>
+                            <div class="faq-arrow"></div>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content-wrapper">
+                            <p>Nous privilégions les textiles africains authentiques, comme le pagne tissé et le bazin, que nous fusionnons avec des matières modernes pour garantir confort et durabilité.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Élément FAQ 3 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <img src="img/6.png" alt="Illustration pour la question 3" class="faq-hover-image">
+                        <div class="faq-content-wrapper">
+                            <h3>Proposez-vous des collaborations ?</h3>
+                            <div class="faq-arrow"></div>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content-wrapper">
+                            <p>Oui, nous sommes toujours ouverts à des collaborations avec d'autres artistes, designers et marques qui partagent notre vision. Contactez-nous pour discuter de votre projet.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Élément FAQ 4 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <img src="img/15.png" alt="Illustration pour la question 4" class="faq-hover-image">
+                        <div class="faq-content-wrapper">
+                            <h3>Comment sont fabriqués vos vêtements ?</h3>
+                            <div class="faq-arrow"></div>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content-wrapper">
+                            <p>Chaque pièce est conçue à Lomé et confectionnée par des artisans locaux. Nous croyons en une mode éthique qui valorise le savoir-faire et soutient l'économie locale.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Élément FAQ 5 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <img src="img/2.png" alt="Illustration pour la question 5" class="faq-hover-image">
+                        <div class="faq-content-wrapper">
+                            <h3>Organisez-vous des événements ou pop-up stores ?</h3>
+                            <div class="faq-arrow"></div>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-content-wrapper">
+                            <p>Absolument ! Le meilleur moyen de connaître les dates de nos prochains événements est de vous abonner à notre page Instagram et de consulter régulièrement notre site.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column footer-brand">
+                <video src="video/1.mp4" autoplay muted loop playsinline class="footer-video"></video>
+                <h3>Made in Lo</h3>
+            </div>
+            <div class="footer-column footer-nav">
+                <h4>Navigation</h4>
+                <a href="index.html">Home</a>
+                <a href="#collection">Collection</a>
+                <a href="#a-propos">À Propos</a>
+                <a href="#help">Help</a>
+            </div>
+            <div class="footer-column footer-social">
+                <h4>Suivez-nous</h4>
+                
+                <a href="https://www.instagram.com/made.in.lo/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Vue Produit (Modal Overlay) -->
+    <div id="product-view"></div>
+    
+    <!-- Ajoutez ces scripts juste avant la balise de fermeture </body> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- NOUVEAU : Ajoutez le plugin SplitText ici -->
+    <script src="SplitText.min.js"></script> 
+    <script src="animation.js"></script>
+
+    <!-- NOUVEAU : Script pour le formulaire WhatsApp -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const suggestionForm = document.getElementById('suggestion-form');
+            if (suggestionForm) {
+                suggestionForm.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Empêche l'envoi classique du formulaire
+
+                    const prenom = document.getElementById('prenom').value.trim();
+                    const nom = document.getElementById('nom').value.trim();
+                    const suggestion = document.getElementById('suggestion-text').value.trim();
+
+                    if (!prenom || !nom || !suggestion) {
+                        alert('Veuillez remplir tous les champs du formulaire.');
+                        return;
+                    }
+
+                    const numeroWhatsApp = '22870894072';
+                    const message = `Suggestion de ${prenom} ${nom}:\n\n${suggestion}`;
+                    const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(message)}`;
+
+                    window.open(urlWhatsApp, '_blank');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

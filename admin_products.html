@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made in Lo — Admin Products</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #111;
+            --accent: #D4AF37;
+            --text: #fff;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #000;
+            border-right: 1px solid var(--border);
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .logo {
+            text-align: center;
+            font-family: 'Merriweather', serif;
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 50px;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .nav-links li a {
+            display: flex;
+            align-items: center;
+            padding: 15px 30px;
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            transition: all 0.3s;
+            gap: 15px;
+            font-weight: 500;
+        }
+
+        .nav-links li a:hover, .nav-links li a.active {
+            color: #fff;
+            background: var(--glass);
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: 280px;
+            flex: 1;
+            padding: 50px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        /* Table Style */
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .prod-cell {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .prod-img {
+            width: 50px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+            background: #222;
+        }
+
+        .badge {
+            background: var(--glass);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            border: 1px solid var(--border);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: 1px solid var(--border);
+            color: #fff;
+            width: 35px;
+            height: 35px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .btn-icon:hover {
+            background: var(--glass);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-delete:hover {
+            border-color: #ff5252;
+            color: #ff5252;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            width: 500px;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .modal-header {
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-family: 'Merriweather', serif;
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            opacity: 0.6;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            border: 1px solid var(--border);
+            color: #fff;
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background: none;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            flex: 2;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Notifications */
+        #notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 30px;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #000;
+            font-weight: 600;
+            transform: translateY(100px);
+            transition: transform 0.3s;
+            z-index: 2000;
+        }
+
+        #notification.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">MADE IN LO</div>
+        <ul class="nav-links">
+            <li><a href="admin.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+            <li><a href="admin_products.html" class="active"><i class="fas fa-box"></i> Produits</a></li>
+            <li><a href="#"><i class="fas fa-shopping-cart"></i> Commandes</a></li>
+            <li><a href="#"><i class="fas fa-users"></i> Clients</a></li>
+        </ul>
+    </aside>
+
+    <main class="main">
+        <div class="header">
+            <h1>Gestion de l'Inventaire</h1>
+            <button class="btn-primary" onclick="openModal('add')">
+                <i class="fas fa-plus"></i> Nouveau Produit
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th>Catégorie</th>
+                        <th>Prix</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="product-table-body">
+                    <!-- Dynamic Content -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Modal Form -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Nouveau Produit</h2>
+            </div>
+            <form id="product-form">
+                <input type="hidden" id="p-id">
+                <div class="form-group">
+                    <label>Nom du Produit</label>
+                    <input type="text" id="p-name" required placeholder="Ex: Tee Nom 1">
+                </div>
+                <div class="form-row" style="display:flex; gap:15px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Prix (FCFA)</label>
+                        <input type="number" id="p-price" required value="0">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Quantité en Stock</label>
+                        <input type="number" id="p-stock" required value="0" min="0">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Catégorie</label>
+                        <select id="p-category">
+                            <option value="T-Shirts">T-Shirts</option>
+                            <option value="Hoodies">Hoodies</option>
+                            <option value="Vests">Vests</option>
+                            <option value="Accessories">Accessoires</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="text" id="p-img" required placeholder="img/2.png">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="p-desc" rows="3">pas encore</textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
+                    <button type="submit" class="btn-save">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification">Action effectuée avec succès !</div>
+
+    <script>
+        let allProducts = [];
+        const modal = document.getElementById('product-modal');
+        const form = document.getElementById('product-form');
+        const tableBody = document.getElementById('product-table-body');
+        const notification = document.getElementById('notification');
+
+        async function fetchProducts() {
+            const res = await fetch('api/products.php');
+            allProducts = await res.json();
+            renderProducts();
+        }
+
+        function renderProducts() {
+            tableBody.innerHTML = '';
+            allProducts.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div class="prod-cell">
+                            <img src="${p.image_url}" class="prod-img">
+                            <span style="font-weight:600">${p.name}</span>
+                        </div>
+                    </td>
+                    <td><span class="badge">${p.category}</span></td>
+                    <td style="font-weight:700">${parseFloat(p.price).toLocaleString()} FCFA</td>
+                    <td style="opacity:0.6; font-size:0.9rem">${p.description}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn-icon" onclick="openModal('edit', ${p.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon btn-delete" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function openModal(mode, id = null) {
+            form.reset();
+            if (mode === 'add') {
+                document.getElementById('modal-title').textContent = "Nouveau Produit";
+                document.getElementById('p-id').value = '';
+                document.getElementById('p-price').value = 0;
+                document.getElementById('p-desc').value = 'pas encore';
+            } else {
+                document.getElementById('modal-title').textContent = "Modifier le Produit";
+                const p = allProducts.find(item => item.id == id);
+                document.getElementById('p-id').value = p.id;
+                document.getElementById('p-name').value = p.name;
+                document.getElementById('p-price').value = p.price;
+                document.getElementById('p-stock').value = p.stock_qty || 0;
+                document.getElementById('p-category').value = p.category;
+                document.getElementById('p-img').value = p.image_url;
+                document.getElementById('p-desc').value = p.description;
+            }
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('p-id').value;
+            const action = id ? 'edit' : 'add';
+            
+            const product = {
+                id: id,
+                name: document.getElementById('p-name').value,
+                price: document.getElementById('p-price').value,
+                stock_qty: document.getElementById('p-stock').value,
+                category: document.getElementById('p-category').value,
+                image_url: document.getElementById('p-img').value,
+                description: document.getElementById('p-desc').value
+            };
+
+            const res = await fetch('api/products.php', {
+                method: 'POST',
+                body: JSON.stringify({ action, product })
+            });
+
+            if (res.ok) {
+                showNotification(`Produit ${id ? 'mis à jour' : 'ajouté'} !`);
+                closeModal();
+                fetchProducts();
+            }
+        });
+
+        async function deleteProduct(id) {
+            if (confirm('Voulez-vous vraiment supprimer ce produit ?')) {
+                const res = await fetch('api/products.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'delete', id })
+                });
+                if (res.ok) {
+                    showNotification('Produit supprimé !');
+                    fetchProducts();
+                }
+            }
+        }
+
+        function showNotification(msg) {
+            notification.textContent = msg;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) closeModal();
+        }
+
+        fetchProducts();
+    </script>
+</body>
+</html>

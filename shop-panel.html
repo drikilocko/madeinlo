@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made in Lo - Panel Propriétaire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Merriweather:ital,wght@1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary: #D4AF37;
+            --bg: #050505;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        html, body {
+            overscroll-behavior: none !important;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* LOGIN SCREEN */
+        #login-screen {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #111 0%, #050505 100%);
+        }
+
+        .login-card {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 3rem;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        .login-card h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .login-card p { opacity: 0.5; margin-bottom: 2rem; font-size: 0.9rem; }
+
+        .form-group { margin-bottom: 1.5rem; text-align: left; }
+        .form-group label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5; margin-bottom: 0.5rem; }
+        .form-group input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 12px;
+            color: #fff;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .form-group input:focus { border-color: var(--primary); }
+
+        .login-btn {
+            width: 100%;
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: transform 0.3s;
+        }
+        .login-btn:hover { transform: scale(1.02); }
+
+        /* DASHBOARD SECTION */
+        #dashboard { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+
+        .dash-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .dash-header h2 { font-family: 'Merriweather', serif; font-size: 1.8rem; margin: 0; }
+        
+        .logout-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+
+        .product-card img {
+            width: 80px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #000;
+        }
+
+        .prod-info { flex: 1; }
+        .prod-info h4 { margin: 0 0 0.3rem; font-size: 1.1rem; }
+        .prod-info p { margin: 0; opacity: 0.5; font-size: 0.8rem; margin-bottom: 0.5rem; }
+        
+        .stock-badge {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .sell-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        .sell-btn:hover { background: var(--primary); }
+
+        /* LOADING SPINNER */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN LOGIN -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h1>Made in Lo</h1>
+            <p>Panel Propriétaire Shop</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Identifiant Shop</label>
+                    <input type="text" id="login-id" placeholder="ID fourni par l'admin" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de Passe</label>
+                    <input type="password" id="login-pass" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="login-btn" id="submit-login">Connexion</button>
+            </form>
+            <div id="login-error" style="color: #ff5252; font-size: 0.8rem; margin-top: 1rem; display: none;">Identifiants incorrects.</div>
+        </div>
+    </div>
+
+    <!-- SCREEN DASHBOARD -->
+    <div id="dashboard">
+        <header class="dash-header">
+            <div>
+                <h2 id="shop-title">Mon Shop</h2>
+                <p id="shop-addr" style="opacity: 0.5; font-size: 0.85rem;"></p>
+            </div>
+            <button class="logout-btn" onclick="logout()">Déconnexion</button>
+        </header>
+
+        <h3 style="margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; opacity: 0.6;">État de mon stock</h3>
+        
+        <div class="stats-grid" id="inventory-list">
+            <!-- Liste générée par JS -->
+        </div>
+
+        <div style="margin-top: 4rem; padding: 2rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px;">
+            <h3 style="margin-top:0;">Dernières Ventes</h3>
+            <p style="opacity: 0.4; font-size: 0.9rem;">Les ventes sont automatiquement notifiées à l'administrateur central.</p>
+        </div>
+    </div>
+
+    <script>
+        let currentShop = null;
+
+        // AUTH CHECK
+        async function checkAuth() {
+            const res = await fetch('api/shop-auth.php', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'check' })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                showDashboard(data.shop_id, data.shop_name);
+            }
+        }
+        checkAuth();
+
+        // LOGIN
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-login');
+            btn.innerHTML = '<span class="spinner"></span>';
+            
+            const login = document.getElementById('login-id').value;
+            const pass = document.getElementById('login-pass').value;
+
+            const res = await fetch('api/shop-auth.php', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'login', login: login, password: pass })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                showDashboard(data.shop.id, data.shop.name);
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+                btn.textContent = 'Connexion';
+            }
+        });
+
+        function showDashboard(id, name) {
+            currentShop = { id, name };
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('shop-title').textContent = name;
+            fetchInventory();
+        }
+
+        async function fetchInventory() {
+            const res = await fetch('api/shop-stock.php?shop_id=' + currentShop.id);
+            const stock = await res.json();
+            const list = document.getElementById('inventory-list');
+            list.innerHTML = '';
+
+            if (stock.length === 0) {
+                list.innerHTML = '<p style="opacity:0.3">Aucun stock attribué par l\'administrateur.</p>';
+                return;
+            }
+
+            stock.forEach(item => {
+                const card = `
+                    <div class="product-card">
+                        <img src="${item.image_url}" alt="${item.name}">
+                        <div class="prod-info">
+                            <h4>${item.name}</h4>
+                            <p>${item.category}</p>
+                            <span class="stock-badge">${item.qty} EN STOCK</span>
+                        </div>
+                        <button class="sell-btn" onclick="reportSale(${item.product_id})" title="Signaler une vente">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                `;
+                list.innerHTML += card;
+            });
+        }
+
+        async function reportSale(prodId) {
+            if (!confirm('Souhaitez-vous signaler la vente de cet article ?')) return;
+
+            const res = await fetch('api/shop-stock.php', {
+                method: 'POST',
+                body: JSON.stringify({ action: 'sell', shop_id: currentShop.id, product_id: prodId, qty: 1 })
+            });
+
+            if (res.ok) {
+                fetchInventory();
+            }
+        }
+
+        function logout() {
+            fetch('api/shop-auth.php', { method: 'POST', body: JSON.stringify({ action: 'logout' }) })
+            .then(() => window.location.reload());
+        }
+    </script>
+</body>
+</html>

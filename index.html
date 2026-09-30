@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made in Lo - Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="style.css?v=1.3">
+    <link rel="preload" as="image" href="img/2.png">
+    <link rel="preload" as="image" href="img/3.png">
+    <link rel="preload" as="image" href="img/4.png">
+    <link rel="preload" as="image" href="img/5.png">
+    <script>
+        if (window.location.hash === '#image-gallery') {
+            history.replaceState(null, null, window.location.pathname);
+        }
+    </script>
+    <style>
+        @keyframes cartPopAnim {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            5% {
+                transform: scale(1.2) rotate(-10deg);
+            }
+
+            10% {
+                transform: scale(1.2) rotate(10deg);
+            }
+
+            15% {
+                transform: scale(1.1) rotate(-5deg);
+            }
+
+            20% {
+                transform: scale(1.1) rotate(5deg);
+            }
+
+            25% {
+                transform: scale(1) rotate(0deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes overlayIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+
+            to {
+                opacity: 1;
+                backdrop-filter: blur(8px);
+            }
+        }
+
+        @keyframes overlayOut {
+            from {
+                opacity: 1;
+                backdrop-filter: blur(8px);
+            }
+
+            to {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+        }
+
+        @keyframes popupIn {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popupOut {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(100%);
+            }
+        }
+
+        @keyframes fadeStep {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #popup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(8px);
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        #popup-overlay.open {
+            display: flex;
+            animation: overlayIn 0.4s ease forwards;
+        }
+
+        #popup-overlay.open #popup-box {
+            animation: popupIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        #popup-box {
+            background: #fff;
+            border-radius: 24px 24px 0 0;
+            width: 100%;
+            max-width: 100%;
+            height: 94vh;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            padding: 3rem;
+            position: relative;
+            box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.25);
+            scrollbar-width: thin;
+            scrollbar-color: #b8962e #f0f0f0;
+        }
+
+        #popup-box::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #popup-box::-webkit-scrollbar-track {
+            background: #f0f0f0;
+        }
+
+        #popup-box::-webkit-scrollbar-thumb {
+            background: #b8962e;
+            border-radius: 5px;
+        }
+
+        #popup-box::-webkit-scrollbar-thumb:hover {
+            background: #9a7a20;
+        }
+
+        /* Floating Cart Button */
+        #floating-cart-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #000;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            z-index: 99990;
+            transition: transform 0.3s, background 0.3s;
+            display: none;
+            /* Hidden if empty */
+        }
+
+        #floating-cart-btn:hover {
+            transform: translateY(-5px);
+            background: var(--primary-color);
+        }
+
+        #floating-cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff3b30;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+        }
+
+        .cart-pop-animation {
+            animation: cartPopAnim 3s infinite ease-in-out !important;
+        }
+
+        /* Block page scroll when popup open */
+        html.popup-open,
+        body.popup-open {
+            overflow: hidden !important;
+            height: 100% !important;
+        }
+
+        #popup-close-btn {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        #popup-close-btn:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        #popup-product-layout {
+            display: flex;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            min-height: 75vh;
+            align-items: stretch;
+        }
+
+        #popup-img-col {
+            flex: 1.3;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #popup-main-img {
+            width: 100%;
+            height: 480px;
+            object-fit: cover;
+            border-radius: 16px;
+            display: block;
+        }
+
+        #popup-thumbs {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .popup-thumb {
+            width: 62px;
+            height: 62px;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2.5px solid #eee;
+            transition: border-color 0.2s;
+        }
+
+        .popup-thumb.active,
+        .popup-thumb:hover {
+            border-color: #b8962e;
+        }
+
+        #popup-info-col {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            justify-content: space-between;
+        }
+
+        #popup-prod-name {
+            font-size: 2.5rem;
+            margin: 0;
+            font-family: 'Merriweather', serif;
+            line-height: 1.2;
+        }
+
+        .popup-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .popup-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #b8962e;
+        }
+
+        .popup-cat {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #999;
+        }
+
+        .popup-desc {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .popup-sizes-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        #popup-sizes {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .popup-size-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            background: #fff;
+            color: #000;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .popup-size-btn.active,
+        .popup-size-btn:hover {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
+        #popup-buy-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: auto;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        #popup-buy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* CHECKOUT STEP */
+        #popup-checkout {
+            display: none;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        #popup-back-btn {
+            background: none;
+            border: none;
+            color: #b8962e;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 0;
+        }
+
+        .ck-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .ck-sub {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .ck-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .ck-field label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .ck-field input,
+        .ck-field textarea {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1.5px solid #ddd;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .ck-field input:focus,
+        .ck-field textarea:focus {
+            border-color: #b8962e;
+            outline: none;
+        }
+
+        .ck-summary {
+            background: #f9f9f9;
+            padding: 1.2rem 1.5rem;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ck-total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #b8962e;
+        }
+
+        #popup-confirm-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 1.2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #popup-confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- PRÉLOADER -->
+    <div id="preloader">
+        <div class="preloader-content">
+            <div class="spinner"></div>
+            <div class="video-frame">
+                <img id="preloader-seq" class="preloader-video" src="frame/1.jpg" alt="Animation">
+            </div>
+            <div class="preloader-buttons">
+                <a href="documentation/index.html" class="enter-btn">Documentation</a>
+                <button class="enter-btn shop-btn">Shop</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-scroll">
+        <div id="scroll-dot"></div>
+    </div>
+
+    <nav class="nav-glass">
+        <div class="nav-container-centered">
+            <a href="index.html" class="logo">Made in Lo</a>
+            <div class="nav-left"><a href="documentation/index.html">Documentation</a></div>
+            <div class="nav-right"><a href="#image-gallery">Shop</a></div>
+            <div class="burger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <main>
+        <section id="home">
+            <div class="photo-container">
+                <div class="dist-photo-wrapper">
+                    <img src="img/2.png" alt="Image distribuée 1" class="distributed-photo photo-recto">
+                    <img src="img/3.png" alt="Nouvelle image 1" class="distributed-photo photo-verso">
+                </div>
+                <div class="dist-photo-wrapper">
+                    <img src="img/4.png" alt="Image distribuée 2" class="distributed-photo photo-recto">
+                    <img src="img/5.png" alt="Nouvelle image 2" class="distributed-photo photo-verso">
+                </div>
+                <div class="dist-photo-wrapper hide-on-mobile">
+                    <img src="img/6.png" alt="Image distribuée 3" class="distributed-photo photo-recto">
+                    <img src="img/7.png" alt="Nouvelle image 3" class="distributed-photo photo-verso">
+                </div>
+                <div class="dist-photo-wrapper hide-on-mobile">
+                    <img src="img/8.png" alt="Image distribuée 4" class="distributed-photo photo-recto">
+                    <img src="img/9.png" alt="Nouvelle image 4" class="distributed-photo photo-verso">
+                </div>
+            </div>
+        </section>
+
+        <section id="image-gallery" class="overflow-hidden">
+            <h2 class="gallery-static-title"
+                style="text-align: center; font-size: 2.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin: 5rem 0 3rem; font-family: 'Montserrat', sans-serif; color: var(--text-color);">
+                Notre Boutique</h2>
+            <div class="gallery-container">
+                <div class="gallery-column" id="col-1"></div>
+                <div class="gallery-column middle-column" id="col-2"></div>
+                <div class="gallery-column" id="col-3"></div>
+            </div>
+            <div class="gallery-horizontal-container"
+                style="margin-top:8rem;border-top:1px solid rgba(0,0,0,0.05);padding-top:4rem;"></div>
+        </section>
+
+        <!-- Used by animation.js but popup handles the display -->
+        <div id="product-view" style="display:none;"></div>
+    </main>
+
+    <footer id="main-footer">
+        <div class="footer-container">
+            <div class="footer-column footer-brand">
+                <img id="footer-bg-seq" src="frame/1.jpg" class="footer-frame" alt="Made in Lo Animation">
+                <h3>Made in Lo</h3>
+            </div>
+            <div class="footer-column footer-nav">
+                <h4>Navigation</h4>
+                <a href="#home">Home</a>
+                <a href="#image-gallery">Shop</a>
+                <a href="admin.html">Admin</a>
+            </div>
+            <div class="footer-column footer-social">
+                <h4>Suivez-nous</h4>
+                <a href="https://www.instagram.com/made.in.lo/" target="_blank" rel="noopener noreferrer"
+                    aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i
+                        class="fa-brands fa-whatsapp"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ====== BOUTON PANIER FLOTTANT ====== -->
+    <div id="floating-cart-btn" onclick="window.location.href='checkout.html'">
+        <i class="fa-solid fa-shopping-cart cart-pop-animation"></i>
+        <div id="floating-cart-badge">0</div>
+    </div>
+
+    <!-- ====== POPUP PRODUIT AUTONOME ====== -->
+    <div id="popup-overlay">
+        <div id="popup-box">
+            <button id="popup-close-btn" onclick="closePopup()">✕</button>
+
+            <!-- Étape 1 : Détails produit -->
+            <div id="popup-product-layout">
+                <div id="popup-img-col">
+                    <div id="popup-img-wrap" style="border-radius: 16px; overflow: hidden; height: 480px; width: 100%;">
+                        <img id="popup-main-img" src="" alt="">
+                    </div>
+                    <div id="popup-thumbs"></div>
+                </div>
+                <div id="popup-info-col">
+                    <h2 id="popup-prod-name"></h2>
+                    <div class="popup-meta">
+                        <span class="popup-price" id="popup-price-val"></span>
+                        <span class="popup-cat" id="popup-cat-val"></span>
+                    </div>
+                    <p class="popup-desc" id="popup-desc-val"></p>
+                    <p class="popup-sizes-label">Taille :</p>
+                    <div id="popup-sizes"></div>
+                </div>
+                <button id="popup-buy-btn" onclick="addToCart()">
+                    <i class="fa-solid fa-cart-plus"></i> Ajouter au panier
+                </button>
+            </div>
+        </div>
+
+        <!-- Étape 2 : Formulaire commande (Supprimé car redirigé vers checkout.html) -->
+    </div>
+    </div>
+
+    <script>
+        let _popupProduct = null;
+        let _selectedSize = 'M';
+        let _savedScrollY = 0;
+
+        function _freezePage() {
+            _savedScrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = '-' + _savedScrollY + 'px';
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.overflow = 'hidden';
+            if (window.lenis) window.lenis.stop();
+        }
+
+        function _unfreezePage() {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.overflow = '';
+            window.scrollTo(0, _savedScrollY);
+            if (window.lenis) window.lenis.start();
+        }
+
+        // ======= OVERRIDE global openProductModal =======
+        window.openProductModal = function (product) {
+            _popupProduct = product;
+            _selectedSize = 'M';
+
+            // Increment views on server
+            if (product && product.id) {
+                fetch('api/products.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'increment_view', id: product.id })
+                }).catch(err => console.log('Error incrementing views', err));
+            }
+
+            // Fill data
+            document.getElementById('popup-main-img').src = product.image_url || '';
+            document.getElementById('popup-prod-name').textContent = product.name || '';
+            document.getElementById('popup-price-val').textContent = (product.price || '0') + ' FCFA';
+            document.getElementById('popup-cat-val').textContent = product.category || '';
+            document.getElementById('popup-desc-val').textContent = product.description || 'Une pièce unique signée Made in Lo.';
+
+            // Gallery thumbs
+            const thumbsEl = document.getElementById('popup-thumbs');
+            thumbsEl.innerHTML = '';
+            let gallery = [];
+            try { gallery = product.gallery ? (typeof product.gallery === 'string' ? JSON.parse(product.gallery) : product.gallery) : []; } catch (e) { }
+            const allImgs = [product.image_url, ...gallery].filter(Boolean);
+            if (allImgs.length > 1) {
+                allImgs.forEach(function (url) {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.className = 'popup-thumb' + (url === product.image_url ? ' active' : '');
+                    img.onclick = function () {
+                        document.getElementById('popup-main-img').src = url;
+                        thumbsEl.querySelectorAll('.popup-thumb').forEach(function (t) { t.classList.remove('active'); });
+                        img.classList.add('active');
+                    };
+                    thumbsEl.appendChild(img);
+                });
+            }
+
+            // Sizes
+            const sizesEl = document.getElementById('popup-sizes');
+            sizesEl.innerHTML = '';
+            ['S', 'M', 'L', 'XL'].forEach(function (s) {
+                const btn = document.createElement('button');
+                btn.textContent = s;
+                btn.className = 'popup-size-btn' + (s === 'M' ? ' active' : '');
+                btn.onclick = function () {
+                    _selectedSize = s;
+                    sizesEl.querySelectorAll('.popup-size-btn').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                };
+                sizesEl.appendChild(btn);
+            });
+
+            // Check if sold out
+            const isSoldOut = parseInt(product.stock_qty || 0) <= 0;
+            const buyBtn = document.getElementById('popup-buy-btn');
+
+            if (isSoldOut) {
+                buyBtn.innerHTML = '<i class="fa-solid fa-ban"></i> Rupture de stock';
+                buyBtn.style.background = '#333';
+                buyBtn.style.color = '#888';
+                buyBtn.style.border = '1px solid #444';
+                buyBtn.style.cursor = 'not-allowed';
+                buyBtn.disabled = true;
+                buyBtn.onclick = null;
+
+                const metaEl = document.querySelector('.popup-meta');
+                let soldOutBadge = document.getElementById('popup-soldout-badge');
+                if (!soldOutBadge) {
+                    soldOutBadge = document.createElement('span');
+                    soldOutBadge.id = 'popup-soldout-badge';
+                    soldOutBadge.style.cssText = 'color: #ff5252; background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-left: 10px; display: inline-flex; align-items: center; gap: 5px;';
+                    metaEl.appendChild(soldOutBadge);
+                }
+                soldOutBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> SOLD OUT';
+                soldOutBadge.style.display = 'inline-flex';
+            } else {
+                buyBtn.innerHTML = '<i class="fa-solid fa-cart-plus"></i> Ajouter au panier';
+                buyBtn.style.background = '';
+                buyBtn.style.color = '';
+                buyBtn.style.border = '';
+                buyBtn.style.cursor = '';
+                buyBtn.disabled = false;
+                buyBtn.onclick = addToCart;
+
+                const soldOutBadge = document.getElementById('popup-soldout-badge');
+                if (soldOutBadge) soldOutBadge.style.display = 'none';
+            }
+
+            // Show product layout
+            document.getElementById('popup-product-layout').style.display = 'flex';
+
+            // Open overlay
+            document.getElementById('popup-overlay').classList.add('open');
+            _freezePage();
+
+            // ZOOM on main image
+            const mainImg = document.getElementById('popup-main-img');
+            const imgWrap = document.getElementById('popup-img-wrap');
+            if (mainImg && imgWrap) {
+                mainImg.style.transition = 'transform 0.15s ease-out';
+                mainImg.style.cursor = 'zoom-in';
+                imgWrap.style.overflow = 'hidden';
+                imgWrap.onmousemove = function (e) {
+                    const { left, top, width, height } = imgWrap.getBoundingClientRect();
+                    const x = ((e.clientX - left) / width) * 100;
+                    const y = ((e.clientY - top) / height) * 100;
+                    mainImg.style.transformOrigin = x + '% ' + y + '%';
+                    mainImg.style.transform = 'scale(2.5)';
+                    mainImg.style.cursor = 'zoom-in';
+                };
+                imgWrap.onmouseleave = function () {
+                    mainImg.style.transform = 'scale(1)';
+                    mainImg.style.cursor = 'zoom-in';
+                };
+            }
+        };
+
+        window.closeProductView = closePopup;
+
+        function closePopup() {
+            const overlay = document.getElementById('popup-overlay');
+            const popupBox = document.getElementById('popup-box');
+
+            // Trigger exit animations
+            overlay.style.animation = 'overlayOut 0.4s ease forwards';
+            popupBox.style.animation = 'popupOut 0.4s cubic-bezier(0.32, 0, 0.67, 0) forwards';
+
+            // Wait for animation to finish before hiding
+            setTimeout(() => {
+                overlay.classList.remove('open');
+                overlay.style.animation = ''; // Reset
+                popupBox.style.animation = ''; // Reset
+                _unfreezePage();
+            }, 400);
+        }
+
+        function updateCartUI() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartBtn = document.getElementById('floating-cart-btn');
+            const badge = document.getElementById('floating-cart-badge');
+
+            if (cart.length > 0) {
+                cartBtn.style.display = 'flex';
+                badge.innerText = cart.length;
+            } else {
+                cartBtn.style.display = 'none';
+            }
+        }
+
+        function addToCart() {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            const productToAdd = {
+                id: _popupProduct.id || 0,
+                name: _popupProduct.name || 'Produit Inconnu',
+                price: _popupProduct.price || '0',
+                image_url: _popupProduct.image_url || '',
+                size: _selectedSize
+            };
+
+            cart.push(productToAdd);
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            updateCartUI();
+
+            // Fermer le popup pour continuer les achats
+            closePopup();
+        }
+
+        // Initialize cart UI on load
+        window.addEventListener('DOMContentLoaded', updateCartUI);
+
+        // Close on background click
+        document.getElementById('popup-overlay').addEventListener('click', function (e) {
+            if (e.target === this) closePopup();
+        });
+
+        // Prevent scroll events inside popup from reaching Lenis (enables touchpad scroll)
+        const popupBox = document.getElementById('popup-box');
+        popupBox.addEventListener('wheel', function (e) { e.stopPropagation(); }, { passive: true });
+        popupBox.addEventListener('touchmove', function (e) { e.stopPropagation(); }, { passive: true });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="toast.js"></script>
+    <script src="animation.js?v=1.3"></script>
+
+</body>
+
+</html>

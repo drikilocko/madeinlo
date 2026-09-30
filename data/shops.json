@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1,
+        "name": "Made in Lo - Lomé Centre",
+        "address": "Boulevard du 13 Janvier, Lomé",
+        "lat": 6.1319,
+        "lng": 1.2228,
+        "phone": "+228 90 12 34 56",
+        "login": "lome_centre",
+        "password": "$2y$10$examplehash1"
+    },
+    {
+        "id": 2,
+        "name": "Made in Lo - Tokoin",
+        "address": "Rue de Tokoin, Lomé",
+        "lat": 6.1456,
+        "lng": 1.2145,
+        "phone": "+228 91 23 45 67",
+        "login": "tokoin",
+        "password": "$2y$10$examplehash2"
+    }
+]

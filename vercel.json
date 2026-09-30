@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    { "source": "/api/products.php", "destination": "/api/products" },
+    { "source": "/api/categories.php", "destination": "/api/categories" },
+    { "source": "/api/orders.php", "destination": "/api/orders" },
+    { "source": "/api/stats.php", "destination": "/api/stats" },
+    { "source": "/api/shops.php", "destination": "/api/shops" },
+    { "source": "/api/shop-stock.php", "destination": "/api/shop-stock" },
+    { "source": "/api/shop-auth.php", "destination": "/api/shop-auth" },
+    { "source": "/api/notifications.php", "destination": "/api/notifications" },
+    { "source": "/api/history.php", "destination": "/api/history" },
+    { "source": "/api/check-updates.php", "destination": "/api/check-updates" }
+  ]
+}

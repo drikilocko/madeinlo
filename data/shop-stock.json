@@ -1,0 +1,32 @@
+[
+    {
+        "shop_id": 1,
+        "product_id": "1",
+        "qty": 5
+    },
+    {
+        "shop_id": 1,
+        "product_id": "2",
+        "qty": 3
+    },
+    {
+        "shop_id": 2,
+        "product_id": "1",
+        "qty": 2
+    },
+    {
+        "shop_id": 2,
+        "product_id": "3",
+        "qty": 4
+    },
+    {
+        "shop_id": 1,
+        "product_id": "7",
+        "qty": 0
+    },
+    {
+        "shop_id": 1,
+        "product_id": "5",
+        "qty": 0
+    }
+]

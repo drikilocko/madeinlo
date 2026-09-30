@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made in Lo — Paiement</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Merriweather:ital,wght@1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <script
+        src="https://www.paypal.com/sdk/js?client-id=AS12XZApgZjWI2Jjbo7e1pDi9rj9RqmQShPllOA0FYDaz7s3rUUiDH4C4uLqxWMuGybzAcyCGZ6F_KKK&currency=USD"
+        data-sdk-integration-source="button-factory"></script>
+
+    <style>
+        :root {
+            --primary-color: #D4AF37;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #111111;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --font-main: 'Montserrat', sans-serif;
+            --font-accent: 'Merriweather', serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .checkout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 992px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+                padding-top: 40px;
+            }
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: var(--font-accent);
+            margin-top: 0;
+        }
+
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 20px;
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid var(--border-color);
+            color: #111;
+            border-radius: 10px;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Payment Methods */
+        .payment-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .method-card {
+            background: #f0f0f0;
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .method-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        .method-card.active {
+            border-color: var(--primary-color);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .method-card .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+            color: var(--primary-color);
+        }
+
+        .method-card span {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            position: sticky;
+            top: 40px;
+        }
+
+        .summary-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .summary-items {
+            max-height: 50vh;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            padding-right: 10px;
+        }
+
+        .product-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .product-img {
+            width: 80px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #1a1a1a;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .summary-total {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .total-label {
+            font-size: 1.2rem;
+            font-weight: 400;
+            opacity: 0.7;
+        }
+
+        .total-price {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        /* Buttons */
+        .btn-confirm {
+            width: 100%;
+            padding: 20px;
+            background: var(--primary-color);
+            color: #000;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+
+        .btn-confirm:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+
+        /* Navigation links */
+        .back-nav {
+            margin-bottom: 20px;
+        }
+
+        .back-nav a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: color 0.3s;
+        }
+
+        .back-nav a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Error message for PayPal */
+        #paypal-error-msg {
+            display: none;
+            background: rgba(255, 82, 82, 0.1);
+            color: #ff5252;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 82, 82, 0.2);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Success Step UI */
+        #success-step {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            color: #4CAF50;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="checkout-container">
+        <!-- Colonne Gauche : Formulaire et Paiement -->
+        <div id="checkout-main-content">
+            <div class="back-nav">
+                <a href="index.html"><i class="fas fa-arrow-left"></i> Retour à la boutique</a>
+            </div>
+
+            <h1 style="font-size: 2.5rem; margin-bottom: 40px; color: var(--primary-color);">Votre Commande</h1>
+
+            <div class="section-card">
+                <h3>Informations de Livraison</h3>
+                <div class="form-group">
+                    <label>Nom complet</label>
+                    <input type="text" id="client_name" class="form-control" placeholder="Ex: Jean Dupont">
+                </div>
+                <div class="form-group">
+                    <label>Numéro de téléphone</label>
+                    <input type="text" id="client_phone" class="form-control" placeholder="Ex: +228 90 00 00 00">
+                </div>
+                <div class="form-group">
+                    <label>Email (pour recevoir la confirmation)</label>
+                    <input type="email" id="client_email" class="form-control" placeholder="Ex: jean.dupont@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Adresse de livraison complète</label>
+                    <textarea id="client_address" class="form-control" rows="3"
+                        placeholder="Ex: Quartier Adidogomé, Rue 123..."></textarea>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3>Méthode de Paiement</h3>
+                <div id="paypal-error-msg" style="display:none;">
+                    <i class="fas fa-exclamation-triangle"></i> Erreur PayPal : Client ID incorrect. Les boutons ne
+                    peuvent pas s'afficher.
+                </div>
+
+                <div class="payment-methods">
+                    <div class="method-card active" onclick="selectMethod('paypal')">
+                        <i class="fab fa-paypal icon"></i>
+                        <span>PayPal / Carte</span>
+                    </div>
+                    <div class="method-card" onclick="selectMethod('momo')">
+                        <i class="fas fa-mobile-alt icon"></i>
+                        <span>Mobile Money</span>
+                    </div>
+                </div>
+
+                <!-- PayPal Button Container -->
+                <div id="paypal-button-container"></div>
+
+                <!-- Mobile Money Fields -->
+                <div id="momo-fields" style="display:none; flex-direction: column; gap: 15px;">
+                    <div class="form-group">
+                        <label>Choisissez votre opérateur</label>
+                        <select id="momo_operator" class="form-control">
+                            <option value="tmoney">T-Money (Togo)</option>
+                            <option value="moov">Moov Money (Togo)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Numéro Mobile Money</label>
+                        <input type="text" id="momo_number" class="form-control" placeholder="00 00 00 00">
+                    </div>
+                    <button class="btn-confirm" id="confirm-momo-btn" onclick="processMomo()">
+                        <span id="momo-btn-text">Confirmer avec Mobile Money</span>
+                        <span id="momo-btn-spinner" style="display:none;">
+                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Traitement en cours...
+                        </span>
+                    </button>
+                    <p style="font-size: 0.8rem; opacity: 0.5; text-align: center;">
+                        Un agent vous contactera pour finaliser le transfert.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne Droite : Résumé -->
+        <div class="order-summary">
+            <h2 class="summary-title">Résumé du panier</h2>
+            <div id="summary-items" class="summary-items">
+                <!-- Chargé dynamiquement par JS -->
+                <p style="text-align:center; opacity:0.5; padding: 2rem 0;">Chargement du panier...</p>
+            </div>
+
+            <div class="summary-total">
+                <span class="total-label">Total :</span>
+                <span id="total-price-display" class="total-price">0 FCFA</span>
+            </div>
+            <button onclick="clearCart()"
+                style="width:100%; margin-top:15px; padding:12px; background:transparent; border:1px solid rgba(255,82,82,0.4); color:#ff5252; border-radius:10px; cursor:pointer; font-size:0.85rem; transition:all 0.3s;"
+                onmouseover="this.style.background='rgba(255,82,82,0.1)'"
+                onmouseout="this.style.background='transparent'">
+                <i class="fas fa-trash-alt" style="margin-right:8px;"></i> Vider le panier
+            </button>
+        </div><!-- end .order-summary -->
+
+        <!-- Success Message (full-width grid row) -->
+        <div id="success-step" style="grid-column: 1 / -1; display:none;">
+            <div class="section-card">
+                <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+                <h2>Merci pour votre achat !</h2>
+                <p id="success-msg">Votre commande a été enregistrée avec succès. Nous vous contacterons très
+                    prochainement.</p>
+                <button class="btn-confirm" onclick="window.location.href='index.html'"
+                    style="max-width:300px;">Retourner à l'accueil</button>
+            </div>
+        </div>
+    </div><!-- end .checkout-container -->
+
+    <script>
+        // --- CONFIGURATION ---
+        const CONVERSION_RATE = 655.957; // 1 EUR = 655.957 FCFA
+
+        // --- GESTION DES MÉTHODES DE PAIEMENT ---
+        function selectMethod(method) {
+            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+
+            const e = (typeof event !== 'undefined') ? event : null;
+            let selectedCard = null;
+
+            if (e && e.currentTarget && e.currentTarget.classList && e.currentTarget.classList.contains('method-card')) {
+                selectedCard = e.currentTarget;
+            } else {
+                selectedCard = document.querySelector(`.method-card[onclick*="${method}"]`);
+            }
+
+            if (selectedCard) selectedCard.classList.add('active');
+
+            const momoFields = document.getElementById('momo-fields');
+            const paypalContainer = document.getElementById('paypal-button-container');
+
+            if (method === 'momo') {
+                momoFields.style.display = 'flex';
+                paypalContainer.style.display = 'none';
+            } else {
+                momoFields.style.display = 'none';
+                paypalContainer.style.display = 'block';
+            }
+        }
+
+        function validateForm() {
+            const fields = [
+                { id: 'client_name', label: 'Nom complet' },
+                { id: 'client_email', label: 'Email' },
+                { id: 'client_phone', label: 'Numéro de téléphone' },
+                { id: 'client_address', label: 'Adresse de livraison' }
+            ];
+
+            for (let f of fields) {
+                const el = document.getElementById(f.id);
+                if (!el.value.trim()) {
+                    alert(`Veuillez remplir le champ : ${f.label}`);
+                    el.focus();
+                    el.style.borderColor = "#ff5252";
+                    return false;
+                }
+                el.style.borderColor = "rgba(255,255,255,0.1)";
+            }
+
+            return true;
+        }
+
+        // --- INITIALISATION DU PANIER ---
+        let cartTotalFCFA = 0;
+
+        function refreshSummary() {
+            console.log("Checkout Initializing...");
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const summaryContainer = document.getElementById('summary-items');
+            console.log("Cart found:", cart.length, "items");
+
+            if (cart.length > 0) {
+                summaryContainer.innerHTML = '';
+                let subTotal = 0;
+                const groupedCart = {};
+
+                cart.forEach(item => {
+                    const key = (item.id || '0') + '_' + (item.size || 'M');
+                    if (!groupedCart[key]) {
+                        groupedCart[key] = { ...item, quantity: 0 };
+                    }
+                    groupedCart[key].quantity += 1;
+                });
+
+                Object.values(groupedCart).forEach(item => {
+                    const unitPrice = Math.round(parseFloat(item.price) || 0);
+                    const itemTotal = unitPrice * item.quantity;
+                    subTotal += itemTotal;
+
+                    summaryContainer.innerHTML += `
+                        <div class="product-item">
+                            <img src="${item.image_url}" class="product-img" alt="Produit" onerror="this.src='img/1.png';">
+                            <div class="product-info">
+                                <h4 style="margin:0 0 5px 0; font-size:1.1rem; font-weight:700;">${item.name || 'Produit sans nom'}</h4>
+                                <p style="margin:2px 0; font-size:0.85rem; opacity:0.6;">Taille : ${item.size || 'M'}</p>
+                                <p style="margin:2px 0; font-size:0.85rem; opacity:0.6;">Quantité : ${item.quantity}</p>
+                                <p style="margin:5px 0 0 0; font-size:1.05rem; font-weight:800; color:var(--primary-color);">${itemTotal.toLocaleString('fr-FR')} FCFA</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                cartTotalFCFA = subTotal;
+                document.getElementById('total-price-display').innerText = subTotal.toLocaleString('fr-FR') + " FCFA";
+            } else {
+                console.log("Cart is empty");
+                summaryContainer.innerHTML = '<p style="text-align:center; opacity:0.3; padding: 2.5rem 0; font-size: 0.9rem;">Votre panier est vide.</p>';
+                document.getElementById('total-price-display').innerText = "0 FCFA";
+            }
+        }
+
+        // --- PAIEMENT MOBILE MONEY ---
+        async function processMomo() {
+            if (!validateForm()) return;
+
+            const btn = document.getElementById('confirm-momo-btn');
+            const btnText = document.getElementById('momo-btn-text');
+            const btnSpinner = document.getElementById('momo-btn-spinner');
+
+            // Disable button and show spinner
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.style.cursor = 'not-allowed';
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline';
+
+            const name = document.getElementById('client_name').value.trim();
+            const phone = document.getElementById('client_phone').value.trim();
+            const address = document.getElementById('client_address').value.trim();
+            const momoNum = document.getElementById('momo_number').value.trim();
+
+            if (!momoNum) {
+                alert("Veuillez remplir votre numéro Mobile Money.");
+                return;
+            }
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) return alert("Votre panier est vide.");
+
+            try {
+                const response = await fetch('api/orders.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'create',
+                        order: {
+                            type: 'delivery',
+                            product_id: cart[0].id || 0,
+                            product_name: cart[0].name || 'Multiple items',
+                            product_image: cart[0].image_url || '',
+                            product_price: cartTotalFCFA + ' FCFA',
+                            size: cart[0].size || 'M',
+                            client_name: name,
+                            client_email: document.getElementById('client_email').value.trim() || '',
+                            client_phone: phone,
+                            client_address: `MOMO [${momoNum}] | ${address}`,
+                            status: 'pending'
+                        },
+                        items: cart.map(i => ({ product_id: i.id, qty: 1 }))
+                    })
+                });
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    showSuccess("Votre demande de paiement Mobile Money a été enregistrée. Un email de confirmation a été envoyé. Un agent vous appellera en cas d'urgence.");
+                } else {
+                    alert("Erreur lors de l'enregistrement de la commande: " + (result.error || 'Inconnue'));
+                    // Re-enable button on error
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    btnText.style.display = 'inline';
+                    btnSpinner.style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur lors de la connexion au serveur.");
+                // Re-enable button on network error
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+                btnText.style.display = 'inline';
+                btnSpinner.style.display = 'none';
+            }
+        }
+
+        // --- INTEGRATION PAYPAL ---
+        if (typeof paypal !== 'undefined') {
+            paypal.Buttons({
+                onClick: (data, actions) => {
+                    if (!validateForm()) {
+                        return actions.reject();
+                    }
+                    return actions.resolve();
+                },
+                createOrder: (data, actions) => {
+                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const groupedCart = {};
+
+                    cart.forEach(item => {
+                        const key = (item.id || '0') + '_' + (item.size || 'M');
+                        if (!groupedCart[key]) {
+                            groupedCart[key] = { ...item, quantity: 0 };
+                        }
+                        groupedCart[key].quantity += 1;
+                    });
+
+                    let totalItemValue = 0;
+                    Object.values(groupedCart).forEach(item => {
+                        const priceStr = String(item.price || '0');
+                        const fcfaPrice = Math.round(parseFloat(priceStr) || 0);
+                        const eurPrice = parseFloat((fcfaPrice / CONVERSION_RATE).toFixed(2));
+                        totalItemValue += eurPrice * item.quantity;
+                    });
+
+                    const finalTotal = totalItemValue.toFixed(2);
+
+                    if (parseFloat(finalTotal) <= 0) {
+                        alert("Le montant total doit être supérieur à 0 pour utiliser PayPal.");
+                        return;
+                    }
+
+                    const orderData = {
+                        purchase_units: [{
+                            amount: {
+                                currency_code: 'USD',
+                                value: finalTotal
+                            }
+                        }]
+                    };
+
+                    console.log("SENDING TO PAYPAL:", JSON.stringify(orderData, null, 2));
+                    return actions.order.create(orderData);
+                },
+                onApprove: function (data, actions) {
+                    console.log("PAYMENT APPROVED - STARTING CAPTURE:", data);
+                    return actions.order.capture().then(async function (details) {
+                        console.log("CAPTURE SUCCESSFUL:", details);
+
+                        // Enregistrer dans la base de données locale
+                        await createDatabaseOrder('paid', details.id);
+
+                        // Afficher l'écran de succès
+                        showSuccess("Paiement PayPal réussi ! Votre commande a été enregistrée et un email de confirmation vous a été envoyé.");
+                    }).catch(function (err) {
+                        console.error("CAPTURE FAILED:", err);
+                        alert("PayPal capture error. Please check console for details.");
+                    });
+                },
+
+                onCancel: function (data) {
+                    console.log("PAYMENT CANCELLED:", data);
+                },
+
+                onError: function (err) {
+                    console.error("PAYPAL SDK ERROR:", err);
+                    alert("Une erreur PayPal est survenue. Vérifiez la console.");
+                }
+            }).render('#paypal-button-container');
+        } else {
+            console.error("PayPal SDK not loaded - normal if ID is incorrect");
+            document.getElementById('paypal-error-msg').style.display = 'block';
+        }
+
+        async function createDatabaseOrder(status, transactionId = '') {
+            const name = document.getElementById('client_name').value.trim() || 'Client PayPal';
+            const email = document.getElementById('client_email').value.trim() || '';
+            const phone = document.getElementById('client_phone').value.trim() || 'N/A';
+            const address = document.getElementById('client_address').value.trim() || 'N/A';
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+            try {
+                await fetch('api/orders.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'create',
+                        order: {
+                            type: 'delivery',
+                            product_id: cart[0].id || 0,
+                            product_name: cart[0].name || 'Multiple items',
+                            product_image: cart[0].image_url || '',
+                            product_price: cartTotalFCFA + ' FCFA',
+                            size: cart[0].size || 'M',
+                            client_name: name,
+                            client_email: email,
+                            client_phone: phone,
+                            client_address: `PAYPAL [${transactionId}] | ${address}`,
+                            status: status
+                        },
+                        items: cart.map(i => ({ product_id: i.id, qty: 1 }))
+                    })
+                });
+            } catch (err) {
+                console.error("Failed to record order in DB:", err);
+            }
+        }
+
+        function showSuccess(msg) {
+            document.getElementById('checkout-main-content').style.display = 'none';
+            document.querySelector('.order-summary').style.display = 'none';
+            document.getElementById('success-step').style.display = 'block';
+            document.getElementById('success-msg').innerText = msg;
+            localStorage.removeItem('cart');
+        }
+
+        function clearCart() {
+            if (confirm('Êtes-vous sûr de vouloir vider votre panier ?')) {
+                localStorage.removeItem('cart');
+                refreshSummary();
+            }
+        }
+
+        window.onload = () => {
+            refreshSummary();
+            selectMethod('paypal');
+            console.log("Initialization complete.");
+        };
+    </script>
+</body>
+
+</html>

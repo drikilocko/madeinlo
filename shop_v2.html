@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made in Lo — Modern Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --shop-bg: #050505;
+            --accent: #D4AF37;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            background-color: var(--shop-bg);
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .shop-header {
+            padding: 100px 20px 60px;
+            text-align: center;
+            background: linear-gradient(to bottom, #111, #050505);
+        }
+
+        .shop-header h1 {
+            font-family: 'Merriweather', serif;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .shop-header p {
+            opacity: 0.6;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .shop-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 10px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+
+        .product-info {
+            padding: 25px;
+        }
+
+        .product-category {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .product-title {
+            font-family: 'Merriweather', serif;
+            font-size: 1.4rem;
+            margin: 0 0 10px;
+        }
+
+        .product-desc {
+            font-size: 0.9rem;
+            opacity: 0.5;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .btn-add {
+            background: #fff;
+            color: #000;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add:hover {
+            background: var(--accent);
+            transform: rotate(90deg);
+        }
+
+        /* Loading Animation */
+        .loader {
+            display: flex;
+            justify-content: center;
+            padding: 100px;
+        }
+
+        .spinner-custom {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">Made in Lo</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="shop_v2.html" class="active">Shop</a>
+                <a href="index.html#a-propos">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="shop-header">
+        <h1>Exclusive Collection</h1>
+        <p>Découvrez notre fusion unique entre le streetwear moderne et l'artisanat togolais authentique.</p>
+    </header>
+
+    <main class="shop-container">
+        <div class="filters">
+            <button class="filter-btn active" data-category="all">Tout</button>
+            <button class="filter-btn" data-category="T-Shirts">T-Shirts</button>
+            <button class="filter-btn" data-category="Hoodies">Hoodies</button>
+            <button class="filter-btn" data-category="Vests">Vests</button>
+            <button class="filter-btn" data-category="Accessories">Accessoires</button>
+        </div>
+
+        <div id="product-grid" class="product-grid">
+            <!-- Products will be loaded here -->
+            <div class="loader">
+                <div class="spinner-custom"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column footer-brand">
+                <h3>Made in Lo</h3>
+                <p>© 2026 Crafted with Passion</p>
+            </div>
+            <div class="footer-column footer-social">
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('product-grid');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            let allProducts = [];
+
+            // Fetch products from PHP API
+            async function fetchProducts() {
+                try {
+                    const response = await fetch('api/products.php');
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        grid.innerHTML = `<p style="text-align:center; color: #ff5252;">${data.error}</p>`;
+                        return;
+                    }
+
+                    allProducts = data;
+                    renderProducts(allProducts);
+                } catch (error) {
+                    grid.innerHTML = `<p style="text-align:center;">Erreur lors du chargement des produits. Vérifiez la connexion à la base de données.</p>`;
+                }
+            }
+
+            function renderProducts(products) {
+                grid.innerHTML = '';
+                
+                if (products.length === 0) {
+                    grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; opacity: 0.5; padding: 50px;">Aucun produit trouvé dans cette catégorie.</p>';
+                    return;
+                }
+
+                products.forEach((product, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.image_url}" alt="${product.name}">
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">${product.category}</span>
+                            <h3 class="product-title">${product.name}</h3>
+                            <p class="product-desc">${product.description}</p>
+                            <div class="product-footer">
+                                <span class="product-price">${parseFloat(product.price).toFixed(2)} FCFA</span>
+                                <button class="btn-add"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+
+                    // GSAP Entrance Animation
+                    gsap.from(card, {
+                        opacity: 0,
+                        y: 30,
+                        duration: 0.6,
+                        delay: index * 0.1,
+                        ease: "power2.out"
+                    });
+                });
+            }
+
+            // Filtering logic
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const category = btn.getAttribute('data-category');
+                    if (category === 'all') {
+                        renderProducts(allProducts);
+                    } else {
+                        const filtered = allProducts.filter(p => p.category === category);
+                        renderProducts(filtered);
+                    }
+                });
+            });
+
+            fetchProducts();
+        });
+    </script>
+</body>
+</html>

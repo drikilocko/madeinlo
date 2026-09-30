@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Partenaire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --primary-color: #8a6c0b;
+            --border-color: #eee;
+        }
+
+        html, body {
+            overscroll-behavior: none !important;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+        }
+
+        /* SCROLLBARS PERSONNALISÉES */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: #000;
+            color: #fff;
+            padding: 2rem;
+            position: fixed;
+            box-sizing: border-box;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2000;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+            padding: 2rem 1rem;
+        }
+
+        .sidebar.collapsed .logo, 
+        .sidebar.collapsed .nav-links span,
+        .sidebar.collapsed .logout-btn span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-links a {
+            justify-content: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 3rem;
+            display: block;
+        }
+
+        .nav-links { list-style: none; padding: 0; }
+        .nav-links li { margin-bottom: 1.5rem; }
+        .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; display: flex; align-items: center; gap: 12px; transition: 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: #fff; }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 4rem;
+            width: 100%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: 80px;
+        }
+
+        /* MOBILE RESPONSIVE */
+        .sidebar-toggle {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 3000;
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+                width: 100%;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 2rem;
+                padding-top: 5rem;
+            }
+            .sidebar.collapsed + .main-content {
+                margin-left: 0;
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+            header h1 { font-size: 1.8rem; }
+            .stock-grid { grid-template-columns: 1fr; }
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+
+        .shop-badge {
+            background: rgba(138, 108, 11, 0.1);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        h1 { font-size: 2.5rem; margin: 0; }
+
+        /* STOCK GRID */
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .stock-card {
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .stock-card:hover { transform: translateY(-5px); }
+
+        .product-img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background: #f9f9f9;
+        }
+
+        .card-content { padding: 1.5rem; }
+        .card-content h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+        .card-content .cat { font-size: 0.7rem; text-transform: uppercase; opacity: 0.5; letter-spacing: 1px; }
+        
+        .stock-info {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .qty-badge {
+            background: #000;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .logout-btn:hover { background: #ff5252; border-color: #ff5252; }
+    </style>
+</head>
+<body>
+
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">Made in Lo</div>
+        <ul class="nav-links">
+            <li><a href="#" class="active" onclick="switchSection('inventory', this)"><i class="fas fa-box"></i> <span>Stock Reçu</span></a></li>
+            <li><a href="#" onclick="switchSection('shipments', this)"><i class="fas fa-truck-loading"></i> <span>Réceptions <span id="ship-count-badge" style="background:#ff5252; padding:2px 6px; border-radius:10px; font-size:0.6rem; display:none;">0</span></span></a></li>
+            <li><a href="#" onclick="switchSection('history', this)"><i class="fas fa-history"></i> <span>Historique</span></a></li>
+            <li><a href="#" onclick="switchSection('settings', this)"><i class="fas fa-cog"></i> <span>Paramètres</span></a></li>
+        </ul>
+        <div style="position: absolute; bottom: 2rem; left: 2rem; right: 2rem;">
+            <button class="logout-btn" onclick="logout()" style="width: 100%;">
+                <i class="fas fa-sign-out-alt"></i> <span>Déconnexion</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <div>
+                <h1 id="page-title">Inventaire</h1>
+                <p id="page-subtitle" style="opacity:0.5; margin-top: 0.5rem;">Produits envoyés par le siège Made in Lo</p>
+            </div>
+            <div class="shop-badge" id="shop-badge">
+                <i class="fas fa-store"></i> <span id="shop-name-display"></span>
+            </div>
+        </header>
+
+        <!-- SECTION INVENTAIRE -->
+        <div id="inventory-section" class="stock-grid">
+            <!-- Rempli par JS -->
+        </div>
+
+        <!-- SECTION RECEPTIONS EN ATTENTE -->
+        <div id="shipments-section" class="stock-grid" style="display:none;">
+            <!-- Rempli par JS -->
+        </div>
+
+        <!-- SECTION HISTORIQUE -->
+        <div id="history-section" style="display:none;">
+            <div style="background: #fff; border: 1px solid var(--border-color); border-radius: 20px; padding: 2rem;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="text-align: left; opacity: 0.5; font-size: 0.8rem; text-transform: uppercase;">
+                            <th style="padding: 1rem;">Date</th>
+                            <th style="padding: 1rem;">Action</th>
+                            <th style="padding: 1rem;">Détails</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <!-- Rempli par JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION PARAMETRES -->
+        <div id="settings-section" style="display:none;">
+            <div style="max-width: 500px; background: #fff; border: 1px solid var(--border-color); border-radius: 20px; padding: 2rem;">
+                <h3>Changer le mot de passe</h3>
+                <form id="password-form" onsubmit="updatePassword(event)">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; font-weight: 600;">Nouveau mot de passe</label>
+                        <input type="password" id="new-pass" required style="width: 100%; padding: 1rem; border: 1px solid #eee; border-radius: 8px;">
+                    </div>
+                    <button type="submit" style="width: 100%; padding: 1.2rem; background: #000; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Mettre à jour</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const shopId = localStorage.getItem('shopId');
+        const shopName = localStorage.getItem('shopName');
+
+        if (!shopId) {
+            window.location.href = 'partner-login.html';
+        }
+
+        document.getElementById('shop-name-display').textContent = shopName || '';
+
+        function switchSection(id, btn) {
+            document.getElementById('inventory-section').style.display = 'none';
+            document.getElementById('shipments-section').style.display = 'none';
+            document.getElementById('history-section').style.display = 'none';
+            document.getElementById('settings-section').style.display = 'none';
+            
+            document.getElementById(id + '-section').style.display = (id === 'history' || id === 'settings' ? 'block' : 'grid');
+            
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+            btn.classList.add('active');
+
+            const titles = { inventory: 'Stock Reçu', shipments: 'Réceptions en attente', history: 'Historique des Ventes', settings: 'Paramètres du Compte' };
+            const subs = { inventory: 'Produits en stock dans votre boutique', shipments: 'Veuillez vérifier et accepter les produits envoyés par le siège', history: 'Suivi de vos ventes et réceptions', settings: 'Gérez la sécurité de votre accès partenaire' };
+            
+            document.getElementById('page-title').innerText = titles[id];
+            document.getElementById('page-subtitle').innerText = subs[id];
+
+            if (id === 'inventory') fetchStock();
+            if (id === 'shipments') fetchShipments();
+            if (id === 'history') fetchHistory();
+        }
+
+        async function fetchShipments() {
+            try {
+                const res = await fetch(`api/shop-stock.php?shop_id=${shopId}&type=shipments`);
+                const data = await res.json();
+                const container = document.getElementById('shipments-section');
+                const badge = document.getElementById('ship-count-badge');
+                
+                container.innerHTML = '';
+                if (data.length > 0) {
+                    badge.innerText = data.length;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5; padding: 4rem;">Aucune expédition en attente.</p>';
+                }
+
+                data.forEach(item => {
+                    container.innerHTML += `
+                        <div class="stock-card">
+                            <img src="${item.image_url}" class="product-img" alt="${item.name}">
+                            <div class="card-content">
+                                <span class="cat">${item.category}</span>
+                                <h3>${item.name}</h3>
+                                <div class="stock-info">
+                                    <span style="font-size: 0.8rem; opacity: 0.6;">Quantité envoyée :</span>
+                                    <span class="qty-badge">${item.qty}</span>
+                                </div>
+                                <button onclick="acceptShipment(${item.id})" style="width:100%; margin-top: 1rem; padding: 0.8rem; background: var(--primary-color); color: #000; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                                    <i class="fas fa-check"></i> Accepter la réception
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function acceptShipment(id) {
+            try {
+                const res = await fetch('api/shop-stock.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'accept_shipment', id: id })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert('Stock accepté et ajouté à votre inventaire !');
+                    fetchShipments();
+                    fetchStock();
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function fetchStock() {
+            try {
+                const res = await fetch(`api/shop-stock.php?shop_id=${shopId}`);
+                const data = await res.json();
+                
+                const container = document.getElementById('inventory-section');
+                container.innerHTML = '';
+
+                const availableProducts = data.filter(item => parseInt(item.qty) > 0);
+
+                if (availableProducts.length === 0) {
+                    container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5; padding: 4rem;">Aucun produit en stock pour le moment.</p>';
+                    return;
+                }
+
+                availableProducts.forEach(item => {
+                    container.innerHTML += `
+                        <div class="stock-card" id="card-${item.product_id}">
+                            <img src="${item.image_url}" class="product-img" alt="${item.name}">
+                            <div class="card-content">
+                                <span class="cat">${item.category}</span>
+                                <h3>${item.name}</h3>
+                                <p style="font-weight: 700; color: var(--primary-color);">${item.price} FCFA</p>
+                                
+                                <div class="stock-info">
+                                    <span style="font-size: 0.8rem; opacity: 0.6;">Quantité :</span>
+                                    <span class="qty-badge" id="qty-${item.product_id}">${item.qty}</span>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                                    <input type="number" id="sell-qty-${item.product_id}" value="1" min="1" max="${item.qty}" style="width: 60px; padding: 0.5rem; border: 1px solid #eee; border-radius: 8px; text-align: center;">
+                                    <button class="sell-btn" onclick="sellProduct(${item.product_id}, '${item.name.replace(/'/g, "\\'")}')" style="flex: 1; padding: 0.8rem; background: #000; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                        <i class="fas fa-shopping-cart"></i> Vendre
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function sellProduct(productId, productName) {
+            const qtySold = parseInt(document.getElementById(`sell-qty-${productId}`).value);
+            const shopName = localStorage.getItem('shopName') || '';
+            
+            if (!qtySold || qtySold < 1) return alert("Veuillez choisir une quantité valide");
+            if (!confirm(`Voulez-vous enregistrer la vente de ${qtySold} x : ${productName} ?`)) return;
+
+            try {
+                const res = await fetch('api/shop-stock.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        action: 'sell', 
+                        shop_id: shopId, 
+                        product_id: productId, 
+                        shop_name: shopName,
+                        qty_sold: qtySold
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert('Vente enregistrée ! Le produit disparaîtra s\'il n\'y a plus de stock.');
+                    fetchStock();
+                } else {
+                    alert('Erreur : ' + (data.message || 'Impossible d\'enregistrer la vente'));
+                }
+            } catch (err) {
+                alert('Erreur de connexion au serveur');
+                console.error(err);
+            }
+        }
+
+        async function fetchHistory() {
+            try {
+                const res = await fetch(`api/history.php?shop_id=${shopId}`);
+                const data = await res.json();
+                const body = document.getElementById('history-table-body');
+                body.innerHTML = '';
+                
+                data.forEach(log => {
+                    body.innerHTML += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 1rem; font-size: 0.85rem;">${new Date(log.created_at).toLocaleString()}</td>
+                            <td style="padding: 1rem;"><span style="padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; background: ${log.type === 'assignment' ? '#e3f2fd; color:#1976d2;' : '#e8f5e9; color:#2e7d32;'}">${log.type === 'assignment' ? 'RÉCEPTION' : 'VENTE'}</span></td>
+                            <td style="padding: 1rem; font-size: 0.85rem;">${log.message}</td>
+                        </tr>
+                    `;
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function updatePassword(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('new-pass').value;
+            try {
+                const res = await fetch('api/shop-auth.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'update_password', shop_id: shopId, password: newPass })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert('Mot de passe mis à jour !');
+                    document.getElementById('password-form').reset();
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        }
+
+        async function logout() {
+            await fetch('api/shop-auth.php', { method: 'POST', body: JSON.stringify({ action: 'logout' }) });
+            localStorage.removeItem('shopId');
+            localStorage.removeItem('shopName');
+            window.location.href = 'partner-login.html';
+        }
+
+        fetchStock();
+    </script>
+    <script src="toast.js"></script>
+</body>
+</html>
