@@ -1566,10 +1566,11 @@
                 <div id="modal-category-filter"
                     style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 1.5rem; cursor: grab; scrollbar-width: none;">
                     <button class="cat-filter-btn active" onclick="filterByCat('all', this)">Tout</button>
-                    <button class="cat-filter-btn" onclick="filterByCat('Hauts', this)">Hauts</button>
-                    <button class="cat-filter-btn" onclick="filterByCat('Bas', this)">Bas</button>
+                    <button class="cat-filter-btn" onclick="filterByCat('ensemble', this)">Ensemble</button>
+                    <button class="cat-filter-btn" onclick="filterByCat('haut', this)">Hauts</button>
                     <button class="cat-filter-btn" onclick="filterByCat('Accessoires', this)">Accessoires</button>
                     <button class="cat-filter-btn" onclick="filterByCat('Chaussures', this)">Chaussures</button>
+                    <button class="cat-filter-btn" onclick="filterByCat('Nouveautés', this)">Nouveautés</button>
                 </div>
 
                 <div id="stock-form-list"
@@ -1638,10 +1639,11 @@
                     <div class="form-group">
                         <label>CatÃ©gorie</label>
                         <select id="p-category">
-                            <option value="Hauts">Hauts</option>
-                            <option value="Bas">Bas</option>
+                            <option value="ensemble">Ensemble</option>
+                            <option value="haut">Hauts</option>
                             <option value="Accessoires">Accessoires</option>
                             <option value="Chaussures">Chaussures</option>
+                            <option value="Nouveautés">Nouveautés</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -2144,7 +2146,7 @@
         function renderProductsCategorized(products) {
             inventoryContainer.innerHTML = '';
 
-            const categories = ['Hauts', 'Bas', 'Accessoires', 'Chaussures'];
+            const categories = ['ensemble', 'haut', 'Accessoires', 'Chaussures', 'Nouveautés'];
             const grouped = products.reduce((acc, p) => {
                 const cat = p.category || 'Autres';
                 if (!acc[cat]) acc[cat] = [];
