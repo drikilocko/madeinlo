@@ -3,7 +3,7 @@
  * Replaces native cheap browser alerts with high-end luxury toast notification drawers.
  */
 
-(function() {
+(function () {
     // Inject CSS styles into the document head
     const style = document.createElement('style');
     style.innerHTML = `
@@ -248,7 +248,7 @@
      * @param {string} message - Notification text
      * @param {string} type - 'success', 'error', 'warning', 'info'
      */
-    window.showToast = function(message, type = 'info') {
+    window.showToast = function (message, type = 'info') {
         const container = getContainer();
         const toast = document.createElement('div');
         toast.className = `toast-popup toast-${type}`;
@@ -272,7 +272,7 @@
 
         // Handle close button
         const closeBtn = toast.querySelector('.toast-close');
-        closeBtn.onclick = function() {
+        closeBtn.onclick = function () {
             toast.classList.remove('toast-show');
             setTimeout(() => toast.remove(), 500);
         };
@@ -294,10 +294,10 @@
     };
 
     // Override the native browser alert box with the brand-new luxury toast notifications
-    window.alert = function(message) {
+    window.alert = function (message) {
         if (!message) return;
         const msgLower = message.toLowerCase();
-        
+
         let type = 'info';
         if (msgLower.includes('erreur') || msgLower.includes('failed') || msgLower.includes('impossible') || msgLower.includes('insuffisant') || msgLower.includes('échec')) {
             type = 'error';
@@ -318,12 +318,17 @@
 
         async function checkUpdates() {
             if (updateDetected) return; // Ne pas spammer si déjà détecté
-            
+
             try {
                 const res = await fetch('api/check-updates.php');
+                if (!res.ok) return;
+
+                const contentType = res.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) return;
+
                 const data = await res.json();
-                
-                if (data.status === 'success' && data.signature) {
+
+                if (data && data.status === 'success' && data.signature) {
                     if (currentSignature === null) {
                         currentSignature = data.signature;
                     } else if (currentSignature !== data.signature) {
@@ -332,7 +337,7 @@
                     }
                 }
             } catch (e) {
-                console.error('[Live Update Check] Erreur:', e);
+                // Silently ignore update check errors to prevent console spam
             }
         }
 
@@ -363,11 +368,11 @@
             setTimeout(() => modal.classList.add('modal-show'), 50);
 
             // Gérer les clics
-            modal.querySelector('.update-btn-confirm').onclick = function() {
+            modal.querySelector('.update-btn-confirm').onclick = function () {
                 window.location.reload();
             };
 
-            modal.querySelector('.update-btn-cancel').onclick = function() {
+            modal.querySelector('.update-btn-cancel').onclick = function () {
                 modal.classList.remove('modal-show');
                 setTimeout(() => modal.remove(), 400);
             };

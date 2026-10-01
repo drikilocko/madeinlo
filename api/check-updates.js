@@ -1,4 +1,4 @@
-import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
+import { supabaseGet } from './_supabase.js';
 import crypto from 'crypto';
 
 export default async function handler(req, res) {
@@ -12,14 +12,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const products = await supabaseGet('products', {});
-    const shopStock = await supabaseGet('shop_stock', {});
+    const products = (await supabaseGet('products', {})) || [];
+    const shopStock = (await supabaseGet('shop_stock', {})) || [];
 
-    const cnt = (products || []).length;
-    const stockSum = (products || []).reduce((sum, p) => sum + (p.stock_qty || 0), 0);
-    const maxId = (products || []).length > 0 ? Math.max(...(products || []).map(p => p.id)) : 0;
-    const ssCnt = (shopStock || []).length;
-    const ssStockSum = (shopStock || []).reduce((sum, s) => sum + (s.qty || 0), 0);
+    const productsArr = Array.isArray(products) ? products : [];
+    const shopStockArr = Array.isArray(shopStock) ? shopStock : [];
+
+    const cnt = productsArr.length;
+    const stockSum = productsArr.reduce((sum, p) => sum + (p.stock_qty || 0), 0);
+    const maxId = productsArr.length > 0 ? Math.max(...productsArr.map(p => p.id || 0)) : 0;
+    const ssCnt = shopStockArr.length;
+    const ssStockSum = shopStockArr.reduce((sum, s) => sum + (s.qty || 0), 0);
 
     const signature = crypto.createHash('md5').update(`${cnt}-${stockSum}-${maxId}-${ssCnt}-${ssStockSum}`).digest('hex');
 
@@ -28,9 +31,11 @@ export default async function handler(req, res) {
       signature
     });
   } catch (e) {
-    return res.status(500).json({
-      status: 'error',
-      message: e.message || 'Internal server error'
+    console.error('Check updates handler error:', e.message);
+    return res.status(200).json({
+      status: 'success',
+      signature: 'default-fallback',
+      warning: e.message || 'Database unavailable'
     });
   }
 }

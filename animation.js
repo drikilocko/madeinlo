@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- NAVIGATION AUTO-HIDE (Disparaît au scroll vers le bas, réapparaît vers le haut) ---
     const nav = document.querySelector('nav');
     if (nav) {
-        const showAnim = gsap.from(nav, { 
+        const showAnim = gsap.from(nav, {
             yPercent: -100,
             paused: true,
             duration: 0.3,
@@ -134,27 +134,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 600);
             });
         }
-        
+
         const hidePreloader = () => {
             const tl = gsap.timeline({
                 onComplete: () => {
                     body.style.overflow = '';
                     preloader.style.display = 'none';
-                    cancelAnimationFrame(animationId); 
+                    cancelAnimationFrame(animationId);
                 }
             });
 
             tl.to(preloaderContent, { opacity: 0, duration: 0.5, ease: 'power2.in' });
             tl.to(preloader, { yPercent: -100, duration: 1, ease: 'power3.inOut' }, '-=0.2');
-            
+
             tl.fromTo(['nav', 'main', 'footer'],
                 { filter: 'blur(20px)', opacity: 0 },
-                { 
-                    filter: 'blur(0px)', 
-                    opacity: 1, 
-                    duration: 3, 
-                    ease: 'power2.out', 
-                    stagger: 0.1 
+                {
+                    filter: 'blur(0px)',
+                    opacity: 1,
+                    duration: 3,
+                    ease: 'power2.out',
+                    stagger: 0.1
                 },
                 '<'
             );
@@ -164,8 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', (e) => {
                 const targetUrl = btn.getAttribute('href');
                 const isExternal = targetUrl && targetUrl.includes('documentation');
-                
-                if (targetUrl) e.preventDefault(); 
+
+                if (targetUrl) e.preventDefault();
 
                 // Si c'est la documentation, on redirige automatiquement et instantanément
                 sessionStorage.setItem('preloader_shown', 'true');
@@ -178,22 +178,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     onComplete: () => {
                         body.style.overflow = '';
                         preloader.style.display = 'none';
-                        cancelAnimationFrame(animationId); 
+                        cancelAnimationFrame(animationId);
                     }
                 });
 
                 tl.to(preloaderContent, { opacity: 0, duration: 0.5, ease: 'power2.in' });
                 tl.to(preloader, { yPercent: -100, duration: 1, ease: 'power3.inOut' }, '-=0.2');
-                
+
                 // Révélation cinématique 3s pour le Shop
                 tl.fromTo(['nav', 'main', 'footer'],
                     { filter: 'blur(20px)', opacity: 0 },
-                    { 
-                        filter: 'blur(0px)', 
-                        opacity: 1, 
-                        duration: 3, 
-                        ease: 'power2.out', 
-                        stagger: 0.1 
+                    {
+                        filter: 'blur(0px)',
+                        opacity: 1,
+                        duration: 3,
+                        ease: 'power2.out',
+                        stagger: 0.1
                     },
                     '<'
                 );
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrub: true
             }
         });
-        
+
         // Animer aussi le texte interne pour qu'il reste lisible
         gsap.to(helpSection.querySelectorAll('h2, h3, p'), {
             color: '#ffffff',
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Synchronisation vitale pour éliminer les saccades
     lenis.on('scroll', ScrollTrigger.update);
-    
+
     // --- NOUVEAU : Animation de la Custom Scrollbar ---
     const customScrollDot = document.getElementById('scroll-dot');
     const customScrollLine = document.getElementById('custom-scroll');
@@ -463,12 +463,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.id = 'product-card-' + product.id;
         card.classList.add('gallery-card');
-        
+
         const isSoldOut = parseInt(product.stock_qty || 0) <= 0;
-        const badgeHtml = isSoldOut 
-            ? `<span class="sold-out-badge" style="position: absolute; top: 15px; left: 15px; background: #ff5252; color: #fff; padding: 4px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(255,82,82,0.4); z-index: 10;">Sold Out</span>` 
+        const badgeHtml = isSoldOut
+            ? `<span class="sold-out-badge" style="position: absolute; top: 15px; left: 15px; background: #ff5252; color: #fff; padding: 4px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(255,82,82,0.4); z-index: 10;">Sold Out</span>`
             : '';
-            
+
         card.style.position = 'relative';
         card.innerHTML = `
             ${badgeHtml}
@@ -486,12 +486,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.id = 'product-card-horiz-' + product.id;
         card.classList.add('gallery-horizontal-card');
-        
+
         const isSoldOut = parseInt(product.stock_qty || 0) <= 0;
-        const badgeHtml = isSoldOut 
-            ? `<span class="sold-out-badge" style="position: absolute; top: 15px; left: 15px; background: #ff5252; color: #fff; padding: 4px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(255,82,82,0.4); z-index: 10;">Sold Out</span>` 
+        const badgeHtml = isSoldOut
+            ? `<span class="sold-out-badge" style="position: absolute; top: 15px; left: 15px; background: #ff5252; color: #fff; padding: 4px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(255,82,82,0.4); z-index: 10;">Sold Out</span>`
             : '';
-            
+
         card.style.position = 'relative';
         card.innerHTML = `
             ${badgeHtml}
@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const distributeProductsHorizontal = (productsToShow) => {
         const container = document.querySelector('.gallery-horizontal-container');
         if (!container) return;
-        
+
         container.innerHTML = ''; // Nettoyer l'ancien contenu
 
         // Grouper les produits par catégorie
@@ -552,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(grouped).forEach(([category, products]) => {
             const section = document.createElement('div');
             section.classList.add('category-row');
-            
+
             const title = document.createElement('h3');
             title.classList.add('category-row-title');
             title.textContent = category;
@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Affiche "Droite" si on n'est pas à la fin
                 rightBtn.style.display = scrollContainer.scrollLeft < maxScroll - 10 ? 'flex' : 'none';
             };
-            
+
             scrollContainer.addEventListener('scroll', updateButtons);
             // Initialisation après le rendu pour s'assurer des bonnes largeurs
             setTimeout(updateButtons, 200);
@@ -673,48 +673,48 @@ document.addEventListener('DOMContentLoaded', () => {
             productView.style.display = 'block';
             productView.style.opacity = '1';
             productView.scrollTop = 0; // Ensure modal starts at top
-            
+
             gsap.fromTo(productView, { opacity: 0 }, { opacity: 1, duration: 0.3 });
-                    
-                    // Robust parsing of gallery
-                    let galleryArray = [];
-                    try {
-                        if (product.gallery) {
-                            if (typeof product.gallery === 'string' && product.gallery.trim() !== "") {
-                                if (product.gallery.trim().startsWith('[')) {
-                                    galleryArray = JSON.parse(product.gallery);
-                                } else {
-                                    galleryArray = [product.gallery];
-                                }
-                            } else if (Array.isArray(product.gallery)) {
-                                galleryArray = product.gallery;
-                            }
+
+            // Robust parsing of gallery
+            let galleryArray = [];
+            try {
+                if (product.gallery) {
+                    if (typeof product.gallery === 'string' && product.gallery.trim() !== "") {
+                        if (product.gallery.trim().startsWith('[')) {
+                            galleryArray = JSON.parse(product.gallery);
+                        } else {
+                            galleryArray = [product.gallery];
                         }
-                    } catch(e) { console.error("Gallery parse error:", e); }
-                    
-                    const allImgs = [product.image_url, ...galleryArray].filter(u => u && typeof u === 'string' && u.trim() !== "");
-                    
-                    let galleryHtml = "";
-                    if (allImgs.length > 1) {
-                        galleryHtml = `<div class="shop-product-gallery">`;
-                        allImgs.forEach(url => {
-                            galleryHtml += `<img src="${url}" class="shop-gallery-thumb ${url === product.image_url ? 'active' : ''}" 
+                    } else if (Array.isArray(product.gallery)) {
+                        galleryArray = product.gallery;
+                    }
+                }
+            } catch (e) { console.error("Gallery parse error:", e); }
+
+            const allImgs = [product.image_url, ...galleryArray].filter(u => u && typeof u === 'string' && u.trim() !== "");
+
+            let galleryHtml = "";
+            if (allImgs.length > 1) {
+                galleryHtml = `<div class="shop-product-gallery">`;
+                allImgs.forEach(url => {
+                    galleryHtml += `<img src="${url}" class="shop-gallery-thumb ${url === product.image_url ? 'active' : ''}" 
                                                 onclick="document.getElementById('zoom-img-v2').src='${url}'; 
                                                          document.querySelectorAll('.shop-gallery-thumb').forEach(t=>t.classList.remove('active')); 
                                                          this.classList.add('active');">`;
-                        });
-                        galleryHtml += `</div>`;
-                    }
+                });
+                galleryHtml += `</div>`;
+            }
 
-                    const isSoldOut = parseInt(product.stock_qty || 0) <= 0;
-                    const soldOutBadgeHtml = isSoldOut 
-                        ? `<span class="prod-soldout-badge" style="color: #ff5252; background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-left: 10px; display: inline-flex; align-items: center; gap: 5px;"><i class="fas fa-exclamation-triangle"></i> SOLD OUT</span>` 
-                        : '';
-                    const buyBtnHtml = isSoldOut 
-                        ? `<button class="buy-now-btn" id="go-to-checkout" disabled style="background: #333; color: #888; border: 1px solid #444; cursor: not-allowed; box-shadow: none;">Rupture de Stock (Sold Out)</button>` 
-                        : `<button class="buy-now-btn" id="go-to-checkout">Commander maintenant</button>`;
+            const isSoldOut = parseInt(product.stock_qty || 0) <= 0;
+            const soldOutBadgeHtml = isSoldOut
+                ? `<span class="prod-soldout-badge" style="color: #ff5252; background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-left: 10px; display: inline-flex; align-items: center; gap: 5px;"><i class="fas fa-exclamation-triangle"></i> SOLD OUT</span>`
+                : '';
+            const buyBtnHtml = isSoldOut
+                ? `<button class="buy-now-btn" id="go-to-checkout" disabled style="background: #333; color: #888; border: 1px solid #444; cursor: not-allowed; box-shadow: none;">Rupture de Stock (Sold Out)</button>`
+                : `<button class="buy-now-btn" id="go-to-checkout">Commander maintenant</button>`;
 
-                    productView.innerHTML = `
+            productView.innerHTML = `
                         <div class="product-page-container">
                             <button class="back-to-shop" onclick="closeProductView()">← Retour à la boutique</button>
                             
@@ -779,74 +779,78 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     `;
 
-                    // Handle Step Transitions
-                    const step1 = productView.querySelector('#order-step-1');
-                    const step2 = productView.querySelector('#order-step-2');
-                    const btnCheckout = productView.querySelector('#go-to-checkout');
-                    const btnBack = productView.querySelector('#back-to-step1');
-                    const checkoutForm = productView.querySelector('#direct-checkout-form');
+            // Handle Step Transitions
+            const step1 = productView.querySelector('#order-step-1');
+            const step2 = productView.querySelector('#order-step-2');
+            const btnCheckout = productView.querySelector('#go-to-checkout');
+            const btnBack = productView.querySelector('#back-to-step1');
+            const checkoutForm = productView.querySelector('#direct-checkout-form');
 
-                    btnCheckout.onclick = () => {
-                        gsap.to(step1, { opacity: 0, duration: 0.3, onComplete: () => {
-                            step1.style.display = 'none';
-                            step2.style.display = 'block';
-                            gsap.fromTo(step2, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3 });
-                        }});
-                    };
-
-                    btnBack.onclick = () => {
-                        gsap.to(step2, { opacity: 0, duration: 0.3, onComplete: () => {
-                            step2.style.display = 'none';
-                            step1.style.display = 'flex';
-                            gsap.fromTo(step1, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3 });
-                        }});
-                    };
-
-                    checkoutForm.onsubmit = (e) => {
-                        e.preventDefault();
-                        const name = document.getElementById('chk-name').value;
-                        const phone = document.getElementById('chk-phone').value;
-                        const address = document.getElementById('chk-address').value;
-                        const size = productView.querySelector('.s-btn.active')?.innerText || 'M';
-                        
-                        const message = `Bonjour Made in Lo, je souhaite commander :\n\n` +
-                                      `Produit : ${product.name}\n` +
-                                      `Prix : ${product.price} FCFA\n` +
-                                      `Taille : ${size}\n\n` +
-                                      `Client : ${name}\n` +
-                                      `Tel : ${phone}\n` +
-                                      `Adresse : ${address}`;
-                        
-                        const waUrl = `https://wa.me/22870894072?text=${encodeURIComponent(message)}`;
-                        window.open(waUrl, '_blank');
-                    };
-
-                    // Size selection logic
-                    productView.querySelectorAll('.s-btn').forEach(btn => {
-                        btn.onclick = () => {
-                            productView.querySelectorAll('.s-btn').forEach(b => b.classList.remove('active'));
-                            btn.classList.add('active');
-                        };
-                    });
-
-                    // Zoom logic for the new view
-                    const zoomContainer = productView.querySelector('.zoom-container-v2');
-                    const zoomImg = productView.querySelector('#zoom-img-v2');
-                    if (zoomContainer && zoomImg) {
-                        zoomContainer.onmousemove = (e) => {
-                            const { left, top, width, height } = zoomContainer.getBoundingClientRect();
-                            const x = ((e.clientX - left) / width) * 100;
-                            const y = ((e.clientY - top) / height) * 100;
-                            zoomImg.style.transformOrigin = `${x}% ${y}%`;
-                            zoomImg.style.transform = "scale(2)";
-                        };
-                        zoomContainer.onmouseleave = () => {
-                            zoomImg.style.transform = "scale(1)";
-                        };
+            btnCheckout.onclick = () => {
+                gsap.to(step1, {
+                    opacity: 0, duration: 0.3, onComplete: () => {
+                        step1.style.display = 'none';
+                        step2.style.display = 'block';
+                        gsap.fromTo(step2, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3 });
                     }
-                // Reset modal internal scroll
-                productView.scrollTop = 0;
+                });
+            };
+
+            btnBack.onclick = () => {
+                gsap.to(step2, {
+                    opacity: 0, duration: 0.3, onComplete: () => {
+                        step2.style.display = 'none';
+                        step1.style.display = 'flex';
+                        gsap.fromTo(step1, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3 });
+                    }
+                });
+            };
+
+            checkoutForm.onsubmit = (e) => {
+                e.preventDefault();
+                const name = document.getElementById('chk-name').value;
+                const phone = document.getElementById('chk-phone').value;
+                const address = document.getElementById('chk-address').value;
+                const size = productView.querySelector('.s-btn.active')?.innerText || 'M';
+
+                const message = `Bonjour Made in Lo, je souhaite commander :\n\n` +
+                    `Produit : ${product.name}\n` +
+                    `Prix : ${product.price} FCFA\n` +
+                    `Taille : ${size}\n\n` +
+                    `Client : ${name}\n` +
+                    `Tel : ${phone}\n` +
+                    `Adresse : ${address}`;
+
+                const waUrl = `https://wa.me/22870894072?text=${encodeURIComponent(message)}`;
+                window.open(waUrl, '_blank');
+            };
+
+            // Size selection logic
+            productView.querySelectorAll('.s-btn').forEach(btn => {
+                btn.onclick = () => {
+                    productView.querySelectorAll('.s-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                };
+            });
+
+            // Zoom logic for the new view
+            const zoomContainer = productView.querySelector('.zoom-container-v2');
+            const zoomImg = productView.querySelector('#zoom-img-v2');
+            if (zoomContainer && zoomImg) {
+                zoomContainer.onmousemove = (e) => {
+                    const { left, top, width, height } = zoomContainer.getBoundingClientRect();
+                    const x = ((e.clientX - left) / width) * 100;
+                    const y = ((e.clientY - top) / height) * 100;
+                    zoomImg.style.transformOrigin = `${x}% ${y}%`;
+                    zoomImg.style.transform = "scale(2)";
+                };
+                zoomContainer.onmouseleave = () => {
+                    zoomImg.style.transform = "scale(1)";
+                };
             }
+            // Reset modal internal scroll
+            productView.scrollTop = 0;
+        }
     };
 
     window.closeProductView = () => {
@@ -856,7 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 duration: 0.3,
                 onComplete: () => {
                     productView.style.display = 'none';
-                    
+
                     // UNLOCK SCROLL
                     document.body.style.overflow = '';
                     if (typeof lenis !== 'undefined') lenis.start();
@@ -865,9 +869,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // FAILSAFE: Force scroll to the product we just left
                     const targetId = 'product-card-' + currentProduct.id;
-                    const targetCard = document.getElementById(targetId) || 
-                                     document.getElementById('product-card-horiz-' + currentProduct.id);
-                    
+                    const targetCard = document.getElementById(targetId) ||
+                        document.getElementById('product-card-horiz-' + currentProduct.id);
+
                     if (targetCard) {
                         if (typeof lenis !== 'undefined') {
                             lenis.scrollTo(targetCard, { offset: -150, immediate: true });
@@ -917,10 +921,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // LOGIQUE CARTE LEAFLET DARK MODE
     function initShopMap() {
         if (shopMap) shopMap.remove();
-        
+
         // Centrage sur Lomé
         shopMap = L.map('shop-map').setView([6.1319, 1.2228], 13);
-        
+
         // Tiles Premium Dark (CartoDB DarkMatter)
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             attribution: 'Made in Lo'
@@ -928,11 +932,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Charger les shops depuis l'API
         fetch('api/shops.php')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`Status ${res.status}`);
+                const contentType = res.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) throw new Error('Non-JSON response');
+                return res.json();
+            })
             .then(shops => {
                 const shopListContainer = document.getElementById('shop-list');
                 shopListContainer.innerHTML = '';
-                
+
                 shops.forEach(shop => {
                     const isHq = (shop.is_primary == 1);
                     const markerColor = isHq ? "#ff5252" : "#D4AF37";
@@ -948,7 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         fillOpacity: 0.95
                     }).addTo(shopMap);
 
-                    marker.bindPopup(isHq 
+                    marker.bindPopup(isHq
                         ? `<b>⭐ Boutique Principale (QG)</b><br><strong>${shop.name}</strong><br>${shop.address}`
                         : `<b>🏠 ${shop.name}</b><br>${shop.address}`
                     );
@@ -956,7 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Rayon de livraison (5 km) - UNIQUEMENT pour le QG
                     if (isHq) {
                         const circle = L.circle([shop.lat, shop.lng], {
-                            radius: 5000, 
+                            radius: 5000,
                             color: '#ff5252',
                             fillColor: '#ff5252',
                             fillOpacity: 0.08,
@@ -964,7 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }).addTo(shopMap);
 
                         // Ajuster le rayon du cercle pour qu'il s'agrandisse quand on dézoome (zone distante)
-                        shopMap.on('zoomend', function() {
+                        shopMap.on('zoomend', function () {
                             const zoom = shopMap.getZoom();
                             let newRadius = 5000;
                             if (zoom < 10) newRadius = 25000;
@@ -1020,18 +1029,18 @@ document.addEventListener('DOMContentLoaded', () => {
             method: 'POST',
             body: JSON.stringify(orderData)
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                document.getElementById('pickup-section').style.display = 'none';
-                document.getElementById('delivery-section').style.display = 'none';
-                document.querySelector('.delivery-options').style.display = 'none';
-                document.getElementById('order-confirm').style.display = 'block';
-                document.getElementById('confirm-message').textContent = 
-                    type === 'delivery' ? 'Votre demande de livraison a été enregistrée. Nous vous contacterons sous peu.' 
-                    : `Votre réservation au shop "${shop.name}" est confirmée !`;
-            }
-        });
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('pickup-section').style.display = 'none';
+                    document.getElementById('delivery-section').style.display = 'none';
+                    document.querySelector('.delivery-options').style.display = 'none';
+                    document.getElementById('order-confirm').style.display = 'block';
+                    document.getElementById('confirm-message').textContent =
+                        type === 'delivery' ? 'Votre demande de livraison a été enregistrée. Nous vous contacterons sous peu.'
+                            : `Votre réservation au shop "${shop.name}" est confirmée !`;
+                }
+            });
     }
 
     // Gestion des clics sur le bouton Retour de la vue produit
@@ -1046,7 +1055,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const { left, top, width, height } = zoomContainer.getBoundingClientRect();
             const x = ((e.clientX - left) / width) * 100;
             const y = ((e.clientY - top) / height) * 100;
-            
+
             zoomImg.style.transformOrigin = `${x}% ${y}%`;
             zoomImg.style.transform = "scale(2.5)";
         });
@@ -1066,7 +1075,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CHARGEMENT DEPUIS L'API PHP ---
     fetch('api/products.php')
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error(`Status ${res.status}`);
+            const contentType = res.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) throw new Error('Non-JSON response');
+            return res.json();
+        })
         .then(data => {
             if (Array.isArray(data)) {
                 allProducts = data;
@@ -1084,7 +1098,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Erreur API:", data.error || "Format invalide");
             }
         })
-        .catch(err => console.error("Erreur chargement API:", err));
+        .catch(err => console.error("Erreur chargement API:", err.message || err));
 
     // Listeners Filtres
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -1114,7 +1128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- BURGER MENU LOGIC ---
     const mobileBurgerMenu = document.querySelector('.burger');
     const mainNav = document.querySelector('nav');
-    
+
     if (mobileBurgerMenu && mainNav) {
         mobileBurgerMenu.addEventListener('click', () => {
             mobileBurgerMenu.classList.toggle('toggle');
