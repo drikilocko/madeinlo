@@ -607,14 +607,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Apparition GSAP des lignes
-        gsap.from('.category-row', {
-            y: 50,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.2,
-            ease: 'power3.out',
-            clearProps: 'all'
-        });
+        const categoryRows = document.querySelectorAll('.category-row');
+        if (categoryRows.length > 0) {
+            gsap.from(categoryRows, {
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: 'power3.out',
+                clearProps: 'all'
+            });
+        }
     };
 
     // Animation de Loop Infini pour le Titre
@@ -1111,7 +1114,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Reveal animations
     const revealSections = (selector) => {
-        gsap.utils.toArray(selector).forEach(el => {
+        if (!selector || typeof selector !== 'string') return;
+        const elements = gsap.utils.toArray(selector);
+        if (elements.length === 0) return;
+
+        elements.forEach(el => {
+            if (!el) return;
             gsap.from(el, {
                 y: 50,
                 opacity: 0,
