@@ -1160,10 +1160,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ─── PARALLAX IMAGE DANS LES CARTES ──────────────────────────────────────────
-// L'IMAGE bouge légèrement en Y pendant le scroll. Le CADRE reste fixe.
-// Technique: overflow:hidden sur .gallery-card + translateY sur l'img.
+// Zoom IN quand la carte entre dans le viewport → Dezoom + parallax en scrollant.
+// Cadre fixe (overflow:hidden), seulement l'image anime.
 function initCardParallax() {
-    // On tue les anciennes instances pour éviter doublons lors d'un rechargement de produits
     ScrollTrigger.getAll()
         .filter(t => t._cardParallax)
         .forEach(t => t.kill());
@@ -1175,28 +1174,35 @@ function initCardParallax() {
         const img = card.querySelector('img');
         if (!img) return;
 
-        // L'image doit être légèrement plus grande que le cadre pour pouvoir bouger
-        img.style.willChange = 'transform';
-        img.style.height = '115%';
+        // Force les dimensions de l'image : légèrement plus grande que le cadre
+        img.style.display = 'block';
         img.style.width = '100%';
+        img.style.height = '115%';
         img.style.objectFit = 'cover';
-        img.style.objectPosition = 'center';
-        img.style.transform = 'translateY(-7%)';
+        img.style.objectPosition = 'center 30%';
+        img.style.willChange = 'transform';
 
-        const st = gsap.to(img, {
-            translateY: '7%',
-            ease: 'none',
-            scrollTrigger: {
-                trigger: card,
-                start: 'top bottom',    // quand le haut de la carte atteint le bas de la fenêtre
-                end: 'bottom top',       // quand le bas de la carte quitte par le haut
-                scrub: 1.5,              // retard léger pour un effet ultra-smooth
-                invalidateOnRefresh: true
+        // fromTo: quand le haut de la carte touche le bas de l'écran (start)
+        //         → quand le bas de la carte touche le haut de l'écran (end)
+        // L'image passe de scale(1.15)+Y(-8%) à scale(1)+Y(+8%)
+        // scrub:1.2 crée le retard smooth (l'image "flotte" légèrement)
+        const anim = gsap.fromTo(img,
+            { scale: 1.15, y: '-8%' },
+            {
+                scale: 1,
+                y: '8%',
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 1.2,
+                    invalidateOnRefresh: true
+                }
             }
-        });
+        );
 
-        // Marqueur pour identifier ces triggers
-        if (st && st.scrollTrigger) st.scrollTrigger._cardParallax = true;
+        if (anim && anim.scrollTrigger) anim.scrollTrigger._cardParallax = true;
     });
 
     ScrollTrigger.refresh();
