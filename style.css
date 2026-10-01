@@ -7,7 +7,8 @@
 /* --- ANCIENNE SCROLLBAR SUPPRIMÉE --- */
 
 :root {
-    --background-color: #ffffff; /* Tout en blanc pur */
+    --background-color: #ffffff;
+    /* Tout en blanc pur */
     --surface-color: #ffffff;
     --text-color: #212529;
     --primary-color: #8a6c0b;
@@ -117,17 +118,17 @@ header {
     line-height: 0.8;
     letter-spacing: -2px;
     opacity: 0.9;
-    background: linear-gradient(to bottom, #000, rgba(0,0,0,0.5));
+    background: linear-gradient(to bottom, #000, rgba(0, 0, 0, 0.5));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.1));
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.1));
 }
 
 /* Style de la barre de navigation (Générique) */
 nav {
     padding: 0;
     position: fixed;
-    top: 0; 
+    top: 0;
     left: 0;
     width: 100%;
     z-index: 1000;
@@ -159,10 +160,12 @@ nav:not(.nav-glass):not(.nav-transparent) {
 .nav-container-centered {
     width: 100%;
     max-width: 100%;
-    padding: 0 2rem; /* Légère marge pour éviter de coller au bord de l'écran */
+    padding: 0 2rem;
+    /* Légère marge pour éviter de coller au bord de l'écran */
     height: 100%;
     display: flex;
-    justify-content: flex-start; /* Alignement global à gauche */
+    justify-content: flex-start;
+    /* Alignement global à gauche */
     align-items: center;
 }
 
@@ -175,8 +178,10 @@ nav:not(.nav-glass):not(.nav-transparent) {
     font-size: 2rem;
     z-index: 5;
     white-space: nowrap;
-    order: 1; /* Place le logo tout à gauche */
-    margin-right: auto; /* Pousse le reste (les icônes) tout à droite */
+    order: 1;
+    /* Place le logo tout à gauche */
+    margin-right: auto;
+    /* Pousse le reste (les icônes) tout à droite */
 }
 
 .nav-left {
@@ -185,7 +190,8 @@ nav:not(.nav-glass):not(.nav-transparent) {
     z-index: 10;
     display: flex;
     align-items: center;
-    order: 2; /* Place la documentation à droite du logo */
+    order: 2;
+    /* Place la documentation à droite du logo */
 }
 
 .nav-right {
@@ -194,7 +200,8 @@ nav:not(.nav-glass):not(.nav-transparent) {
     z-index: 10;
     display: flex;
     align-items: center;
-    order: 3; /* Place le shop tout à droite */
+    order: 3;
+    /* Place le shop tout à droite */
 }
 
 nav a {
@@ -206,12 +213,14 @@ nav a {
     transition: color 0.3s, transform 0.3s;
     white-space: nowrap;
     position: relative;
-    z-index: 20; /* Force les liens au dessus */
+    z-index: 20;
+    /* Force les liens au dessus */
 }
 
 nav a:hover {
     color: #000 !important;
 }
+
 nav::before {
     content: '';
     position: absolute;
@@ -227,7 +236,8 @@ nav::before {
 nav::after {
     content: '';
     position: absolute;
-    bottom: -2px; /* Centré verticalement sur la ligne de 1px */
+    bottom: -2px;
+    /* Centré verticalement sur la ligne de 1px */
     left: 50%;
     transform: translateX(-50%);
     width: 5px;
@@ -255,7 +265,8 @@ nav .nav-container-centered {
 }
 
 nav a {
-    color: #ffffff; /* Texte en blanc pour fond noir */
+    color: #ffffff;
+    /* Texte en blanc pour fond noir */
     text-decoration: none;
     padding: 0.8rem 1.5rem;
     font-weight: 600;
@@ -349,7 +360,8 @@ nav a:hover {
 }
 
 .confirm-order-btn {
-    background: #25D366; /* WhatsApp Green */
+    background: #25D366;
+    /* WhatsApp Green */
     color: #fff;
     padding: 1.2rem;
     border: none;
@@ -401,14 +413,16 @@ nav a:hover {
     .burger {
         display: flex;
     }
-    
+
     /* Animation du burger en croix parfaite */
     .burger.toggle span:nth-child(1) {
         transform: translateY(7px) rotate(45deg);
     }
+
     .burger.toggle span:nth-child(2) {
         opacity: 0;
     }
+
     .burger.toggle span:nth-child(3) {
         transform: translateY(-7px) rotate(-45deg);
     }
@@ -417,16 +431,18 @@ nav a:hover {
         padding: 0 1.5rem;
     }
 
-    .nav-left, .nav-right {
+    .nav-left,
+    .nav-right {
         display: none;
     }
-    
+
     /* Menu mobile ouvert */
     nav.nav-active {
         background-color: #ffffff !important;
     }
-    
-    nav.nav-active .nav-left, nav.nav-active .nav-right {
+
+    nav.nav-active .nav-left,
+    nav.nav-active .nav-right {
         display: flex;
         flex-direction: column;
         position: absolute;
@@ -436,22 +452,25 @@ nav a:hover {
         text-align: center;
         padding: 1rem 0;
     }
-    
+
     nav.nav-active .nav-left {
-        top: 60px; /* Hauteur de la barre de navigation environ */
+        top: 60px;
+        /* Hauteur de la barre de navigation environ */
     }
-    
+
     nav.nav-active .nav-right {
-        top: 115px; /* S'empile sous le nav-left */
+        top: 115px;
+        /* S'empile sous le nav-left */
         padding-top: 0;
-        box-shadow: 0 10px 15px rgba(0,0,0,0.05); /* Ombre légère pour finir le menu */
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+        /* Ombre légère pour finir le menu */
     }
-    
+
     nav.nav-active a {
         color: #000000;
         padding: 1rem;
         font-size: 1.1rem;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
 }
 
@@ -476,7 +495,8 @@ main>section#home {
     width: 100%;
     background-image: url('img/1.png');
     padding: 0;
-    background-size: 100% auto; /* Affiche mieux l'image sans trop de zoom */
+    background-size: 100% auto;
+    /* Affiche mieux l'image sans trop de zoom */
     background-position: center top;
     background-repeat: no-repeat;
     background-color: #ffffff;
@@ -581,7 +601,8 @@ footer {
 }
 
 .footer-column a {
-    color: #ffffff !important; /* Forcé en blanc pour fond noir */
+    color: #ffffff !important;
+    /* Forcé en blanc pour fond noir */
     text-decoration: none;
     transition: all 0.3s ease;
     display: block;
@@ -611,7 +632,8 @@ footer {
     display: inline-block;
     margin-right: 1.5rem;
     font-size: 1.5rem;
-    color: #ffffff !important; /* Icônes en blanc */
+    color: #ffffff !important;
+    /* Icônes en blanc */
     transition: all 0.3s ease;
 }
 
@@ -649,10 +671,12 @@ footer {
 .photo-container::after {
     content: '';
     position: absolute;
-    bottom: -250px; /* Ajusté pour couvrir l'image qui est descendue par GSAP (y: 250) */
+    bottom: -250px;
+    /* Ajusté pour couvrir l'image qui est descendue par GSAP (y: 250) */
     left: 0;
     width: 100%;
-    height: 350px; /* Ombre plus grande pour un beau fondu */
+    height: 350px;
+    /* Ombre plus grande pour un beau fondu */
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 80%);
     z-index: 10;
     pointer-events: none;
@@ -1193,7 +1217,8 @@ p {
     padding-bottom: 8rem !important;
     margin-top: 0 !important;
     margin-bottom: 0;
-    min-height: 120vh; /* Augmente la hauteur de la section */
+    min-height: 120vh;
+    /* Augmente la hauteur de la section */
     background-color: var(--background-color);
 }
 
@@ -1207,35 +1232,50 @@ p {
 
 .section-title {
     display: inline-block;
-    font-size: clamp(5rem, 20vw, 16rem); /* Taille de police considérablement augmentée */
+    font-size: clamp(5rem, 20vw, 16rem);
+    /* Taille de police considérablement augmentée */
     text-transform: uppercase;
     letter-spacing: 2px;
     margin: 0;
     font-family: 'Anton', sans-serif;
-    padding-right: 50px; /* Espace entre les répétitions */
-    color: #fff; /* Texte en blanc */
-    -webkit-text-stroke: 0.25px #000; /* Bordure en noir ultra fine */
+    padding-right: 50px;
+    /* Espace entre les répétitions */
+    color: #fff;
+    /* Texte en blanc */
+    -webkit-text-stroke: 0.25px #000;
+    /* Bordure en noir ultra fine */
 }
 
 /* Filtres de la galerie */
 .collection-filters {
     display: flex;
-    justify-content: flex-start; /* Permet le scroll depuis la gauche sur mobile */
+    justify-content: flex-start;
+    /* Permet le scroll depuis la gauche sur mobile */
     align-items: center;
-    gap: 1rem; /* Espace légèrement augmenté puisqu'il n'y a plus de bordure globale */
-    background: transparent; /* Fond supprimé comme demandé */
-    border: none; /* Bordure supprimée comme demandé */
-    padding: 0.5rem 1rem; /* Ajout d'un padding latéral pour que le premier élément ne colle pas au bord d'écran */
-    width: 100%; /* Prend toute la largeur disponible */
+    gap: 1rem;
+    /* Espace légèrement augmenté puisqu'il n'y a plus de bordure globale */
+    background: transparent;
+    /* Fond supprimé comme demandé */
+    border: none;
+    /* Bordure supprimée comme demandé */
+    padding: 0.5rem 1rem;
+    /* Ajout d'un padding latéral pour que le premier élément ne colle pas au bord d'écran */
+    width: 100%;
+    /* Prend toute la largeur disponible */
     max-width: 100vw;
     margin: 0 auto 3rem auto;
     backdrop-filter: blur(10px);
-    position: sticky; /* Reste collé en haut lors du défilement */
-    top: 20px; /* Espace depuis le haut de l'écran */
-    z-index: 50; /* Place les filtres au-dessus des cartes */
-    overflow-x: auto; /* Permet de swiper/scroller horizontalement */
+    position: sticky;
+    /* Reste collé en haut lors du défilement */
+    top: 20px;
+    /* Espace depuis le haut de l'écran */
+    z-index: 50;
+    /* Place les filtres au-dessus des cartes */
+    overflow-x: auto;
+    /* Permet de swiper/scroller horizontalement */
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
+    /* Firefox */
 }
 
 /* Cache la barre de défilement pour un look plus propre (Chrome/Safari) */
@@ -1244,10 +1284,12 @@ p {
 }
 
 .filter-btn {
-    flex-shrink: 0; /* Force les boutons à rester sur une seule ligne (ne s'écrasent pas) */
+    flex-shrink: 0;
+    /* Force les boutons à rester sur une seule ligne (ne s'écrasent pas) */
     background: transparent;
     border: none;
-    color: rgba(0, 0, 0, 0.6) !important; /* Texte gris foncé forcé */
+    color: rgba(0, 0, 0, 0.6) !important;
+    /* Texte gris foncé forcé */
     padding: 0.8rem 1.5rem;
     border-radius: 40px;
     font-family: 'Montserrat', sans-serif;
@@ -1260,13 +1302,17 @@ p {
 }
 
 .filter-btn:hover {
-    color: #000 !important; /* Texte noir au survol forcé */
-    background: rgba(0, 0, 0, 0.05) !important; /* Fond légèrement sombre forcé */
+    color: #000 !important;
+    /* Texte noir au survol forcé */
+    background: rgba(0, 0, 0, 0.05) !important;
+    /* Fond légèrement sombre forcé */
 }
 
 .filter-btn.active {
-    background: #000 !important; /* Fond noir forcé */
-    color: #fff !important; /* Texte blanc forcé */
+    background: #000 !important;
+    /* Fond noir forcé */
+    color: #fff !important;
+    /* Texte blanc forcé */
 }
 
 /* On restaure la boutique d'avant */
@@ -1277,7 +1323,8 @@ p {
     gap: 4rem;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem 0; /* Plus de padding global, géré par les rangées */
+    padding: 2rem 0;
+    /* Plus de padding global, géré par les rangées */
     width: 100%;
 }
 
@@ -1293,11 +1340,14 @@ p {
 .category-row::after {
     content: '';
     position: absolute;
-    top: 4rem; /* En dessous du titre */
+    top: 4rem;
+    /* En dessous du titre */
     bottom: 0;
-    width: 30px; /* Plus fin et plus subtil */
+    width: 30px;
+    /* Plus fin et plus subtil */
     z-index: 5;
-    pointer-events: none; /* Ne bloque pas le swipe/clic */
+    pointer-events: none;
+    /* Ne bloque pas le swipe/clic */
 }
 
 .category-row::before {
@@ -1313,7 +1363,8 @@ p {
 /* Boutons de navigation (Swipe/Drag) */
 .scroll-btn {
     position: absolute;
-    top: calc(50% + 1.5rem); /* Centré verticalement sous le titre */
+    top: calc(50% + 1.5rem);
+    /* Centré verticalement sous le titre */
     transform: translateY(-50%);
     width: 45px;
     height: 45px;
@@ -1357,20 +1408,25 @@ p {
 .category-scroll-container {
     display: flex;
     gap: 1.5rem;
-    padding: 0 2rem 2rem 2rem; /* Espace pour les ombres et scrollbar */
+    padding: 0 2rem 2rem 2rem;
+    /* Espace pour les ombres et scrollbar */
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
-    scrollbar-width: none; /* Cache la scrollbar sur Firefox */
+    scrollbar-width: none;
+    /* Cache la scrollbar sur Firefox */
 }
 
 .category-scroll-container::-webkit-scrollbar {
-    display: none; /* Cache la scrollbar sur Chrome/Safari */
+    display: none;
+    /* Cache la scrollbar sur Chrome/Safari */
 }
 
 .gallery-horizontal-card {
-    flex: 0 0 320px; /* Largeur fixe pour défilement horizontal */
-    scroll-snap-align: start; /* Permet un arrêt fluide au drag */
+    flex: 0 0 320px;
+    /* Largeur fixe pour défilement horizontal */
+    scroll-snap-align: start;
+    /* Permet un arrêt fluide au drag */
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -1410,6 +1466,7 @@ p {
     gap: 1.5rem;
     max-width: 1400px;
     margin: 0 auto;
+    align-items: flex-start;
 }
 
 .gallery-column {
@@ -1420,14 +1477,14 @@ p {
 }
 
 .gallery-column.middle-column {
-    margin-top: -5rem;
+    margin-top: -80px;
 }
 
 .gallery-column img {
     width: 100%;
     height: auto;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 0;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
 }
@@ -1635,28 +1692,24 @@ p {
 .gallery-card {
     position: relative;
     width: 100%;
-    margin-bottom: 30px;
-    border-radius: 15px;
+    margin-bottom: 1.5rem;
+    border-radius: 0;
     overflow: hidden;
     cursor: pointer;
     background: rgba(255, 255, 255, 0.03);
     transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-.gallery-card:hover {
-    transform: scale(1.1);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-}
-
 .gallery-card img {
     width: 100%;
-    height: auto;
+    height: 420px;
+    object-fit: cover;
     display: block;
     transition: transform 0.8s ease;
 }
 
 .gallery-card:hover img {
-    transform: scale(1.1);
+    transform: scale(1.06);
 }
 
 .gallery-card-info {
@@ -1665,7 +1718,7 @@ p {
     left: 0;
     right: 0;
     padding: 2rem 1.5rem;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.92), transparent);
     opacity: 0;
     transform: translateY(20px);
     transition: all 0.4s ease;
@@ -1697,20 +1750,23 @@ p {
     inset: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 9999; /* Au-dessus de tout */
+    z-index: 9999;
+    /* Au-dessus de tout */
     display: flex;
     justify-content: center;
     align-items: center;
     visibility: hidden;
     opacity: 0;
-    pointer-events: none; /* Empeche le modal invisible de bloquer les clics */
+    pointer-events: none;
+    /* Empeche le modal invisible de bloquer les clics */
     transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .modal.active {
     visibility: visible;
     opacity: 1;
-    pointer-events: auto; /* Re-active les clics une fois ouvert */
+    pointer-events: auto;
+    /* Re-active les clics une fois ouvert */
 }
 
 .modal-overlay {
@@ -1726,7 +1782,8 @@ p {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background: #050505; /* Fond noir pur pour un aspect page */
+    background: #050505;
+    /* Fond noir pur pour un aspect page */
     overflow: hidden;
     z-index: 10;
     display: flex;
@@ -1741,7 +1798,8 @@ p {
 .modal-close {
     position: absolute;
     top: 30px;
-    left: 30px; /* Placé à gauche pour un look "Retour" */
+    left: 30px;
+    /* Placé à gauche pour un look "Retour" */
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #fff;
@@ -1798,7 +1856,8 @@ p {
     max-width: 85%;
     max-height: 85%;
     object-fit: contain;
-    transition: transform 0.1s ease-out; /* Smoother follow after initial movement */
+    transition: transform 0.1s ease-out;
+    /* Smoother follow after initial movement */
     will-change: transform;
 }
 
@@ -1814,6 +1873,7 @@ p {
 .product-details::-webkit-scrollbar {
     width: 4px;
 }
+
 .product-details::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
@@ -1978,21 +2038,22 @@ p {
 .gallery-card {
     position: relative;
     width: 100%;
-    margin-bottom: 30px;
-    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border-radius: 0;
     overflow: hidden;
     cursor: pointer;
 }
 
 .gallery-card img {
     width: 100%;
-    height: auto;
+    height: 420px;
+    object-fit: cover;
     display: block;
     transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .gallery-card:hover img {
-    transform: scale(1.1);
+    transform: scale(1.06);
 }
 
 .gallery-card-info {
@@ -2001,7 +2062,7 @@ p {
     left: 0;
     width: 100%;
     padding: 2rem 1.5rem 1.5rem;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 100%);
     opacity: 0;
     transform: translateY(20px);
     transition: all 0.4s ease;
@@ -2016,6 +2077,7 @@ p {
     font-size: 1.1rem;
     margin-bottom: 5px;
     font-weight: 600;
+    color: #fff;
 }
 
 .gallery-card-info p {
@@ -2059,14 +2121,17 @@ p {
 .step-back-btn {
     background: none;
     border: none;
-    color: rgba(255,255,255,0.6);
+    color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
     font-size: 0.85rem;
     padding: 0;
     margin-bottom: 1.5rem;
     transition: color 0.3s;
 }
-.step-back-btn:hover { color: #fff; }
+
+.step-back-btn:hover {
+    color: #fff;
+}
 
 .step-title {
     font-size: 1.8rem;
@@ -2090,8 +2155,8 @@ p {
 
 .delivery-option-btn {
     flex: 1;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
     padding: 1.5rem 1rem;
     cursor: pointer;
@@ -2123,25 +2188,30 @@ p {
 
 .delivery-option-btn:hover,
 .delivery-option-btn.active {
-    background: rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.12);
     border-color: var(--primary-color);
     transform: translateY(-4px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* Carte Leaflet dark override */
 #shop-map {
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 1;
 }
+
 .leaflet-popup-content-wrapper {
-    background: rgba(20,20,20,0.95) !important;
+    background: rgba(20, 20, 20, 0.95) !important;
     color: #fff !important;
     border-radius: 12px !important;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.leaflet-popup-tip { background: rgba(20,20,20,0.95) !important; }
+
+.leaflet-popup-tip {
+    background: rgba(20, 20, 20, 0.95) !important;
+}
+
 .leaflet-popup-content {
     margin: 12px 16px !important;
     font-family: 'Montserrat', sans-serif !important;
@@ -2156,8 +2226,8 @@ p {
 }
 
 .shop-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 1rem 1.2rem;
     display: flex;
@@ -2168,12 +2238,20 @@ p {
 }
 
 .shop-card:hover {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border-color: var(--primary-color);
 }
 
-.shop-card-info h4 { margin: 0 0 0.2rem; font-size: 0.95rem; }
-.shop-card-info p { margin: 0; font-size: 0.75rem; opacity: 0.5; }
+.shop-card-info h4 {
+    margin: 0 0 0.2rem;
+    font-size: 0.95rem;
+}
+
+.shop-card-info p {
+    margin: 0;
+    font-size: 0.75rem;
+    opacity: 0.5;
+}
 
 .shop-card-action {
     background: var(--primary-color);
@@ -2188,7 +2266,10 @@ p {
     letter-spacing: 1px;
     transition: all 0.3s;
 }
-.shop-card-action:hover { transform: scale(1.05); }
+
+.shop-card-action:hover {
+    transform: scale(1.05);
+}
 
 /* Delivery Form */
 .delivery-form {
@@ -2199,8 +2280,8 @@ p {
 
 .delivery-form input,
 .delivery-form textarea {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 1rem 1.2rem;
     color: #fff;
@@ -2218,7 +2299,7 @@ p {
 
 .delivery-form input::placeholder,
 .delivery-form textarea::placeholder {
-    color: rgba(255,255,255,0.3);
+    color: rgba(255, 255, 255, 0.3);
 }
 
 /* Order Confirmation */
@@ -2284,17 +2365,21 @@ p {
 }
 
 body {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
 }
 
 /* --- CUSTOM SCROLLBAR VERTICALE --- */
 #custom-scroll {
     position: fixed;
     top: 50%;
-    right: 20px; /* Détaché du bord droit */
+    right: 20px;
+    /* Détaché du bord droit */
     transform: translateY(-50%);
-    height: 50vh; /* Ligne fine au milieu de l'écran */
+    height: 50vh;
+    /* Ligne fine au milieu de l'écran */
     width: 1px;
     background-color: var(--border-color);
     opacity: 0.5;
@@ -2310,8 +2395,10 @@ body {
     height: 6px;
     background-color: var(--primary-color);
     border-radius: 50%;
-    transition: transform 0.1s ease-out; /* Mouvement fluide */
+    transition: transform 0.1s ease-out;
+    /* Mouvement fluide */
 }
+
 /* ===== NOUVELLE VUE PRODUIT SOLIDE (ALTERNATIVE) ===== */
 #product-view {
     position: fixed;
@@ -2320,7 +2407,8 @@ body {
     background: #ffffff;
     color: #000000;
     overflow-y: auto;
-    display: none; /* Controlled by JS */
+    display: none;
+    /* Controlled by JS */
 }
 
 .product-page-container {
@@ -2420,11 +2508,18 @@ body {
     padding: 15px 10px;
     justify-content: center;
     width: 100%;
-    background: rgba(0,0,0,0.03);
+    background: rgba(0, 0, 0, 0.03);
     border-radius: 20px;
 }
-.shop-product-gallery::-webkit-scrollbar { height: 5px; }
-.shop-product-gallery::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
+
+.shop-product-gallery::-webkit-scrollbar {
+    height: 5px;
+}
+
+.shop-product-gallery::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
 
 .shop-gallery-thumb {
     width: 85px;
@@ -2436,9 +2531,11 @@ body {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     border: 3px solid transparent;
     flex-shrink: 0;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
 }
-.shop-gallery-thumb:hover, .shop-gallery-thumb.active {
+
+.shop-gallery-thumb:hover,
+.shop-gallery-thumb.active {
     opacity: 1;
     border-color: var(--primary-color);
     transform: translateY(-5px) scale(1.05);
@@ -2473,7 +2570,8 @@ body {
     transition: all 0.3s;
 }
 
-.s-btn.active, .s-btn:hover {
+.s-btn.active,
+.s-btn:hover {
     background: #fff;
     color: #000;
 }
@@ -2502,36 +2600,43 @@ body {
     .gallery-static-title {
         display: none !important;
     }
+
     .product-page-content {
         flex-direction: column;
     }
+
     .product-page-visual {
         width: 100%;
     }
-    
+
     /* Ajustements pour le layout Netflix (Lignes Horizontales) sur Mobile */
     .gallery-horizontal-container {
         gap: 2.5rem;
-        padding: 1rem 0; /* Presque bord à bord */
+        padding: 1rem 0;
+        /* Presque bord à bord */
     }
-    
+
     .category-row-title {
         font-size: 1.5rem;
-        padding: 0 1rem; /* Aligne avec les cartes */
+        padding: 0 1rem;
+        /* Aligne avec les cartes */
     }
-    
+
     .category-scroll-container {
         gap: 1rem;
         padding: 0 1rem 1rem 1rem;
-        scroll-padding-left: 1rem; /* Pour le snap */
+        scroll-padding-left: 1rem;
+        /* Pour le snap */
     }
-    
+
     .gallery-horizontal-card {
-        flex: 0 0 72vw; /* Ajusté pour qu'on voie clairement la moitié de la carte suivante (effet "demi cart") */
+        flex: 0 0 72vw;
+        /* Ajusté pour qu'on voie clairement la moitié de la carte suivante (effet "demi cart") */
     }
-    
+
     .gallery-horizontal-card img {
-        height: 60vh; /* Image très grande pour l'immersion */
+        height: 60vh;
+        /* Image très grande pour l'immersion */
     }
 
     /* Transformation de l'ancienne galerie verticale en 2 colonnes sur mobile */
@@ -2544,16 +2649,21 @@ body {
         width: 100%;
         max-width: 100vw;
     }
-    
+
     .gallery-column {
         display: contents;
     }
-    
+
     .gallery-card {
         break-inside: avoid;
         margin-bottom: 0.2rem;
         display: inline-block;
         width: 100%;
+        border-radius: 0;
+    }
+
+    .gallery-card img {
+        height: 260px;
     }
 
     /* Rend la section d'accueil (vinyles qui tournent) pleine page sur mobile */
@@ -2561,7 +2671,8 @@ body {
         height: 100vh;
         min-height: 100vh;
         background-size: cover !important;
-        background-position: top center !important; /* Garde le haut de l'image visible */
+        background-position: top center !important;
+        /* Garde le haut de l'image visible */
         background-repeat: no-repeat;
     }
 
