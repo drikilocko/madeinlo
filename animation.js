@@ -1163,8 +1163,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ─── PARALLAX IMAGE DANS LES CARTES ──────────────────────────────────────────
 // Zoom IN quand la carte entre dans le viewport → Dezoom + parallax en scrollant.
 // ─── PARALLAX IMAGE DANS LES CARTES (Sans espace noir & réactif) ───────────────
-// L'image conserve une sur-taille de 125% avec transform-origin top center.
-// Résultat : ZÉRO espace noir visible en haut ou en bas lors du scroll.
+// Position absolue avec top: -15% et height: 130%.
+// L'image dépasse de 15% en haut et 15% en bas du cadre -> IMPOSSIBLE d'avoir une bande noire.
 function initCardParallax() {
     ScrollTrigger.getAll()
         .filter(t => t._cardParallax)
@@ -1177,28 +1177,28 @@ function initCardParallax() {
         const img = card.querySelector('img');
         if (!img) return;
 
-        // Force l'image à dépasser largement du cadre (125% de hauteur + transform-origin top)
-        img.style.display = 'block';
+        // Positionnement absolu centré avec buffer de 15% au-dessus et en dessous
+        img.style.position = 'absolute';
+        img.style.top = '-15%';
+        img.style.left = '0';
         img.style.width = '100%';
-        img.style.height = '125%';
+        img.style.height = '130%';
         img.style.objectFit = 'cover';
-        img.style.objectPosition = 'center top';
-        img.style.transformOrigin = 'center top';
+        img.style.objectPosition = 'center';
         img.style.willChange = 'transform';
 
-        // L'image varie de scale(1.25)+Y(-4%) à scale(1.10)+Y(+4%)
-        // L'échelle ne descend JAMAIS en dessous de 1.10 -> impossible d'avoir du noir
+        // L'image translate en yPercent de -5% à +5%.
+        // À yPercent = +5%, le haut de l'image est encore à -10% au-dessus de la carte -> 0% de noir visible.
         const anim = gsap.fromTo(img,
-            { scale: 1.25, y: '-4%' },
+            { yPercent: -5 },
             {
-                scale: 1.10,
-                y: '4%',
+                yPercent: 5,
                 ease: 'none',
                 scrollTrigger: {
                     trigger: card,
                     start: 'top bottom',
                     end: 'bottom top',
-                    scrub: 0.8,
+                    scrub: 0.6,
                     invalidateOnRefresh: false
                 }
             }
