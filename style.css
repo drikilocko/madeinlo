@@ -2579,6 +2579,21 @@ body {
         display: none !important;
     }
 
+    /* Supprime tout padding horizontal hérité afin que la galerie couvre 100% de l'écran */
+    #image-gallery {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+
+    main>section#image-gallery {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
     .product-page-content {
         flex-direction: column;
     }
