@@ -1267,7 +1267,8 @@
                         <span style="font-size: 0.9rem; opacity: 0.8;">produit(s)</span>
                         <button type="button" class="btn-add-trigger"
                             style="background: #2e7d32; color: #fff; margin-left: 10px; padding: 10px 20px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;"
-                            onclick="customBulkAddProducts()"><i class="fas fa-bolt"></i> Lancer la gÃ©nÃ©ration</button>
+                            onclick="customBulkAddProducts()"><i class="fas fa-bolt"></i> Lancer la
+                            gÃ©nÃ©ration</button>
                     </div>
                 </div>
             </div>
@@ -1420,7 +1421,8 @@
             <div
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 15px;">
                 <h2 style="margin: 0; color: #fff; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-info-circle" style="color: var(--primary-color);"></i> Ã€ Propos de l'Infrastructure
+                    <i class="fas fa-info-circle" style="color: var(--primary-color);"></i> Ã€ Propos de
+                    l'Infrastructure
                 </h2>
                 <button type="button"
                     style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s;"
@@ -1441,17 +1443,21 @@
                         style="margin: 0; padding-left: 20px; font-size: 0.88rem; line-height: 1.6; display: flex; flex-direction: column; gap: 5px;">
                         <li><strong>Technologie de Virtualisation :</strong> Hyperviseur KVM (Kernel-based Virtual
                             Machine) durci avec isolation matÃ©rielle stricte Ã  haute fidÃ©litÃ©.</li>
-                        <li><strong>Architecture de Noyau :</strong> Noyau Linux LTS durci (Hardened Kernel) prÃ©-compilÃ©
+                        <li><strong>Architecture de Noyau :</strong> Noyau Linux LTS durci (Hardened Kernel)
+                            prÃ©-compilÃ©
                             avec flags d'attÃ©nuation active des vulnÃ©rabilitÃ©s processeur.</li>
                         <li><strong>Orchestration & Provisioning :</strong> DÃ©ploiement automatisÃ© via des playbooks
                             Ansible idempotents, configuration systÃ¨me conteneurisÃ©e.</li>
-                        <li><strong>SÃ©curisation RÃ©seau & Edge :</strong> Edge Firewall matÃ©riel stateless avec filtrage
-                            de paquets asynchrone Ã  la volÃ©e, attÃ©nuation des attaques DDoS volumÃ©triques par scrubbing
+                        <li><strong>SÃ©curisation RÃ©seau & Edge :</strong> Edge Firewall matÃ©riel stateless avec
+                            filtrage
+                            de paquets asynchrone Ã  la volÃ©e, attÃ©nuation des attaques DDoS volumÃ©triques par
+                            scrubbing
                             center intelligent.</li>
                         <li><strong>MÃ©canismes d'AccÃ¨s :</strong> Chiffrement des liaisons via clÃ©s cryptographiques
                             asymÃ©triques Ed25519, dÃ©sactivation stricte de l'authentification par mot de passe et du
                             login root direct.</li>
-                        <li><strong>Haute DisponibilitÃ© :</strong> RÃ©plication synchrone des donnÃ©es sur un cluster de
+                        <li><strong>Haute DisponibilitÃ© :</strong> RÃ©plication synchrone des donnÃ©es sur un cluster
+                            de
                             stockage distribuÃ© Ceph avec triple facteur de rÃ©plication dynamique.</li>
                     </ul>
                 </div>
@@ -1469,7 +1475,8 @@
                             transactionnelles rapides)</li>
                         <li><strong>Indexation :</strong> ClÃ©s primaires & index composites sur relations (Temps de
                             rÃ©ponse moyen &lt; 2ms)</li>
-                        <li><strong>Sauvegardes :</strong> InstantanÃ©s quotidiens automatiques avec rÃ©tention glissante
+                        <li><strong>Sauvegardes :</strong> InstantanÃ©s quotidiens automatiques avec rÃ©tention
+                            glissante
                             sur 7 jours</li>
                         <li><strong>DisponibilitÃ© (SLA) :</strong> Taux de disponibilitÃ© matÃ©rielle garanti Ã  99,99%
                         </li>
@@ -1508,7 +1515,8 @@
                         <p
                             style="margin: 12px 0 0; font-size: 0.78rem; opacity: 0.7; font-style: italic; line-height: 1.4;">
                             * Cet achat mensuel rÃ©current comprend la licence VPS Cloud, le stockage redondant pour la
-                            base de donnÃ©es, la bande passante illimitÃ©e de 1 Gbps, ainsi que les frais d'administration
+                            base de donnÃ©es, la bande passante illimitÃ©e de 1 Gbps, ainsi que les frais
+                            d'administration
                             systÃ¨me et de renouvellement automatique du certificat de sÃ©curitÃ© SSL.
                         </p>
                     </div>
@@ -2018,7 +2026,7 @@
 
         async function fetchProducts() {
             await fetchCategories();
-            const res = await fetch('api/products.php');
+            const res = await fetch('api/products?admin=1');
             const data = await res.json();
             window.allProducts = data;
             renderProductsCategorized(data);

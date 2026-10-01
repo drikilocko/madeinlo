@@ -15,6 +15,12 @@ export async function supabaseGet(table, query = {}) {
   if (query.select) qs.set('select', query.select);
   if (query.order) qs.set('order', query.order);
   if (query.limit) qs.set('limit', String(query.limit));
+  // Support PostgREST column filters: e.g. { filter: { is_visible: 'eq.true' } }
+  if (query.filter) {
+    for (const [col, val] of Object.entries(query.filter)) {
+      qs.set(col, val);
+    }
+  }
 
   const baseUrl = SUPABASE_URL.replace(/\/$/, '');
   const url = `${baseUrl}/rest/v1/${table}?${qs.toString()}`;

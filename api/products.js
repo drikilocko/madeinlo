@@ -16,11 +16,17 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'GET': {
+        // Check if this is an admin request (admin=1 query param)
+        const isAdmin = getQueryParam(req, 'admin') === '1';
         let data = [];
         try {
-          data = await supabaseGet('products', { order: 'category.asc,created_at.desc' });
+          const query = { order: 'category.asc,created_at.desc' };
+          if (!isAdmin) query.filter = { is_visible: 'eq.true' };
+          data = await supabaseGet('products', query);
         } catch (e) {
-          data = await supabaseGet('products', { order: 'created_at.desc' });
+          const fallbackQuery = {};
+          if (!isAdmin) fallbackQuery.filter = { is_visible: 'eq.true' };
+          data = await supabaseGet('products', fallbackQuery);
         }
 
         if (!data || !Array.isArray(data) || data.length === 0) {
