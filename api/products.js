@@ -1,5 +1,5 @@
 import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
-import { parseGallery, getQueryParam } from './_helpers.js';
+import { parseGallery, getQueryParam, parseJsonBody } from './_helpers.js';
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -52,8 +52,7 @@ export default async function handler(req, res) {
       }
 
       case 'POST': {
-        const contentType = req.headers['content-type'] || '';
-        let input = req.body || {};
+        const input = await parseJsonBody(req);
 
         if (!input.action) {
           return res.status(200).json({});

@@ -1,4 +1,5 @@
 import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
+import { parseJsonBody } from './_helpers.js';
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -19,7 +20,7 @@ export default async function handler(req, res) {
     }
 
     if (method === 'POST') {
-      const input = req.body || {};
+      const input = await parseJsonBody(req);
 
       if (input.action === 'mark_read') {
         await supabasePatch('admin_notifications', { is_read: true }, { id: input.id });

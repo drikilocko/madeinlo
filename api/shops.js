@@ -1,5 +1,6 @@
 import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 import bcrypt from 'bcryptjs';
+import { parsePrice, parseJsonBody } from './_helpers.js';
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -48,7 +49,7 @@ export default async function handler(req, res) {
       }
 
       case 'POST': {
-        const input = req.body || {};
+        const input = await parseJsonBody(req);
 
         if (!input.action) {
           return res.status(200).json({});

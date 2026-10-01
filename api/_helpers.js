@@ -20,3 +20,16 @@ export function getQueryParam(req, param) {
   const url = new URL(req.url, 'http://localhost');
   return url.searchParams.get(param);
 }
+
+export async function parseJsonBody(req) {
+  if (!req.body) return {};
+  if (typeof req.body === 'object') return req.body;
+  if (typeof req.body === 'string') {
+    try {
+      return JSON.parse(req.body);
+    } catch {
+      return {};
+    }
+  }
+  return {};
+}
