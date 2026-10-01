@@ -2273,8 +2273,7 @@
         async function toggleCategoryVisibility(name, newVis) {
             const catInfo = categoryVisibility[name];
             if (!catInfo) {
-                // Auto-run migration first
-                alert('Veuillez d\'abord exÃ©cuter la migration : http://localhost/"Made in lo"/migrate_visibility.php');
+                console.warn('Catégorie introuvable:', name);
                 return;
             }
             await fetch('api/categories.php', {
