@@ -2271,7 +2271,7 @@
         }
 
         async function toggleCategoryVisibility(name, newVis) {
-            const catInfo = categoryVisibility[name];
+            const catInfo = categoryVisibility[name] || categoryVisibility[name.toLowerCase()];
             if (!catInfo) {
                 console.warn('Catégorie introuvable:', name);
                 return;
