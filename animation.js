@@ -500,8 +500,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // GALERIE DYNAMIQUE : 2 colonnes sur mobile (<= 900px), 3 colonnes sur desktop (> 900px)
+    let lastDistributedProducts = [];
+    let lastIsMobileState = null;
+
     const distributeProducts = (productsToShow, append = false) => {
+        if (!append) {
+            lastDistributedProducts = productsToShow;
+        } else {
+            lastDistributedProducts = [...lastDistributedProducts, ...productsToShow];
+        }
+
         const isMobile = window.innerWidth <= 900;
+        lastIsMobileState = isMobile;
         const numCols = isMobile ? 2 : 3;
 
         const col1 = document.getElementById('col-1');
@@ -534,6 +544,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ScrollTrigger.refresh();
         requestAnimationFrame(initCardParallax);
     };
+
+    // Re-distribuer automatiquement si le mode change (ex: rotation écran ou redimensionnement)
+    window.addEventListener('resize', () => {
+        const currentIsMobile = window.innerWidth <= 900;
+        if (lastIsMobileState !== null && currentIsMobile !== lastIsMobileState && lastDistributedProducts.length > 0) {
+            distributeProducts(lastDistributedProducts, false);
+        }
+    });
 
     // NOUVELLE GALERIE : Lignes par catégories (Horizontales)
     const distributeProductsHorizontal = (productsToShow) => {

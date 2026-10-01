@@ -1688,7 +1688,7 @@ p {
 .gallery-card {
     position: relative;
     width: 100%;
-    aspect-ratio: 4 / 6;
+    aspect-ratio: 45 / 55;
     height: auto;
     margin-bottom: 0.25rem;
     border-radius: 0;
@@ -2641,7 +2641,7 @@ body {
         position: relative !important;
         margin-bottom: 0.25rem !important;
         width: 100% !important;
-        aspect-ratio: 4 / 6 !important;
+        aspect-ratio: 45 / 55 !important;
         height: auto !important;
         border-radius: 0 !important;
         overflow: hidden !important;
