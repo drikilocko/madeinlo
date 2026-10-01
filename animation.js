@@ -505,24 +505,31 @@ document.addEventListener('DOMContentLoaded', () => {
         return card;
     };
 
-    // ANCIENNE GALERIE : Grille Masonry (Verticale)
+    // GALERIE DYNAMIQUE : 2 colonnes sur mobile (<= 768px), 3 colonnes sur desktop (> 768px)
     const distributeProducts = (productsToShow, append = false) => {
-        const cols = [
-            document.getElementById('col-1'),
-            document.getElementById('col-2'),
-            document.getElementById('col-3')
-        ];
+        const isMobile = window.innerWidth <= 768;
+        const numCols = isMobile ? 2 : 3;
+
+        const col1 = document.getElementById('col-1');
+        const col2 = document.getElementById('col-2');
+        const col3 = document.getElementById('col-3');
+
+        if (col3) {
+            col3.style.display = isMobile ? 'none' : 'flex';
+        }
+
+        const activeCols = isMobile ? [col1, col2] : [col1, col2, col3];
 
         if (!append) {
-            cols.forEach(col => { if (col) col.innerHTML = ''; });
+            [col1, col2, col3].forEach(col => { if (col) col.innerHTML = ''; });
         }
 
         let newCards = [];
         productsToShow.forEach((product, index) => {
-            const colIndex = index % 3;
-            if (cols[colIndex]) {
+            const colIndex = index % numCols;
+            if (activeCols[colIndex]) {
                 const card = createGalleryCard(product);
-                cols[colIndex].appendChild(card);
+                activeCols[colIndex].appendChild(card);
                 if (append) newCards.push(card);
             }
         });
@@ -531,6 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gsap.from(newCards, { y: 80, opacity: 0, duration: 0.8, stagger: 0.15, ease: 'power3.out', clearProps: 'all' });
         }
         ScrollTrigger.refresh();
+        requestAnimationFrame(initCardParallax);
     };
 
     // NOUVELLE GALERIE : Lignes par catégories (Horizontales)
