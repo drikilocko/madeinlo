@@ -1097,6 +1097,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const product = allProducts.find(p => p.id === id);
                     if (product) openProductModal(product);
                 }
+
+                // Lance le parallax sur les cartes après rendu
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(initCardParallax);
+                });
             } else {
                 console.error("Erreur API:", data.error || "Format invalide");
             }
@@ -1153,3 +1158,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ─── PARALLAX IMAGE DANS LES CARTES ──────────────────────────────────────────
+// L'IMAGE bouge légèrement en Y pendant le scroll. Le CADRE reste fixe.
+// Technique: overflow:hidden sur .gallery-card + translateY sur l'img.
+function initCardParallax() {
+    // On tue les anciennes instances pour éviter doublons lors d'un rechargement de produits
+    ScrollTrigger.getAll()
+        .filter(t => t._cardParallax)
+        .forEach(t => t.kill());
+
+    const cards = document.querySelectorAll('#image-gallery .gallery-card');
+    if (!cards.length) return;
+
+    cards.forEach(card => {
+        const img = card.querySelector('img');
+        if (!img) return;
+
+        // L'image doit être légèrement plus grande que le cadre pour pouvoir bouger
+        img.style.willChange = 'transform';
+        img.style.height = '115%';
+        img.style.width = '100%';
+        img.style.objectFit = 'cover';
+        img.style.objectPosition = 'center';
+        img.style.transform = 'translateY(-7%)';
+
+        const st = gsap.to(img, {
+            translateY: '7%',
+            ease: 'none',
+            scrollTrigger: {
+                trigger: card,
+                start: 'top bottom',    // quand le haut de la carte atteint le bas de la fenêtre
+                end: 'bottom top',       // quand le bas de la carte quitte par le haut
+                scrub: 1.5,              // retard léger pour un effet ultra-smooth
+                invalidateOnRefresh: true
+            }
+        });
+
+        // Marqueur pour identifier ces triggers
+        if (st && st.scrollTrigger) st.scrollTrigger._cardParallax = true;
+    });
+
+    ScrollTrigger.refresh();
+}
