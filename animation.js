@@ -416,8 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- OPTIMISATION FLUIDITÉ (LENIS + GSAP SYNC) ---
     const lenis = new Lenis({
-        duration: 2.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing plus doux
+        duration: 1.0, // Réduit de 2.2s à 1.0s pour un scroll réactif et ultra-fluide sans inertie lourde
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smooth: true,
         mouseMultiplier: 1,
         smoothTouch: false,
@@ -432,7 +432,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const customScrollLine = document.getElementById('custom-scroll');
     if (customScrollDot && customScrollLine) {
         lenis.on('scroll', (e) => {
-            // e.progress donne le pourcentage de défilement (0 à 1)
             const maxScroll = customScrollLine.clientHeight - customScrollDot.clientHeight;
             const translateY = e.progress * maxScroll;
             customScrollDot.style.transform = `translate(-50%, ${translateY}px)`;
@@ -443,12 +442,6 @@ document.addEventListener('DOMContentLoaded', () => {
         lenis.raf(time * 1000);
     });
     gsap.ticker.lagSmoothing(0);
-
-    function raf(time) {
-        // lenis.raf(time); // Plus besoin ici car géré par le ticker GSAP
-        requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
 
     // --- GESTION DYNAMIQUE DU GALLERY-SHOP (HORIZONTAL CATEGORY ROWS) ---
     const loadMoreBtn = document.getElementById('load-more-gallery');
@@ -1169,7 +1162,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ─── PARALLAX IMAGE DANS LES CARTES ──────────────────────────────────────────
 // Zoom IN quand la carte entre dans le viewport → Dezoom + parallax en scrollant.
-// Cadre fixe (overflow:hidden), seulement l'image anime.
+// ─── PARALLAX IMAGE DANS LES CARTES (Sans espace noir & réactif) ───────────────
+// L'image conserve une sur-taille de 125% avec transform-origin top center.
+// Résultat : ZÉRO espace noir visible en haut ou en bas lors du scroll.
 function initCardParallax() {
     ScrollTrigger.getAll()
         .filter(t => t._cardParallax)
@@ -1182,30 +1177,29 @@ function initCardParallax() {
         const img = card.querySelector('img');
         if (!img) return;
 
-        // Force les dimensions de l'image : légèrement plus grande que le cadre
+        // Force l'image à dépasser largement du cadre (125% de hauteur + transform-origin top)
         img.style.display = 'block';
         img.style.width = '100%';
-        img.style.height = '115%';
+        img.style.height = '125%';
         img.style.objectFit = 'cover';
-        img.style.objectPosition = 'center 30%';
+        img.style.objectPosition = 'center top';
+        img.style.transformOrigin = 'center top';
         img.style.willChange = 'transform';
 
-        // fromTo: quand le haut de la carte touche le bas de l'écran (start)
-        //         → quand le bas de la carte touche le haut de l'écran (end)
-        // L'image passe de scale(1.15)+Y(-8%) à scale(1)+Y(+8%)
-        // scrub:1.2 crée le retard smooth (l'image "flotte" légèrement)
+        // L'image varie de scale(1.25)+Y(-4%) à scale(1.10)+Y(+4%)
+        // L'échelle ne descend JAMAIS en dessous de 1.10 -> impossible d'avoir du noir
         const anim = gsap.fromTo(img,
-            { scale: 1.15, y: '-8%' },
+            { scale: 1.25, y: '-4%' },
             {
-                scale: 1,
-                y: '8%',
+                scale: 1.10,
+                y: '4%',
                 ease: 'none',
                 scrollTrigger: {
                     trigger: card,
                     start: 'top bottom',
                     end: 'bottom top',
-                    scrub: 1.2,
-                    invalidateOnRefresh: true
+                    scrub: 0.8,
+                    invalidateOnRefresh: false
                 }
             }
         );
