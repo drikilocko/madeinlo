@@ -498,9 +498,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return card;
     };
 
-    // GALERIE DYNAMIQUE : 2 colonnes sur mobile (<= 768px), 3 colonnes sur desktop (> 768px)
+    // GALERIE DYNAMIQUE : 2 colonnes sur mobile (<= 900px), 3 colonnes sur desktop (> 900px)
     const distributeProducts = (productsToShow, append = false) => {
-        const isMobile = window.innerWidth <= 768;
+        const isMobile = window.innerWidth <= 900;
         const numCols = isMobile ? 2 : 3;
 
         const col1 = document.getElementById('col-1');

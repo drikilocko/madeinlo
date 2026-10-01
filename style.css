@@ -2621,7 +2621,7 @@ body {
         border-radius: 0 !important;
     }
 
-    /* Galerie shop sur mobile : 2 colonnes flex avec gap 0.25rem et aspect-ratio 4/6 */
+    /* Galerie shop sur mobile : 2 colonnes flex occupant 100% de l'espace avec gap 0.25rem et aspect-ratio 4/6 */
     .gallery-container {
         display: flex !important;
         flex-direction: row !important;
@@ -2646,15 +2646,24 @@ body {
     }
 
     .gallery-card {
+        position: relative !important;
         margin-bottom: 0.25rem !important;
         width: 100% !important;
         aspect-ratio: 4 / 6 !important;
         height: auto !important;
         border-radius: 0 !important;
+        overflow: hidden !important;
+        background: var(--background-color) !important;
     }
 
     .gallery-card img {
-        height: 115% !important;
+        position: absolute !important;
+        top: -15% !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 130% !important;
+        object-fit: cover !important;
+        object-position: center !important;
     }
 
     /* Rend la section d'accueil (vinyles qui tournent) pleine page sur mobile */
