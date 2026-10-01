@@ -485,10 +485,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `<span class="sold-out-badge" style="position: absolute; top: 15px; left: 15px; background: #ff5252; color: #fff; padding: 4px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(255,82,82,0.4); z-index: 10;">Sold Out</span>`
             : '';
 
-        card.style.position = 'relative';
         card.innerHTML = `
-            ${badgeHtml}
-            <img src="${product.image_url}" alt="${product.name}" style="${isSoldOut ? 'filter: grayscale(0.8) opacity(0.7);' : ''}">
+            <div class="gallery-horizontal-card-visual">
+                ${badgeHtml}
+                <img src="${product.image_url}" alt="${product.name}" style="${isSoldOut ? 'filter: grayscale(0.8) opacity(0.7);' : ''}">
+            </div>
             <div class="gallery-horizontal-card-info">
                 <h3>${product.name || 'Produit'}</h3>
                 <p>${product.price} FCFA</p>
@@ -586,19 +587,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
             });
 
-            // Mise à jour de la visibilité des boutons
-            const updateButtons = () => {
+            // Mise à jour de la visibilité des boutons ET Parallaxe Horizontale au Drag / Slide
+            const updateRowEffects = () => {
                 const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
                 // Affiche "Gauche" si on n'est pas au début
                 leftBtn.style.display = scrollContainer.scrollLeft > 10 ? 'flex' : 'none';
                 // Affiche "Droite" si on n'est pas à la fin
                 rightBtn.style.display = scrollContainer.scrollLeft < maxScroll - 10 ? 'flex' : 'none';
+
+                // Parallaxe horizontale sur les images lors du glissement (slide / drag)
+                const containerRect = scrollContainer.getBoundingClientRect();
+                const cards = scrollContainer.querySelectorAll('.gallery-horizontal-card');
+                cards.forEach(card => {
+                    const cardRect = card.getBoundingClientRect();
+                    if (cardRect.right > 0 && cardRect.left < window.innerWidth) {
+                        const relativePos = ((cardRect.left + cardRect.width / 2) - containerRect.left) / containerRect.width;
+                        const shiftPercent = (relativePos - 0.5) * -16; // Varié de -8% à +8%
+                        const img = card.querySelector('.gallery-horizontal-card-visual img');
+                        if (img) {
+                            img.style.transform = `translateX(${shiftPercent}%)`;
+                        }
+                    }
+                });
             };
 
-            scrollContainer.addEventListener('scroll', updateButtons);
+            scrollContainer.addEventListener('scroll', updateRowEffects, { passive: true });
             // Initialisation après le rendu pour s'assurer des bonnes largeurs
-            setTimeout(updateButtons, 200);
-            window.addEventListener('resize', updateButtons);
+            setTimeout(updateRowEffects, 200);
+            window.addEventListener('resize', updateRowEffects);
 
             section.appendChild(title);
             section.appendChild(scrollContainer);
