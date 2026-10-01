@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
@@ -22,13 +22,10 @@ export default async function handler(req, res) {
       const login = input.login || '';
       const password = input.password || '';
 
-      const { data: shop, error } = await supabase
-        .from('shops')
-        .select('*')
-        .eq('login', login)
-        .single();
+      const shops = await supabaseGet('shops', {});
+      const shop = shops.find(s => s.login === login);
 
-      if (error || !shop) {
+      if (!shop) {
         return res.status(401).json({ error: 'Identifiants incorrects' });
       }
 
@@ -50,12 +47,7 @@ export default async function handler(req, res) {
       const shopId = input.shop_id;
       const hashedPassword = bcrypt.hashSync(input.password, 10);
 
-      const { error } = await supabase
-        .from('shops')
-        .update({ password: hashedPassword })
-        .eq('id', shopId);
-
-      if (error) throw error;
+      await supabasePatch('shops', { password: hashedPassword }, { id: shopId });
       return res.status(200).json({ status: 'success' });
     } else if (input.action === 'logout') {
       return res.status(200).json({ status: 'logged_out' });

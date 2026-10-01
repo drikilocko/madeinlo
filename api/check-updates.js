@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 import crypto from 'crypto';
 
 export default async function handler(req, res) {
@@ -12,17 +12,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { data: products, error: productsError } = await supabase
-      .from('products')
-      .select('stock_qty, id');
-
-    if (productsError) throw productsError;
-
-    const { data: shopStock, error: shopStockError } = await supabase
-      .from('shop_stock')
-      .select('qty');
-
-    if (shopStockError) throw shopStockError;
+    const products = await supabaseGet('products', {});
+    const shopStock = await supabaseGet('shop_stock', {});
 
     const cnt = (products || []).length;
     const stockSum = (products || []).reduce((sum, p) => sum + (p.stock_qty || 0), 0);

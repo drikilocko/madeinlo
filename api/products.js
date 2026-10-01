@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 import { parseGallery, getQueryParam } from './_helpers.js';
 
 export default async function handler(req, res) {
@@ -16,22 +16,13 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'GET': {
-        let result = await supabase
-          .from('products')
-          .select('*')
-          .order('category', { ascending: true })
-          .order('created_at', { ascending: false });
-
-        let data = result.data;
-        if (result.error) {
-          const fallback = await supabase
-            .from('products')
-            .select('*')
-            .order('created_at', { ascending: false });
-          data = fallback.data;
+        try {
+          const data = await supabaseGet('products', { order: 'category.asc,created_at.desc' });
+          return res.status(200).json(data || []);
+        } catch (e) {
+          const data = await supabaseGet('products', { order: 'created_at.desc' });
+          return res.status(200).json(data || []);
         }
-
-        return res.status(200).json(data || []);
       }
 
       case 'POST': {
@@ -52,20 +43,15 @@ export default async function handler(req, res) {
           let imageUrl = p.image_url || '';
 
           if (!isEdit) {
-            const { data, error } = await supabase
-              .from('products')
-              .insert([{
-                name: p.name,
-                description: p.description,
-                price: p.price,
-                image_url: imageUrl,
-                category: p.category,
-                gallery: gallery,
-                stock_qty: stock
-              }])
-              .select('id');
-
-            if (error) throw error;
+            const data = await supabasePost('products', {
+              name: p.name,
+              description: p.description,
+              price: p.price,
+              image_url: imageUrl,
+              category: p.category,
+              gallery: gallery,
+              stock_qty: stock
+            });
             return res.status(200).json({ status: 'success', id: data[0].id });
           } else {
             const updateData = {
@@ -78,43 +64,22 @@ export default async function handler(req, res) {
               stock_qty: stock
             };
 
-            const { error } = await supabase
-              .from('products')
-              .update(updateData)
-              .eq('id', p.id);
-
-            if (error) throw error;
+            await supabasePatch('products', updateData, { id: p.id });
             return res.status(200).json({ status: 'success' });
           }
         } else if (action === 'delete') {
-          const { error } = await supabase
-            .from('products')
-            .delete()
-            .eq('id', input.id);
-
-          if (error) throw error;
+          await supabaseDelete('products', { id: input.id });
           return res.status(200).json({ status: 'success' });
         } else if (action === 'increment_view') {
-          const { data } = await supabase
-            .from('products')
-            .select('views')
-            .eq('id', input.id)
-            .single();
-
-          const { error } = await supabase
-            .from('products')
-            .update({ views: (data?.views || 0) + 1 })
-            .eq('id', input.id);
-
-          if (error) throw error;
+          const products = await supabaseGet('products', {});
+          const product = products.find(pr => pr.id === input.id);
+          const currentViews = product ? (product.views || 0) : 0;
+          await supabasePatch('products', { views: currentViews + 1 }, { id: input.id });
           return res.status(200).json({ status: 'success' });
         } else if (action === 'bulk_add') {
           const count = input.count ? parseInt(input.count) : 100;
 
-          const { data: urls } = await supabase
-            .from('products')
-            .select('image_url');
-
+          const urls = await supabaseGet('products', {});
           let maxNum = 0;
           for (const row of urls || []) {
             const match = row.image_url?.match(/(\d+)\.(webp|png|jpg)$/i);
@@ -135,31 +100,18 @@ export default async function handler(req, res) {
             });
           }
 
-          const { error } = await supabase
-            .from('products')
-            .insert(products);
-
-          if (error) throw error;
+          await supabasePost('products', products);
           return res.status(200).json({ status: 'success', added: count });
         } else if (action === 'merge') {
           const sourceId = input.source_id;
           const targetId = input.target_id;
 
-          const { data: source, error: sourceError } = await supabase
-            .from('products')
-            .select('image_url, gallery')
-            .eq('id', sourceId)
-            .single();
+          const allProducts = await supabaseGet('products', {});
+          const source = allProducts.find(pr => pr.id === sourceId);
+          const target = allProducts.find(pr => pr.id === targetId);
 
-          if (sourceError || !source) throw new Error('Source product not found');
-
-          const { data: target, error: targetError } = await supabase
-            .from('products')
-            .select('gallery')
-            .eq('id', targetId)
-            .single();
-
-          if (targetError || !target) throw new Error('Target product not found');
+          if (!source) throw new Error('Source product not found');
+          if (!target) throw new Error('Target product not found');
 
           const targetGallery = parseGallery(target.gallery);
           const sourceGallery = parseGallery(source.gallery);
@@ -174,19 +126,8 @@ export default async function handler(req, res) {
             }
           }
 
-          const { error: updateError } = await supabase
-            .from('products')
-            .update({ gallery: targetGallery })
-            .eq('id', targetId);
-
-          if (updateError) throw updateError;
-
-          const { error: deleteError } = await supabase
-            .from('products')
-            .delete()
-            .eq('id', sourceId);
-
-          if (deleteError) throw deleteError;
+          await supabasePatch('products', { gallery: targetGallery }, { id: targetId });
+          await supabaseDelete('products', { id: sourceId });
 
           return res.status(200).json({ status: 'success' });
         } else if (action === 'bulk_merge') {
@@ -195,23 +136,15 @@ export default async function handler(req, res) {
 
           if (!sourceIds || sourceIds.length === 0) throw new Error('No source IDs provided');
 
-          const { data: target, error: targetError } = await supabase
-            .from('products')
-            .select('gallery')
-            .eq('id', targetId)
-            .single();
+          const allProducts = await supabaseGet('products', {});
+          const target = allProducts.find(pr => pr.id === targetId);
 
-          if (targetError || !target) throw new Error('Target product not found');
+          if (!target) throw new Error('Target product not found');
 
           const targetGallery = parseGallery(target.gallery);
 
           for (const sourceId of sourceIds) {
-            const { data: source } = await supabase
-              .from('products')
-              .select('image_url, gallery')
-              .eq('id', sourceId)
-              .single();
-
+            const source = allProducts.find(pr => pr.id === sourceId);
             if (source) {
               if (source.image_url && !targetGallery.includes(source.image_url)) {
                 targetGallery.push(source.image_url);
@@ -225,32 +158,21 @@ export default async function handler(req, res) {
             }
           }
 
-          const { error: updateError } = await supabase
-            .from('products')
-            .update({ gallery: targetGallery })
-            .eq('id', targetId);
+          await supabasePatch('products', { gallery: targetGallery }, { id: targetId });
 
-          if (updateError) throw updateError;
-
-          const { error: deleteError } = await supabase
-            .from('products')
-            .delete()
-            .in('id', sourceIds);
-
-          if (deleteError) throw deleteError;
+          for (const sourceId of sourceIds) {
+            await supabaseDelete('products', { id: sourceId });
+          }
 
           return res.status(200).json({ status: 'success' });
         } else if (action === 'unmerge') {
           const parentId = input.parent_id;
           const imageUrl = input.image_url;
 
-          const { data: parent, error: parentError } = await supabase
-            .from('products')
-            .select('*')
-            .eq('id', parentId)
-            .single();
+          const allProducts = await supabaseGet('products', {});
+          const parent = allProducts.find(pr => pr.id === parentId);
 
-          if (parentError || !parent) throw new Error('Parent product not found');
+          if (!parent) throw new Error('Parent product not found');
 
           let gallery = parseGallery(parent.gallery);
           const idx = gallery.indexOf(imageUrl);
@@ -259,26 +181,17 @@ export default async function handler(req, res) {
           }
 
           const newName = `${parent.name} - Copie`;
-          const { error: insertError } = await supabase
-            .from('products')
-            .insert([{
-              name: newName,
-              description: parent.description || '',
-              price: parent.price || 0,
-              stock_qty: 0,
-              image_url: imageUrl,
-              category: parent.category || 'General',
-              gallery: []
-            }]);
+          await supabasePost('products', {
+            name: newName,
+            description: parent.description || '',
+            price: parent.price || 0,
+            stock_qty: 0,
+            image_url: imageUrl,
+            category: parent.category || 'General',
+            gallery: []
+          });
 
-          if (insertError) throw insertError;
-
-          const { error: updateError } = await supabase
-            .from('products')
-            .update({ gallery })
-            .eq('id', parentId);
-
-          if (updateError) throw updateError;
+          await supabasePatch('products', { gallery }, { id: parentId });
 
           return res.status(200).json({ status: 'success' });
         } else if (action === 'bulk_update_category') {
@@ -287,20 +200,13 @@ export default async function handler(req, res) {
 
           if (!ids || ids.length === 0) throw new Error('No product IDs provided');
 
-          const { error } = await supabase
-            .from('products')
-            .update({ category })
-            .in('id', ids);
+          for (const id of ids) {
+            await supabasePatch('products', { category }, { id });
+          }
 
-          if (error) throw error;
           return res.status(200).json({ status: 'success', updated: ids.length });
         } else if (action === 'toggle_visibility') {
-          const { error } = await supabase
-            .from('products')
-            .update({ is_visible: Boolean(input.is_visible) })
-            .eq('id', input.id);
-
-          if (error) throw error;
+          await supabasePatch('products', { is_visible: Boolean(input.is_visible) }, { id: input.id });
           return res.status(200).json({ status: 'success' });
         } else if (action === 'bulk_toggle_visibility') {
           const ids = input.ids;
@@ -308,12 +214,10 @@ export default async function handler(req, res) {
 
           if (!ids || ids.length === 0) throw new Error('No IDs provided');
 
-          const { error } = await supabase
-            .from('products')
-            .update({ is_visible: vis })
-            .in('id', ids);
+          for (const id of ids) {
+            await supabasePatch('products', { is_visible: vis }, { id });
+          }
 
-          if (error) throw error;
           return res.status(200).json({ status: 'success' });
         }
 

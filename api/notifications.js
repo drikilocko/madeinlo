@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -14,13 +14,7 @@ export default async function handler(req, res) {
 
   try {
     if (method === 'GET') {
-      const { data, error } = await supabase
-        .from('admin_notifications')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (error) throw error;
+      const data = await supabaseGet('admin_notifications', { order: 'created_at.desc', limit: 20 });
       return res.status(200).json(data || []);
     }
 
@@ -28,12 +22,7 @@ export default async function handler(req, res) {
       const input = req.body || {};
 
       if (input.action === 'mark_read') {
-        const { error } = await supabase
-          .from('admin_notifications')
-          .update({ is_read: true })
-          .eq('id', input.id);
-
-        if (error) throw error;
+        await supabasePatch('admin_notifications', { is_read: true }, { id: input.id });
         return res.status(200).json({ status: 'success' });
       }
 

@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 import { getQueryParam } from './_helpers.js';
 
 export default async function handler(req, res) {
@@ -19,22 +19,11 @@ export default async function handler(req, res) {
     const shopId = getQueryParam(req, 'shop_id');
 
     if (shopId) {
-      const { data, error } = await supabase
-        .from('activity_log')
-        .select('*')
-        .eq('shop_id', shopId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return res.status(200).json(data || []);
+      const data = await supabaseGet('activity_log', { order: 'created_at.desc' });
+      const filtered = data.filter(l => l.shop_id === shopId);
+      return res.status(200).json(filtered || []);
     } else {
-      const { data, error } = await supabase
-        .from('activity_log')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
+      const data = await supabaseGet('activity_log', { order: 'created_at.desc', limit: 100 });
       return res.status(200).json(data || []);
     }
   } catch (e) {

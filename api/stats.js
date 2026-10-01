@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 import { parsePrice, formatCurrency } from './_helpers.js';
 
 export default async function handler(req, res) {
@@ -12,28 +12,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { data: orders, error: ordersError } = await supabase
-      .from('orders')
-      .select('product_price, status');
-
-    if (ordersError) throw ordersError;
-
+    const orders = await supabaseGet('orders', { select: 'product_price, status' });
     const totalOrders = orders.length;
 
     const completedOrders = orders.filter(o => o.status === 'completed');
     const revenue = completedOrders.reduce((sum, o) => sum + parsePrice(o.product_price), 0);
 
-    const { count: totalProducts, error: prodError } = await supabase
-      .from('products')
-      .select('*', { count: 'exact', head: true });
-
-    if (prodError) throw prodError;
-
-    const { data: products, error: productsError } = await supabase
-      .from('products')
-      .select('price, stock_qty, created_at');
-
-    if (productsError) throw productsError;
+    const products = await supabaseGet('products', {});
+    const totalProducts = products.length;
 
     const totalStockValue = products.reduce((sum, p) => sum + (parsePrice(p.price) * (p.stock_qty || 0)), 0);
 
@@ -50,23 +36,15 @@ export default async function handler(req, res) {
       return sum;
     }, 0);
 
-    const { data: activityLogs, error: logError } = await supabase
-      .from('activity_log')
-      .select('product_id, qty')
-      .eq('type', 'sale_partner');
-
-    if (logError) throw logError;
+    const activityLogs = await supabaseGet('activity_log', {});
+    const salePartnerLogs = activityLogs.filter(l => l.type === 'sale_partner');
 
     let partnerRevenue = 0;
-    if (activityLogs.length > 0) {
-      const productIds = [...new Set(activityLogs.map(l => l.product_id).filter(Boolean))];
-      const { data: partnerProducts } = await supabase
-        .from('products')
-        .select('id, price')
-        .in('id', productIds);
-
+    if (salePartnerLogs.length > 0) {
+      const productIds = [...new Set(salePartnerLogs.map(l => l.product_id).filter(Boolean))];
+      const partnerProducts = await supabaseGet('products', { select: 'id, price' });
       const productMap = new Map((partnerProducts || []).map(p => [p.id, parsePrice(p.price)]));
-      partnerRevenue = activityLogs.reduce((sum, log) => {
+      partnerRevenue = salePartnerLogs.reduce((sum, log) => {
         const price = productMap.get(log.product_id) || 0;
         return sum + (log.qty * price);
       }, 0);
@@ -74,13 +52,7 @@ export default async function handler(req, res) {
 
     const websiteRevenue = revenue;
 
-    const { data: viewStats, error: viewError } = await supabase
-      .from('products')
-      .select('name, views')
-      .order('views', { ascending: false })
-      .limit(7);
-
-    if (viewError) throw viewError;
+    const viewStats = await supabaseGet('products', { select: 'name, views', order: 'views.desc', limit: 7 });
 
     return res.status(200).json({
       revenue: formatCurrency(revenue),

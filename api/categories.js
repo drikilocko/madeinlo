@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -15,12 +15,7 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'GET': {
-        const { data, error } = await supabase
-          .from('categories')
-          .select('*')
-          .order('name', { ascending: true });
-
-        if (error) throw error;
+        const data = await supabaseGet('categories', { order: 'name.asc' });
         return res.status(200).json(data || []);
       }
 
@@ -32,59 +27,27 @@ export default async function handler(req, res) {
         }
 
         if (input.action === 'toggle_visibility') {
-          const { error } = await supabase
-            .from('categories')
-            .update({ is_visible: Boolean(input.is_visible) })
-            .eq('id', input.id);
-
-          if (error) throw error;
+          await supabasePatch('categories', { is_visible: Boolean(input.is_visible) }, { id: input.id });
           return res.status(200).json({ status: 'success' });
         } else if (input.action === 'add') {
           const name = input.name;
-          const { data, error } = await supabase
-            .from('categories')
-            .insert([{ name }])
-            .select('id');
-
-          if (error) throw error;
+          const data = await supabasePost('categories', { name });
           return res.status(200).json({ status: 'success', id: data[0].id });
         } else if (input.action === 'edit') {
           const newName = input.new_name;
           const oldName = input.old_name;
           const id = input.id;
 
-          const { error: catError } = await supabase
-            .from('categories')
-            .update({ name: newName })
-            .eq('id', id);
-
-          if (catError) throw catError;
-
-          const { error: prodError } = await supabase
-            .from('products')
-            .update({ category: newName })
-            .eq('category', oldName);
-
-          if (prodError) throw prodError;
+          await supabasePatch('categories', { name: newName }, { id });
+          await supabasePatch('products', { category: newName }, { category: oldName });
 
           return res.status(200).json({ status: 'success' });
         } else if (input.action === 'delete') {
           const id = input.id;
           const name = input.name;
 
-          const { error: catError } = await supabase
-            .from('categories')
-            .delete()
-            .eq('id', id);
-
-          if (catError) throw catError;
-
-          const { error: prodError } = await supabase
-            .from('products')
-            .update({ category: 'General' })
-            .eq('category', name);
-
-          if (prodError) throw prodError;
+          await supabaseDelete('categories', { id });
+          await supabasePatch('products', { category: 'General' }, { category: name });
 
           return res.status(200).json({ status: 'success' });
         }

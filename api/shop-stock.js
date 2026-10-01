@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -17,45 +17,37 @@ export default async function handler(req, res) {
       const shopId = getQueryParam(req, 'shop_id');
       const type = getQueryParam(req, 'type') || 'stock';
 
-      const { data: zeroStockProducts } = await supabase
-        .from('products')
-        .select('id')
-        .lte('stock_qty', 0);
+      const products = await supabaseGet('products', {});
+      const zeroStockProducts = products.filter(p => (p.stock_qty || 0) <= 0);
 
-      if (zeroStockProducts && zeroStockProducts.length > 0) {
+      if (zeroStockProducts.length > 0) {
         const ids = zeroStockProducts.map(p => p.id);
-        await supabase
-          .from('shop_stock')
-          .update({ qty: 0 })
-          .in('product_id', ids);
+        const shopStocks = await supabaseGet('shop_stock', {});
+        for (const ss of shopStocks) {
+          if (ids.includes(ss.product_id)) {
+            await supabasePatch('shop_stock', { qty: 0 }, { id: ss.id });
+          }
+        }
 
-        await supabase
-          .from('stock_shipments')
-          .update({ status: 'accepted' })
-          .in('product_id', ids)
-          .eq('status', 'pending');
+        const stockShipments = await supabaseGet('stock_shipments', {});
+        for (const shipment of stockShipments) {
+          if (ids.includes(shipment.product_id) && shipment.status === 'pending') {
+            await supabasePatch('stock_shipments', { status: 'accepted' }, { id: shipment.id });
+          }
+        }
       }
 
       if (shopId) {
         if (type === 'stock') {
-          const { data, error } = await supabase
-            .from('shop_stock')
-            .select('*, products(name, price, image_url, category, stock_qty)')
-            .eq('shop_id', shopId);
-
-          if (error) throw error;
-          return res.status(200).json(data || []);
+          const shopStockData = await supabaseGet('shop_stock', {});
+          const filtered = shopStockData.filter(ss => ss.shop_id === shopId);
+          return res.status(200).json(filtered || []);
         } else {
-          const { data, error } = await supabase
-            .from('stock_shipments')
-            .select('*, products(name, price, image_url, category)')
-            .eq('shop_id', shopId)
-            .eq('status', 'pending');
-
-          if (error) throw error;
+          const stockShipments = await supabaseGet('stock_shipments', {});
+          const pending = stockShipments.filter(ss => ss.shop_id === shopId && ss.status === 'pending');
 
           const grouped = new Map();
-          for (const row of data || []) {
+          for (const row of pending) {
             const key = `${row.shop_id}-${row.product_id}`;
             if (!grouped.has(key)) {
               grouped.set(key, {
@@ -92,13 +84,10 @@ export default async function handler(req, res) {
         const productId = parseInt(input.product_id);
         const qty = parseInt(input.qty);
 
-        const { data: product, error: prodError } = await supabase
-          .from('products')
-          .select('name, stock_qty')
-          .eq('id', productId)
-          .single();
+        const products = await supabaseGet('products', {});
+        const product = products.find(p => p.id === productId);
 
-        if (prodError || !product) {
+        if (!product) {
           return res.status(200).json({ status: 'error', message: 'Produit non trouvé' });
         }
 
@@ -106,100 +95,66 @@ export default async function handler(req, res) {
           return res.status(200).json({ status: 'error', message: `Stock central insuffisant (Max disponible : ${product.stock_qty})` });
         }
 
-        const { data: shop, error: shopError } = await supabase
-          .from('shops')
-          .select('name')
-          .eq('id', shopId)
-          .single();
+        const shops = await supabaseGet('shops', {});
+        const shop = shops.find(s => s.id === shopId);
 
-        if (shopError || !shop) {
+        if (!shop) {
           return res.status(200).json({ status: 'error', message: 'Shop non trouvé' });
         }
 
-        await supabase
-          .from('products')
-          .update({ stock_qty: (product.stock_qty || 0) - qty })
-          .eq('id', productId);
-
-        await supabase
-          .from('stock_shipments')
-          .insert([{ shop_id: shopId, product_id: productId, qty, status: 'pending' }]);
+        await supabasePatch('products', { stock_qty: (product.stock_qty || 0) - qty }, { id: productId });
+        await supabasePost('stock_shipments', [{ shop_id: shopId, product_id: productId, qty, status: 'pending' }]);
 
         const logMsg = `Envoi de stock en attente : ${qty} unité(s) de '${product.name}' expédiée(s) à '${shop.name}'.`;
-        await supabase
-          .from('activity_log')
-          .insert([{
-            type: 'assignment',
-            shop_id: shopId,
-            shop_name: shop.name,
-            product_id: productId,
-            product_name: product.name,
-            qty,
-            message: logMsg
-          }]);
+        await supabasePost('activity_log', [{
+          type: 'assignment',
+          shop_id: shopId,
+          shop_name: shop.name,
+          product_id: productId,
+          product_name: product.name,
+          qty,
+          message: logMsg
+        }]);
 
         return res.status(200).json({ status: 'success' });
       } else if (input.action === 'accept_shipment') {
         const shipmentId = parseInt(input.id);
 
-        const { data: refShip, error: shipError } = await supabase
-          .from('stock_shipments')
-          .select('*')
-          .eq('id', shipmentId)
-          .eq('status', 'pending')
-          .single();
+        const stockShipments = await supabaseGet('stock_shipments', {});
+        const refShip = stockShipments.find(s => s.id === shipmentId && s.status === 'pending');
 
-        if (shipError || !refShip) {
+        if (!refShip) {
           return res.status(200).json({ status: 'error', message: 'Expédition non trouvée' });
         }
 
         const shopId = refShip.shop_id;
         const productId = refShip.product_id;
 
-        const { data: pendingShipments } = await supabase
-          .from('stock_shipments')
-          .select('qty')
-          .eq('shop_id', shopId)
-          .eq('product_id', productId)
-          .eq('status', 'pending');
-
-        const totalQty = (pendingShipments || []).reduce((sum, s) => sum + (s.qty || 0), 0);
+        const pendingShipments = stockShipments.filter(s => s.shop_id === shopId && s.product_id === productId && s.status === 'pending');
+        const totalQty = pendingShipments.reduce((sum, s) => sum + (s.qty || 0), 0);
 
         if (totalQty > 0) {
-          const { data: existing } = await supabase
-            .from('shop_stock')
-            .select('id, qty')
-            .eq('shop_id', shopId)
-            .eq('product_id', productId)
-            .maybeSingle();
+          const shopStocks = await supabaseGet('shop_stock', {});
+          const existing = shopStocks.find(ss => ss.shop_id === shopId && ss.product_id === productId);
 
           if (existing) {
-            await supabase
-              .from('shop_stock')
-              .update({ qty: (existing.qty || 0) + totalQty })
-              .eq('id', existing.id);
+            await supabasePatch('shop_stock', { qty: (existing.qty || 0) + totalQty }, { id: existing.id });
           } else {
-            await supabase
-              .from('shop_stock')
-              .insert([{ shop_id: shopId, product_id: productId, qty: totalQty }]);
+            await supabasePost('shop_stock', [{ shop_id: shopId, product_id: productId, qty: totalQty }]);
           }
 
-          await supabase
-            .from('stock_shipments')
-            .update({ status: 'accepted' })
-            .eq('shop_id', shopId)
-            .eq('product_id', productId)
-            .eq('status', 'pending');
+          const matchingShipments = stockShipments.filter(s => s.shop_id === shopId && s.product_id === productId && s.status === 'pending');
+          for (const shipment of matchingShipments) {
+            await supabasePatch('stock_shipments', { status: 'accepted' }, { id: shipment.id });
+          }
 
           const logMsg = `Réception confirmée : Le shop a accepté toutes les expéditions en attente pour ce produit (Total: ${totalQty} unités).`;
-          await supabase
-            .from('activity_log')
-            .insert([{
-              type: 'assignment',
-              shop_id: shopId,
-              product_id: productId,
-              message: logMsg
-            }]);
+          await supabasePost('activity_log', [{
+            type: 'assignment',
+            shop_id: shopId,
+            product_id: productId,
+            message: logMsg
+          }]);
 
           return res.status(200).json({ status: 'success' });
         } else {
@@ -210,58 +165,39 @@ export default async function handler(req, res) {
         const productId = parseInt(input.product_id);
         const qty = parseInt(input.qty);
 
-        const { data: existing, error: existError } = await supabase
-          .from('shop_stock')
-          .select('id, qty')
-          .eq('shop_id', shopId)
-          .eq('product_id', productId)
-          .maybeSingle();
+        const shopStocks = await supabaseGet('shop_stock', {});
+        const existing = shopStocks.find(ss => ss.shop_id === shopId && ss.product_id === productId);
 
-        if (existError) throw existError;
-
-        const oldQty = existing ? (existing.qty || 0) : 0;
-        const diff = qty - oldQty;
-
+        let oldQty = 0;
         if (existing) {
-          const { error: updateError } = await supabase
-            .from('shop_stock')
-            .update({ qty })
-            .eq('id', existing.id);
-
-          if (updateError) throw updateError;
-        } else {
-          const { error: insertError } = await supabase
-            .from('shop_stock')
-            .insert([{ shop_id: shopId, product_id: productId, qty }]);
-
-          if (insertError) throw insertError;
+          oldQty = existing.qty || 0;
         }
 
+        if (existing) {
+          await supabasePatch('shop_stock', { qty }, { id: existing.id });
+        } else {
+          await supabasePost('shop_stock', [{ shop_id: shopId, product_id: productId, qty }]);
+        }
+
+        const diff = qty - oldQty;
+
         if (diff !== 0) {
-          const { data: product } = await supabase
-            .from('products')
-            .select('stock_qty')
-            .eq('id', productId)
-            .single();
+          const products = await supabaseGet('products', {});
+          const product = products.find(p => p.id === productId);
 
           if (product) {
             const newQty = Math.max(0, (product.stock_qty || 0) - diff);
-            await supabase
-              .from('products')
-              .update({ stock_qty: newQty })
-              .eq('id', productId);
+            await supabasePatch('products', { stock_qty: newQty }, { id: productId });
           }
         }
 
         const logMsg = `Stock rectifié : Le stock du produit ID ${productId} a été fixé à ${qty} (différence de ${diff}, stock central ajusté de -${diff}).`;
-        await supabase
-          .from('activity_log')
-          .insert([{
-            type: 'rectification',
-            shop_id: shopId,
-            product_id: productId,
-            message: logMsg
-          }]);
+        await supabasePost('activity_log', [{
+          type: 'rectification',
+          shop_id: shopId,
+          product_id: productId,
+          message: logMsg
+        }]);
 
         return res.status(200).json({ status: 'success' });
       } else if (input.action === 'sell') {
@@ -270,47 +206,31 @@ export default async function handler(req, res) {
         const qtySold = parseInt(input.qty_sold || input.qty || 1);
         const shopName = input.shop_name || 'Un shop';
 
-        const { data: stock, error: stockError } = await supabase
-          .from('shop_stock')
-          .select('qty')
-          .eq('shop_id', shopId)
-          .eq('product_id', productId)
-          .single();
+        const shopStocks = await supabaseGet('shop_stock', {});
+        const stock = shopStocks.find(ss => ss.shop_id === shopId && ss.product_id === productId);
 
-        if (stockError || !stock || stock.qty < qtySold) {
+        if (!stock || stock.qty < qtySold) {
           return res.status(200).json({ status: 'error', message: 'Stock insuffisant pour cette quantité' });
         }
 
-        await supabase
-          .from('shop_stock')
-          .update({ qty: stock.qty - qtySold })
-          .eq('shop_id', shopId)
-          .eq('product_id', productId);
+        await supabasePatch('shop_stock', { qty: stock.qty - qtySold }, { shop_id: shopId, product_id });
 
-        const { data: prod } = await supabase
-          .from('products')
-          .select('name')
-          .eq('id', productId)
-          .single();
-
+        const products = await supabaseGet('products', {});
+        const prod = products.find(p => p.id === productId);
         const prodName = prod ? prod.name : 'Produit inconnu';
         const msg = `Vente enregistrée : ${qtySold} unité(s) de '${prodName}' vendue(s) par le shop '${shopName}'.`;
 
-        await supabase
-          .from('activity_log')
-          .insert([{
-            type: 'sale_partner',
-            shop_id: shopId,
-            shop_name: shopName,
-            product_id: productId,
-            product_name: prodName,
-            qty: qtySold,
-            message: msg
-          }]);
+        await supabasePost('activity_log', [{
+          type: 'sale_partner',
+          shop_id: shopId,
+          shop_name: shopName,
+          product_id: productId,
+          product_name: prodName,
+          qty: qtySold,
+          message: msg
+        }]);
 
-        await supabase
-          .from('admin_notifications')
-          .insert([{ shop_id: shopId, shop_name: shopName, message: msg }]);
+        await supabasePost('admin_notifications', [{ shop_id: shopId, shop_name: shopName, message: msg }]);
 
         return res.status(200).json({ status: 'success' });
       }

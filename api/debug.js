@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -13,19 +13,10 @@ export default async function handler(req, res) {
     let tables = [];
 
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('count')
-        .limit(1);
-
-      if (error) {
-        dbStatus = 'error';
-        dbError = error.message;
-      } else {
-        dbStatus = 'connected';
-      }
+      const data = await supabaseGet('products', { limit: 1 });
+      dbStatus = 'connected';
     } catch (e) {
-      dbStatus = 'exception';
+      dbStatus = 'error';
       dbError = e.message;
     }
 

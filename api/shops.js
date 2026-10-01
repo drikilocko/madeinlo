@@ -1,4 +1,4 @@
-import { supabase } from './_supabase.js';
+import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
 import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
@@ -16,33 +16,21 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'GET': {
-        const { data: shops, error: shopsError } = await supabase
-          .from('shops')
-          .select('id, name, address, lat, lng, login, is_primary');
+        const shops = await supabaseGet('shops', { select: 'id, name, address, lat, lng, login, is_primary' });
+        const logs = await supabaseGet('activity_log', { select: 'shop_id, product_id, qty, type' });
 
-        if (shopsError) throw shopsError;
-
-        const { data: logs, error: logsError } = await supabase
-          .from('activity_log')
-          .select('shop_id, product_id, qty')
-          .eq('type', 'sale_partner');
-
-        if (logsError) throw logsError;
-
-        const shopIds = [...new Set(logs.map(l => l.shop_id).filter(Boolean))];
-        const productIds = [...new Set(logs.map(l => l.product_id).filter(Boolean))];
+        const saleLogs = logs.filter(l => l.type === 'sale_partner');
+        const shopIds = [...new Set(saleLogs.map(l => l.shop_id).filter(Boolean))];
+        const productIds = [...new Set(saleLogs.map(l => l.product_id).filter(Boolean))];
 
         let productMap = new Map();
         if (productIds.length > 0) {
-          const { data: products } = await supabase
-            .from('products')
-            .select('id, price')
-            .in('id', productIds);
+          const products = await supabaseGet('products', { select: 'id, price' });
           productMap = new Map((products || []).map(p => [p.id, parsePrice(p.price)]));
         }
 
         const result = (shops || []).map(shop => {
-          const shopLogs = logs.filter(l => l.shop_id === shop.id);
+          const shopLogs = saleLogs.filter(l => l.shop_id === shop.id);
           const totalQtySold = shopLogs.reduce((sum, l) => sum + (l.qty || 0), 0);
           const totalRevenue = shopLogs.reduce((sum, l) => {
             const price = productMap.get(l.product_id) || 0;
@@ -71,27 +59,25 @@ export default async function handler(req, res) {
           const isPrimary = parseInt(s.is_primary) === 1;
 
           if (isPrimary) {
-            await supabase
-              .from('shops')
-              .update({ is_primary: false })
-              .neq('id', 0);
+            const allShops = await supabaseGet('shops', {});
+            for (const shop of allShops) {
+              if (shop.id !== 0) {
+                await supabasePatch('shops', { is_primary: false }, { id: shop.id });
+              }
+            }
           }
 
           const pass = bcrypt.hashSync(s.password, 10);
-          const { data, error } = await supabase
-            .from('shops')
-            .insert([{
-              name: s.name,
-              address: s.address,
-              lat: s.lat,
-              lng: s.lng,
-              login: s.login,
-              password: pass,
-              is_primary: isPrimary
-            }])
-            .select('id');
+          const data = await supabasePost('shops', {
+            name: s.name,
+            address: s.address,
+            lat: s.lat,
+            lng: s.lng,
+            login: s.login,
+            password: pass,
+            is_primary: isPrimary
+          });
 
-          if (error) throw error;
           return res.status(200).json({ status: 'success', id: data[0].id });
         } else if (input.action === 'edit') {
           const s = input.shop || {};
@@ -99,52 +85,39 @@ export default async function handler(req, res) {
           const isPrimary = parseInt(s.is_primary) === 1;
 
           if (isPrimary) {
-            await supabase
-              .from('shops')
-              .update({ is_primary: false })
-              .neq('id', id);
+            const allShops = await supabaseGet('shops', {});
+            for (const shop of allShops) {
+              if (shop.id !== id) {
+                await supabasePatch('shops', { is_primary: false }, { id: shop.id });
+              }
+            }
           }
 
           if (s.password) {
             const pass = bcrypt.hashSync(s.password, 10);
-            const { error } = await supabase
-              .from('shops')
-              .update({
-                name: s.name,
-                address: s.address,
-                lat: s.lat,
-                lng: s.lng,
-                login: s.login,
-                password: pass,
-                is_primary: isPrimary
-              })
-              .eq('id', id);
-
-            if (error) throw error;
+            await supabasePatch('shops', {
+              name: s.name,
+              address: s.address,
+              lat: s.lat,
+              lng: s.lng,
+              login: s.login,
+              password: pass,
+              is_primary: isPrimary
+            }, { id });
           } else {
-            const { error } = await supabase
-              .from('shops')
-              .update({
-                name: s.name,
-                address: s.address,
-                lat: s.lat,
-                lng: s.lng,
-                login: s.login,
-                is_primary: isPrimary
-              })
-              .eq('id', id);
-
-            if (error) throw error;
+            await supabasePatch('shops', {
+              name: s.name,
+              address: s.address,
+              lat: s.lat,
+              lng: s.lng,
+              login: s.login,
+              is_primary: isPrimary
+            }, { id });
           }
 
           return res.status(200).json({ status: 'success' });
         } else if (input.action === 'delete') {
-          const { error } = await supabase
-            .from('shops')
-            .delete()
-            .eq('id', input.id);
-
-          if (error) throw error;
+          await supabaseDelete('shops', { id: input.id });
           return res.status(200).json({ status: 'success' });
         }
 
