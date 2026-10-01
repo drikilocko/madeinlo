@@ -1,4 +1,6 @@
 {
+  "version": 2,
+  "framework": null,
   "rewrites": [
     { "source": "/api/products.php", "destination": "/api/products" },
     { "source": "/api/categories.php", "destination": "/api/categories" },
