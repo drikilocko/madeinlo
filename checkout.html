@@ -268,6 +268,30 @@
         }
         .btn-confirm:disabled { opacity: 0.6; cursor: wait; transform: none; }
 
+        /* --- Bloc confiance WhatsApp --- */
+        .wa-trust {
+            margin-top: 18px;
+            padding: 16px;
+            border: 1px solid #e4efe6;
+            background: #f4faf5;
+            border-radius: 14px;
+        }
+        .wa-trust-head { display: flex; align-items: flex-start; gap: 12px; }
+        .wa-trust-head > i { color: #1fa855; font-size: 1.5rem; margin-top: 2px; }
+        .wa-trust-head strong { display: block; font-size: 0.95rem; color: #111; }
+        .wa-trust-head span { display: block; font-size: 0.82rem; color: #567; margin-top: 2px; line-height: 1.4; }
+        .wa-trust-btn {
+            display: flex; align-items: center; justify-content: center; gap: 9px;
+            margin-top: 14px; padding: 14px; border-radius: 11px;
+            background: #1fa855; color: #fff; text-decoration: none;
+            font-weight: 700; font-size: 0.95rem;
+            transition: background 0.2s ease;
+        }
+        .wa-trust-btn:hover { background: #178a46; }
+        .wa-trust-btn i { font-size: 1.2rem; }
+        .wa-trust-note { margin: 12px 0 0; font-size: 0.75rem; color: #567; text-align: center; }
+        .wa-trust-note i { color: #1fa855; margin-right: 4px; }
+
         /* --- Position de livraison --- */
         .loc-btn {
             width: 100%; display: flex; align-items: center; gap: 12px; padding: 15px;
@@ -455,6 +479,21 @@
             <div class="summary-total">
                 <span class="total-label">Total :</span>
                 <span id="total-price-display" class="total-price">0 FCFA</span>
+            </div>
+
+            <!-- Confiance : contact direct avant de payer -->
+            <div class="wa-trust">
+                <div class="wa-trust-head">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <div>
+                        <strong>Un doute avant de payer ?</strong>
+                        <span>Parlez à un conseiller Made in Lo, on vous répond vite.</span>
+                    </div>
+                </div>
+                <a class="wa-trust-btn" href="https://wa.me/22870894072?text=Bonjour%2C%20j%27ai%20une%20question%20avant%20de%20passer%20ma%20commande%20sur%20Made%20in%20Lo." target="_blank" rel="noopener noreferrer">
+                    <i class="fa-brands fa-whatsapp"></i> Discuter sur WhatsApp
+                </a>
+                <p class="wa-trust-note"><i class="fa-solid fa-shield-halved"></i> Paiement 100% sécurisé · Mobile Money &amp; carte bancaire</p>
             </div>
             <button onclick="clearCart()"
                 style="width:100%; margin-top:15px; padding:12px; background:transparent; border:1px solid rgba(255,82,82,0.4); color:#ff5252; border-radius:10px; cursor:pointer; font-size:0.85rem; transition:all 0.3s;"

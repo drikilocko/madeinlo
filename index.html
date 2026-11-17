@@ -951,34 +951,15 @@
         let _savedScrollY = 0;
 
         function _freezePage() {
-            // Position mémorisée AVANT tout changement (Lenis puis figeage)
-            _savedScrollY = (window.lenis && typeof window.lenis.scroll === 'number') ? window.lenis.scroll : window.scrollY;
+            // On bloque le défilement SANS déplacer la page : la position reste intacte,
+            // donc aucun retour en haut à la fermeture.
             if (window.lenis) window.lenis.stop();
             document.documentElement.classList.add('page-frozen');
-            document.body.style.position = 'fixed';
-            document.body.style.top = '-' + _savedScrollY + 'px';
-            document.body.style.left = '0';
-            document.body.style.right = '0';
-            document.body.style.overflow = 'hidden';
         }
 
         function _unfreezePage() {
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.left = '';
-            document.body.style.right = '';
-            document.body.style.overflow = '';
             document.documentElement.classList.remove('page-frozen');
-            const y = _savedScrollY;
-            const restore = () => {
-                window.scrollTo(0, y);
-                if (window.lenis) window.lenis.scrollTo(y, { immediate: true, force: true });
-            };
             if (window.lenis) window.lenis.start();
-            restore();
-            // Une 2e fois à la frame suivante, au cas où un recalcul aurait bougé la page
-            requestAnimationFrame(restore);
-            if (window.ScrollTrigger) window.ScrollTrigger.refresh();
         }
 
         // ======= OVERRIDE global openProductModal =======

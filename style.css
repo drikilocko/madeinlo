@@ -3036,3 +3036,6 @@ html.lenis, html.lenis body { height: auto; }
     .story-line { letter-spacing: -0.6px; }
     .story-step i { width: 44px; }
 }
+
+/* Fiche produit ouverte : défilement de la page bloqué sur place (position conservée) */
+html.page-frozen { overflow: hidden !important; }
