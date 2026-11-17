@@ -1,7 +1,7 @@
 /*
  * « Notre histoire » — 3 phrases qui se révèlent l'une après l'autre, en boucle.
  *
- * Effet « mise au point » (split text) :
+ * Effet « mise au point » (split text), version douce :
  *   - entrée : chaque lettre part floue, écartée depuis le centre de la phrase et
  *     légèrement agrandie, puis converge vers sa place en devenant nette
  *     (comme un objectif qui fait le point) ;
@@ -21,7 +21,7 @@
     const steps = Array.from(section.querySelectorAll('.story-step'));
     if (!lines.length) return;
 
-    const HOLD = 4.2;          // temps de lecture d'une phrase (secondes)
+    const HOLD = 5;          // temps de lecture d'une phrase (secondes)
     const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Sans GSAP : on affiche simplement la première phrase
@@ -55,7 +55,7 @@
     // Écart horizontal de départ : proportionnel à la distance au centre de la ligne
     function spreadFromCenter(el, line) {
         const center = el.offsetLeft + el.offsetWidth / 2;
-        return (center - line.offsetWidth / 2) * 0.28;
+        return (center - line.offsetWidth / 2) * 0.06; // écart discret
     }
 
     const chipsOf = (i) => chips.filter((c) => Number(c.dataset.part) === i);
@@ -95,42 +95,41 @@
             // les lettres n'animent que transform + opacity (gérés par la carte graphique).
             tl.set(line, { visibility: 'visible', willChange: 'filter' })
                 .set(chars, { willChange: 'transform, opacity' })
-                .fromTo(line, { filter: 'blur(12px)' }, { filter: 'blur(0px)', duration: 1.6, ease: 'power2.out' }, 0)
+                .fromTo(line, { filter: 'blur(6px)' }, { filter: 'blur(0px)', duration: 1.8, ease: 'power2.out' }, 0)
                 // Entrée « mise au point »
                 .fromTo(chars, {
                     opacity: 0,
                     x: (k, el) => spreadFromCenter(el, line),
-                    y: () => gsap.utils.random(-14, 14),
-                    scale: 1.18
+                    y: 8,
+                    scale: 1.02
                 }, {
                     opacity: 1,
                     x: 0,
                     y: 0,
                     scale: 1,
-                    duration: 1.3,
-                    ease: 'expo.out',
-                    stagger: { each: 0.012, from: 'center' }
+                    duration: 1.6,
+                    ease: 'power3.out',
+                    stagger: { each: 0.009, from: 'start' }
                 }, 0)
                 // Phrase nette : on libère les ressources pendant la lecture
                 .call(() => {
                     gsap.set(line, { clearProps: 'filter,willChange' });
                     gsap.set(chars, { clearProps: 'willChange' });
                 })
-                .fromTo(partChips, { opacity: 0, y: 14 },
-                    { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.18 }, 0.4)
+                .fromTo(partChips, { opacity: 0, y: 8 },
+                    { opacity: 1, y: 0, duration: 1.1, ease: 'power2.out', stagger: 0.25 }, 0.6)
                 // Sortie : dissolution aléatoire (flou sur la phrase, mouvement par lettre)
                 .addLabel('out', `+=${HOLD}`)
                 .set(chars, { willChange: 'transform, opacity' }, 'out')
-                .to(line, { filter: 'blur(8px)', duration: 0.9, ease: 'power2.in' }, 'out')
+                .to(line, { filter: 'blur(4px)', duration: 1.1, ease: 'power1.in' }, 'out')
                 .to(chars, {
                     opacity: 0,
-                    y: -16,
-                    x: () => gsap.utils.random(-8, 8),
-                    duration: 0.65,
-                    ease: 'power2.in',
-                    stagger: { each: 0.006, from: 'random' }
+                    y: -6,
+                    duration: 0.9,
+                    ease: 'power1.in',
+                    stagger: { each: 0.004, from: 'start' }
                 }, 'out')
-                .to(partChips, { opacity: 0, y: -10, duration: 0.45, ease: 'power2.in' }, 'out')
+                .to(partChips, { opacity: 0, y: -6, duration: 0.7, ease: 'power1.in' }, 'out')
                 .set(line, { visibility: 'hidden', clearProps: 'filter,willChange' })
                 .set(chars, { clearProps: 'transform,opacity,willChange' });
         }
