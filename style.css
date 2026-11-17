@@ -2835,3 +2835,28 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
+
+/* Preloader : bouton Shop mis en avant, Documentation en secondaire */
+.preloader-buttons { align-items: center; }
+.enter-btn.shop-btn {
+    padding: 1.25rem 5rem;
+    font-size: 1.05rem;
+    letter-spacing: 3px;
+    background-color: #D4AF37;
+    border-color: #D4AF37;
+    color: #000;
+    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.35);
+}
+.enter-btn.shop-btn:hover {
+    background-color: #fff;
+    border-color: #fff;
+    color: #000;
+}
+.enter-btn.doc-btn {
+    padding: 0.75rem 2.2rem;
+    font-size: 0.75rem;
+}
+@media (max-width: 480px) {
+    .enter-btn.shop-btn { width: 100%; max-width: 320px; padding: 1.15rem 2rem; font-size: 1rem; }
+    .enter-btn.doc-btn { padding: 0.7rem 1.6rem; font-size: 0.75rem; }
+}
