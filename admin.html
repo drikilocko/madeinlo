@@ -806,15 +806,23 @@
 
         .drag-handle {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            opacity: 0;
+            top: 6px;
+            left: 6px;
+            z-index: 2;
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.55);
+            opacity: 0.7;
             transition: 0.3s;
             color: var(--primary-color);
+            cursor: grab;
+            touch-action: none;
         }
 
+        .drag-handle:active { cursor: grabbing; }
+
         .prod-card-admin:hover .drag-handle {
-            opacity: 0.5;
+            opacity: 1;
         }
 
         /* Hidden product state */
@@ -1313,8 +1321,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
                     <div>
                         <h2 style="margin:0;">Inventaire Dynamique</h2>
-                        <p style="opacity:0.5; font-size:0.9rem;">Glissez-déposez les produits pour changer leur
-                            catégorie</p>
+                        <p style="opacity:0.5; font-size:0.9rem;">Pour changer la catégorie d'un produit, attrapez-le par la poignée <i class="fas fa-grip-vertical"></i></p>
                     </div>
                     <div style="display:flex; gap:10px;">
                         <button class="cat-filter-btn active" onclick="refreshInventory()">Tout</button>
@@ -2361,6 +2368,13 @@
             }
         }
 
+        // Supabase renvoie un booléen ; l'ancienne base MySQL renvoyait 0/1
+        const isHiddenProduct = (p) => p.is_visible === false || p.is_visible === 0 || p.is_visible === '0';
+        const formatFcfa = (v) => {
+            const n = Math.round(parseFloat(String(v || '0').replace(',', '.')) || 0);
+            return n.toLocaleString('fr-FR') + ' FCFA';
+        };
+
         function renderProductsCategorized(products) {
             inventoryContainer.innerHTML = '';
 
@@ -2380,8 +2394,8 @@
                 const isEmpty = prods.length === 0;
                 const catInfo = categoryVisibility[category];
                 const isCatVisible = catInfo ? catInfo.visible : true;
-                const visibleProds = prods.filter(p => p.is_visible !== 0);
-                const hiddenProds = prods.filter(p => p.is_visible === 0);
+                const visibleProds = prods.filter(p => !isHiddenProduct(p));
+                const hiddenProds = prods.filter(p => isHiddenProduct(p));
 
                 // Skip completely if empty AND not being overridden
                 if (isEmpty && isCatVisible) return;
@@ -2404,7 +2418,7 @@
                     </div>
                     <div class="inventory-grid" data-category="${category}" id="grid-${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}">
                         ${prods.map(p => {
-                    const hidden = p.is_visible === 0 || p.is_visible === '0';
+                    const hidden = isHiddenProduct(p);
                     const isSelected = selectedProductIds.has(p.id);
                     return `
                             <div class="prod-card-admin ${isSelected ? 'selected' : ''} ${hidden ? 'prod-hidden' : ''}" 
@@ -2416,8 +2430,8 @@
                                 <div class="card-top">
                                     <img src="${p.image_url}" class="card-img">
                                     <div class="card-info">
-                                        <h4>${p.name}</h4>
-                                        <p>${p.price}</p>
+                                        <h4>${esc(p.name)}</h4>
+                                        <p>${formatFcfa(p.price)}</p>
                                         <p style="color: #aaa; font-size: 0.75rem; margin-top: 3px;"><i class="fas fa-cubes"></i> Stock: <span style="color:#fff; font-weight:bold;">${p.stock_qty || 0}</span></p>
                                     </div>
                                 </div>
@@ -2454,7 +2468,7 @@
                 new Sortable(document.getElementById(gridId), {
                     group: 'inventory',
                     animation: 150,
-                    handle: '.prod-card-admin',
+                    handle: '.drag-handle', // seule la poignée déplace : plus de changement de catégorie par erreur
                     draggable: '.prod-card-admin',
                     ghostClass: 'sortable-ghost',
                     onEnd: function (evt) {
@@ -2487,7 +2501,10 @@
                 const found = Object.entries(categoryVisibility).find(([k]) => k.toLowerCase().replace(/s$/, '') === normalized);
                 if (found) {
                     found[1].visible = newVis;
-                    await supabasePatch('categories', { is_visible: newVis ? 1 : 0 }, { id: found[1].id });
+                    await fetch('api/categories', {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'toggle_visibility', id: found[1].id, is_visible: newVis ? 1 : 0 })
+                    });
                     fetchProducts();
                     return;
                 }
