@@ -12,16 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
             ease: "power1.inOut"
         }).progress(1);
 
-        let lastDirection = 0;
         ScrollTrigger.create({
             start: "top top",
             end: "max",
             onUpdate: (self) => {
                 // Direction 1 = vers le bas (cacher), Direction -1 = vers le haut (afficher)
-                if (self.direction === lastDirection) return;
-                lastDirection = self.direction;
-                if (self.direction === 1) showAnim.reverse();
-                else showAnim.play();
+                if (self.direction === 1) {
+                    showAnim.reverse();
+                } else {
+                    showAnim.play();
+                }
             }
         });
     }
