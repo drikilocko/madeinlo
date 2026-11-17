@@ -2793,3 +2793,69 @@ html.lenis, html.lenis body { height: auto; }
     .enter-btn.shop-btn { width: 100%; max-width: 320px; padding: 1.15rem 2rem; font-size: 1rem; }
     .enter-btn.doc-btn { padding: 0.7rem 1.6rem; font-size: 0.75rem; }
 }
+
+/* =====================================================================
+   EN-TÊTE DE LA BOUTIQUE (« Notre boutique »)
+   ===================================================================== */
+.shop-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin: 6rem 0 2rem;
+    padding: 0 2rem 1.6rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    font-family: 'Montserrat', sans-serif;
+}
+.shop-kicker {
+    margin: 0 0 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #b8962e;
+}
+.shop-title {
+    margin: 0;
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    text-transform: none;
+    color: var(--text-color, #111);
+}
+.shop-head-side {
+    max-width: 360px;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.8rem;
+}
+.shop-sub {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: #555;
+}
+.shop-count {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #111;
+}
+.shop-count:empty { display: none; }
+
+@media (max-width: 900px) {
+    .shop-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        margin: 3.5rem 0 1.2rem;
+        padding: 0 16px 1.2rem;
+    }
+    .shop-title { letter-spacing: -1px; }
+    .shop-head-side { max-width: none; text-align: left; align-items: flex-start; gap: 0.5rem; }
+    .shop-sub { font-size: 0.9rem; }
+}

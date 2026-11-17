@@ -611,9 +611,17 @@
         </section>
 
         <section id="image-gallery" class="overflow-hidden">
-            <h2 class="gallery-static-title"
-                style="text-align: center; font-size: 2.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin: 5rem 0 3rem; font-family: 'Montserrat', sans-serif; color: var(--text-color);">
-                Notre Boutique</h2>
+            <!-- div (pas <header>) : le CSS du site positionne toutes les balises <header> -->
+            <div class="shop-head">
+                <div class="shop-head-main">
+                    <p class="shop-kicker">La collection Made in Lo</p>
+                    <h2 class="shop-title">Notre boutique</h2>
+                </div>
+                <div class="shop-head-side">
+                    <p class="shop-sub">Des pièces uniques, imaginées et créées à Lomé. Touchez un article pour le découvrir.</p>
+                    <span class="shop-count" id="shop-count" aria-live="polite"></span>
+                </div>
+            </div>
             <div class="gallery-container">
                 <div class="gallery-column" id="col-1"></div>
                 <div class="gallery-column middle-column" id="col-2"></div>
@@ -650,8 +658,8 @@
             <div class="mf-col mf-actions">
                 <div class="mf-action">
                     <h5 class="mf-action-title">Mes commandes</h5>
-                    <p class="mf-action-text">Une question sur votre commande ? Écrivez-nous avec votre numéro de commande.</p>
-                    <a class="mf-btn" href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer">Nous contacter</a>
+                    <p class="mf-action-text">Suivez l'état de votre commande avec son numéro et votre téléphone.</p>
+                    <a class="mf-btn" href="suivi.html">Suivre ma commande</a>
                 </div>
                 <div class="mf-action">
                     <h5 class="mf-action-title">Espace partenaires</h5>
@@ -666,6 +674,7 @@
                     <li><a href="#home">Accueil</a></li>
                     <li><a href="#image-gallery">Toute la collection</a></li>
                     <li><a href="checkout.html">Mon panier</a></li>
+                    <li><a href="suivi.html">Suivi de commande</a></li>
                     <li><a href="documentation/index.html">Documentation</a></li>
                 </ul>
             </div>

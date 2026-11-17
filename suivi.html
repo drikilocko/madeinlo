@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi de commande — Made in Lo</title>
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --gold: #b8962e;
+            --text: #111;
+            --muted: #666;
+            --line: #e8e8e8;
+            --bg: #f6f6f4;
+            --ok: #2e7d32;
+            --bad: #c62828;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .wrap { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+
+        .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; }
+        .brand { font-size: 1.4rem; font-weight: 800; color: var(--text); text-decoration: none; letter-spacing: -0.5px; }
+        .back { font-size: 0.85rem; color: var(--muted); text-decoration: none; }
+        .back:hover { color: var(--text); }
+
+        .kicker { margin: 0 0 8px; font-size: 0.75rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+        h1 { margin: 0 0 8px; font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; letter-spacing: -1px; line-height: 1; }
+        .lead { margin: 0 0 28px; color: var(--muted); line-height: 1.6; }
+
+        .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px; margin-bottom: 18px; }
+
+        form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+        input {
+            width: 100%; padding: 14px; border: 1px solid var(--line); border-radius: 10px;
+            font: inherit; font-size: 1rem; background: #fafafa;
+        }
+        input:focus { outline: none; border-color: var(--gold); background: #fff; }
+        .btn {
+            padding: 14px 22px; border: none; border-radius: 10px; background: var(--text); color: #fff;
+            font: inherit; font-weight: 700; cursor: pointer; white-space: nowrap;
+        }
+        .btn:disabled { opacity: 0.6; cursor: wait; }
+        .btn-light { background: #fff; color: var(--text); border: 1px solid var(--line); }
+
+        .error { display: none; margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: rgba(198, 40, 40, 0.08); color: var(--bad); font-size: 0.9rem; }
+
+        .recent h2 { margin: 0 0 12px; font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; }
+        .recent-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .recent-list button { padding: 10px 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font: inherit; font-size: 0.85rem; cursor: pointer; }
+        .recent-list button:hover { border-color: var(--gold); }
+
+        #result { display: none; }
+        .status-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+        .order-no { margin: 0 0 4px; font-size: 0.8rem; color: var(--muted); }
+        .status-label { margin: 0; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+        .status-label.cancelled { color: var(--bad); }
+        .status-label.delivered { color: var(--ok); }
+        .amount { font-size: 1.2rem; font-weight: 800; color: var(--gold); white-space: nowrap; }
+
+        .steps { list-style: none; margin: 28px 0 0; padding: 0; position: relative; }
+        .steps li { position: relative; display: flex; gap: 14px; padding-bottom: 22px; }
+        .steps li:last-child { padding-bottom: 0; }
+        .steps li::before {
+            content: ''; position: absolute; left: 13px; top: 28px; bottom: 0; width: 2px; background: var(--line);
+        }
+        .steps li:last-child::before { display: none; }
+        .steps li.done::before { background: var(--ok); }
+        .dot {
+            width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--line); background: #fff; color: transparent; font-size: 0.75rem; z-index: 1;
+        }
+        .steps li.done .dot { border-color: var(--ok); background: var(--ok); color: #fff; }
+        .steps li.current .dot { border-color: var(--gold); }
+        .step-label { font-weight: 700; margin-top: 4px; }
+        .steps li:not(.done) .step-label { color: var(--muted); font-weight: 600; }
+        .step-date { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+        .items { margin: 0; padding: 0; list-style: none; }
+        .items li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+        .items li:last-child { border-bottom: none; }
+        .card h3 { margin: 0 0 12px; font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; }
+
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .actions a, .actions button { flex: 1; min-width: 180px; text-align: center; text-decoration: none; }
+        .wa { background: #1fa855; }
+
+        @media (max-width: 600px) {
+            form { grid-template-columns: 1fr; }
+            .card { padding: 18px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="top">
+            <a class="brand" href="index.html">Made in Lo</a>
+            <a class="back" href="index.html"><i class="fas fa-arrow-left"></i> Retour à la boutique</a>
+        </div>
+
+        <p class="kicker">Suivi de commande</p>
+        <h1>Où en est ma commande ?</h1>
+        <p class="lead">Entrez votre numéro de commande et le téléphone utilisé lors de l'achat.</p>
+
+        <div class="card">
+            <form id="track-form">
+                <div>
+                    <label for="order-input">N° de commande</label>
+                    <input id="order-input" inputmode="numeric" placeholder="Ex : 42" required>
+                </div>
+                <div>
+                    <label for="phone-input">Téléphone</label>
+                    <input id="phone-input" type="tel" inputmode="tel" placeholder="Ex : 90 00 00 00" required>
+                </div>
+                <button class="btn" type="submit" id="track-btn">Suivre</button>
+            </form>
+            <div class="error" id="track-error" role="alert"></div>
+        </div>
+
+        <div class="card recent" id="recent" style="display:none;">
+            <h2>Mes commandes sur cet appareil</h2>
+            <div class="recent-list" id="recent-list"></div>
+        </div>
+
+        <div id="result" aria-live="polite">
+            <div class="card">
+                <div class="status-head">
+                    <div>
+                        <p class="order-no" id="r-order"></p>
+                        <p class="status-label" id="r-status"></p>
+                    </div>
+                    <span class="amount" id="r-amount"></span>
+                </div>
+                <ol class="steps" id="r-steps"></ol>
+            </div>
+
+            <div class="card">
+                <h3>Articles</h3>
+                <ul class="items" id="r-items"></ul>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-light" type="button" onclick="refresh()"><i class="fas fa-rotate"></i> Actualiser</button>
+                <a class="btn wa" id="r-wa" href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> Une question ?</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let current = null; // { order_id, key?, phone? }
+
+        function savedOrders() {
+            try { return JSON.parse(localStorage.getItem('mil_orders') || '[]'); } catch (e) { return []; }
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('track-error');
+            el.textContent = msg || '';
+            el.style.display = msg ? 'block' : 'none';
+        }
+
+        function fmtDate(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            return isNaN(d) ? '' : d.toLocaleString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function lookup(query) {
+            showError('');
+            const btn = document.getElementById('track-btn');
+            btn.disabled = true;
+            try {
+                const res = await fetch('api/track', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(query)
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.error || 'Commande introuvable.');
+                current = query;
+                render(data);
+            } catch (e) {
+                document.getElementById('result').style.display = 'none';
+                showError(e.message);
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function render(o) {
+            document.getElementById('r-order').textContent = `Commande n°${o.order_id} · ${fmtDate(o.date)}`;
+            const status = document.getElementById('r-status');
+            status.textContent = o.status.label;
+            status.className = 'status-label ' + o.status.code;
+            document.getElementById('r-amount').textContent = o.amount_label || '';
+
+            const steps = document.getElementById('r-steps');
+            steps.innerHTML = '';
+            const cancelled = o.status.code === 'cancelled';
+            const firstPending = o.steps.findIndex(s => !s.done);
+            o.steps.forEach((s, i) => {
+                const li = document.createElement('li');
+                if (s.done) li.classList.add('done');
+                if (!cancelled && i === firstPending) li.classList.add('current');
+                const dot = document.createElement('span');
+                dot.className = 'dot';
+                dot.innerHTML = '<i class="fas fa-check"></i>';
+                const body = document.createElement('div');
+                const label = document.createElement('div');
+                label.className = 'step-label';
+                label.textContent = s.label;
+                body.appendChild(label);
+                if (s.done && s.date) {
+                    const date = document.createElement('div');
+                    date.className = 'step-date';
+                    date.textContent = fmtDate(s.date);
+                    body.appendChild(date);
+                }
+                li.append(dot, body);
+                steps.appendChild(li);
+            });
+
+            const items = document.getElementById('r-items');
+            items.innerHTML = '';
+            (o.items || []).forEach(it => {
+                const li = document.createElement('li');
+                const name = document.createElement('span');
+                name.textContent = it.name || 'Article';
+                const qty = document.createElement('span');
+                qty.textContent = '× ' + (it.qty || 1);
+                li.append(name, qty);
+                items.appendChild(li);
+            });
+
+            document.getElementById('r-wa').href = 'https://wa.me/22870894072?text=' +
+                encodeURIComponent(`Bonjour, j'ai une question sur ma commande n°${o.order_id}.`);
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('order-input').value = o.order_id;
+        }
+
+        function refresh() {
+            if (current) lookup(current);
+        }
+
+        document.getElementById('track-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const orderId = document.getElementById('order-input').value.replace(/\D/g, '');
+            const phone = document.getElementById('phone-input').value;
+            if (!orderId) return showError('Entrez votre numéro de commande.');
+            const saved = savedOrders().find(o => String(o.id) === orderId);
+            lookup(saved ? { order_id: orderId, key: saved.key } : { order_id: orderId, phone });
+        });
+
+        // Commandes passées sur cet appareil
+        const recent = savedOrders();
+        if (recent.length) {
+            document.getElementById('recent').style.display = 'block';
+            const list = document.getElementById('recent-list');
+            recent.forEach(o => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = `Commande n°${o.id}`;
+                b.onclick = () => lookup({ order_id: o.id, key: o.key });
+                list.appendChild(b);
+            });
+        }
+
+        // Lien reçu après le paiement : suivi.html?order=42&key=...
+        const params = new URLSearchParams(location.search);
+        if (params.get('order') && params.get('key')) {
+            lookup({ order_id: params.get('order'), key: params.get('key') });
+        } else if (recent.length) {
+            lookup({ order_id: recent[0].id, key: recent[0].key });
+        }
+    </script>
+</body>
+
+</html>

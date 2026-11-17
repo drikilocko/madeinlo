@@ -1044,6 +1044,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (Array.isArray(data)) {
                 allProducts = data;
                 window.mlProducts = data; // utilisé par « Complétez le look » dans la fiche produit
+                const countEl = document.getElementById('shop-count');
+                if (countEl) countEl.textContent = data.length ? `${data.length} pièce${data.length > 1 ? 's' : ''}` : '';
                 if (data.length === 0) {
                     const gallery = document.querySelector('.gallery-container');
                     if (gallery) {

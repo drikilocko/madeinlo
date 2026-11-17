@@ -268,6 +268,54 @@
         }
         .btn-confirm:disabled { opacity: 0.6; cursor: wait; transform: none; }
 
+        /* --- Position de livraison --- */
+        .loc-btn {
+            width: 100%; display: flex; align-items: center; gap: 12px; padding: 15px;
+            border: 1.5px dashed #b8962e; border-radius: 10px; background: rgba(212, 175, 55, 0.06);
+            color: #111; font: inherit; font-weight: 600; cursor: pointer; text-align: left;
+        }
+        .loc-btn i { font-size: 1.2rem; color: #b8962e; }
+        .loc-btn small { display: block; font-weight: 400; opacity: 0.65; margin-top: 2px; }
+        .loc-btn.done { border-style: solid; border-color: #2e7d32; background: rgba(46, 125, 50, 0.06); }
+        .loc-btn.done i { color: #2e7d32; }
+        .loc-btn.error { border-color: #d32f2f; }
+
+        #map-modal {
+            position: fixed; inset: 0; z-index: 10000; background: #fff;
+            display: none; flex-direction: column;
+        }
+        #map-modal.open { display: flex; }
+        .map-bar {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 14px 16px; border-bottom: 1px solid #eee; background: #fff; z-index: 2;
+        }
+        .map-bar h3 { margin: 0; font-size: 1rem; }
+        .map-bar p { margin: 2px 0 0; font-size: 0.8rem; opacity: 0.6; }
+        .map-close { width: 42px; height: 42px; border-radius: 50%; border: 1px solid #ddd; background: #fff; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; }
+        #pick-map { flex: 1; position: relative; }
+        .map-pin {
+            position: absolute; left: 50%; top: 50%; z-index: 500; pointer-events: none;
+            transform: translate(-50%, -100%); font-size: 2.6rem; color: #d32f2f;
+            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.35));
+        }
+        .map-pin-shadow {
+            position: absolute; left: 50%; top: 50%; z-index: 499; pointer-events: none;
+            width: 14px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.3); transform: translate(-50%, -50%);
+        }
+        .map-actions {
+            display: flex; gap: 10px; padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+            border-top: 1px solid #eee; background: #fff; z-index: 2;
+        }
+        .map-actions button { flex: 1; padding: 16px; border-radius: 12px; font: inherit; font-weight: 700; cursor: pointer; }
+        .map-locate { background: #fff; border: 1px solid #ddd; color: #111; }
+        .map-confirm { background: #111; border: none; color: #fff; }
+        .map-hint { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 600;
+            background: rgba(17,17,17,0.85); color: #fff; padding: 8px 14px; border-radius: 999px; font-size: 0.8rem; white-space: nowrap; pointer-events: none; }
+
+        .track-box { margin: 24px auto 0; max-width: 420px; padding: 16px; border: 1px solid #eee; border-radius: 12px; text-align: left; }
+        .track-box p { margin: 0 0 10px; font-size: 0.9rem; }
+        .track-box a { display: block; text-align: center; padding: 14px; border-radius: 10px; background: #111; color: #fff; text-decoration: none; font-weight: 700; }
+
         /* Success Step UI */
         #success-step {
             display: none;
@@ -292,6 +340,8 @@
             margin-bottom: 30px;
         }
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
@@ -322,7 +372,15 @@
                 <div class="form-group">
                     <label>Adresse de livraison complète</label>
                     <textarea id="client_address" class="form-control" rows="3"
-                        placeholder="Ex: Quartier Adidogomé, Rue 123..."></textarea>
+                        placeholder="Ex: Quartier Adidogomé, Rue 123, maison bleue après la pharmacie..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Position de livraison (obligatoire)</label>
+                    <button type="button" class="loc-btn" id="loc-btn" onclick="openMapPicker()">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><span id="loc-btn-text">Choisir ma position sur la carte</span>
+                            <small id="loc-btn-sub">Le livreur viendra exactement à cet endroit.</small></span>
+                    </button>
                 </div>
             </div>
 
@@ -415,11 +473,35 @@
                 <h2>Merci pour votre achat !</h2>
                 <p id="success-msg">Votre commande a été enregistrée avec succès. Nous vous contacterons très
                     prochainement.</p>
+                <div class="track-box" id="track-box" style="display:none;">
+                    <p><strong>Suivez votre commande</strong> à tout moment avec ce lien (gardez-le) :</p>
+                    <a id="track-link" href="suivi.html">Suivre ma commande</a>
+                </div>
                 <button class="btn-confirm" onclick="window.location.href='index.html'"
                     style="max-width:300px;">Retourner à l'accueil</button>
             </div>
         </div>
     </div><!-- end .checkout-container -->
+
+    <!-- Carte plein écran : choix de la position de livraison -->
+    <div id="map-modal" role="dialog" aria-modal="true" aria-labelledby="map-title">
+        <div class="map-bar">
+            <div>
+                <h3 id="map-title">Où devons-nous livrer ?</h3>
+                <p>Déplacez la carte pour placer le repère sur votre porte.</p>
+            </div>
+            <button type="button" class="map-close" onclick="closeMapPicker()" aria-label="Fermer la carte">✕</button>
+        </div>
+        <div id="pick-map">
+            <div class="map-hint">Déplacez la carte · le repère reste au centre</div>
+            <div class="map-pin-shadow"></div>
+            <i class="fas fa-map-marker-alt map-pin" aria-hidden="true"></i>
+        </div>
+        <div class="map-actions">
+            <button type="button" class="map-locate" onclick="locateMe()"><i class="fas fa-location-crosshairs"></i> Ma position</button>
+            <button type="button" class="map-confirm" onclick="confirmMapPicker()">Confirmer cette position</button>
+        </div>
+    </div>
 
     <script>
         // --- GESTION DES MÉTHODES DE PAIEMENT ---
@@ -447,6 +529,64 @@
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
+        // --- POSITION DE LIVRAISON (carte plein écran) ---
+        const LOME = [6.1319, 1.2228];
+        let deliveryLocation = null;
+        let pickMap = null;
+
+        function openMapPicker() {
+            document.getElementById('map-modal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            if (typeof L === 'undefined') {
+                alert('La carte ne peut pas se charger. Vérifiez votre connexion internet.');
+                return closeMapPicker();
+            }
+            const start = deliveryLocation ? [deliveryLocation.lat, deliveryLocation.lng] : LOME;
+            if (!pickMap) {
+                pickMap = L.map('pick-map', { zoomControl: true, attributionControl: true }).setView(start, deliveryLocation ? 17 : 13);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap &copy; CARTO'
+                }).addTo(pickMap);
+                if (!deliveryLocation) locateMe(true);
+            } else {
+                pickMap.setView(start, deliveryLocation ? 17 : pickMap.getZoom());
+            }
+            setTimeout(() => pickMap.invalidateSize(), 50);
+        }
+
+        function closeMapPicker() {
+            document.getElementById('map-modal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function locateMe(silent) {
+            if (!navigator.geolocation) {
+                if (!silent) alert("La localisation n'est pas disponible sur cet appareil.");
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => pickMap && pickMap.setView([pos.coords.latitude, pos.coords.longitude], 17),
+                () => { if (!silent) alert("Impossible d'obtenir votre position. Autorisez la localisation ou placez le repère à la main."); },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function confirmMapPicker() {
+            const c = pickMap.getCenter();
+            deliveryLocation = { lat: Number(c.lat.toFixed(6)), lng: Number(c.lng.toFixed(6)) };
+            const btn = document.getElementById('loc-btn');
+            btn.classList.add('done');
+            btn.classList.remove('error');
+            document.getElementById('loc-btn-text').textContent = 'Position enregistrée ✓';
+            document.getElementById('loc-btn-sub').textContent = `Touchez pour la modifier (${deliveryLocation.lat.toFixed(5)}, ${deliveryLocation.lng.toFixed(5)})`;
+            closeMapPicker();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('map-modal').classList.contains('open')) closeMapPicker();
+        });
+
         function validateForm() {
             const fields = [
                 { id: 'client_name', label: 'Nom complet' },
@@ -464,6 +604,13 @@
                     return false;
                 }
                 el.style.borderColor = "rgba(255,255,255,0.1)";
+            }
+
+            if (!deliveryLocation) {
+                document.getElementById('loc-btn').classList.add('error');
+                alert('Indiquez votre position de livraison sur la carte.');
+                openMapPicker();
+                return false;
             }
 
             return true;
@@ -611,6 +758,7 @@
                         payment_phone: paymentPhone,
                         size,
                         items,
+                        location: deliveryLocation,
                         customer: {
                             name: document.getElementById('client_name').value.trim(),
                             phone: document.getElementById('client_phone').value.trim(),
@@ -680,8 +828,16 @@
                     clearInterval(pollTimer);
                     if (cardWindow && !cardWindow.closed) cardWindow.close();
                     const orderId = pending.order_id;
+                    const trackUrl = `suivi.html?order=${encodeURIComponent(orderId)}&key=${encodeURIComponent(pending.token)}`;
+                    try {
+                        const saved = JSON.parse(localStorage.getItem('mil_orders') || '[]').filter(o => o.id !== orderId);
+                        saved.unshift({ id: orderId, key: pending.token, date: new Date().toISOString() });
+                        localStorage.setItem('mil_orders', JSON.stringify(saved.slice(0, 20)));
+                    } catch (e) { }
                     savePending(null);
                     showSuccess(`Paiement confirmé ! Votre commande n°${orderId} est validée. Nous vous contacterons pour la livraison.`);
+                    document.getElementById('track-link').href = trackUrl;
+                    document.getElementById('track-box').style.display = 'block';
                 } else if (st === 'cancelled' || st === 'failed') {
                     abandonPayment();
                     showError(st === 'cancelled' ? 'Le paiement a été annulé. Vous pouvez réessayer.' : 'Le paiement a échoué. Vérifiez votre solde ou essayez un autre moyen.');

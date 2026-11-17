@@ -60,6 +60,16 @@ export default async function handler(req, res) {
         throw new HttpError(400, 'Adresse email invalide');
       }
 
+      // Position de livraison choisie sur la carte (obligatoire)
+      const loc = input.location || {};
+      const lat = Number(loc.lat);
+      const lng = Number(loc.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180 || (lat === 0 && lng === 0)) {
+        throw new HttpError(400, 'Indiquez votre position de livraison sur la carte');
+      }
+      const gps = `GPS: ${lat.toFixed(6)},${lng.toFixed(6)}`;
+      customer.address = `${customer.address.slice(0, 340)} | ${gps}`;
+
       let paymentPhone = '';
       if (!isCard) {
         paymentPhone = String(input.payment_phone || '').replace(/\D/g, '');

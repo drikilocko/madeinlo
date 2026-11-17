@@ -15,6 +15,7 @@ import shopAuth from './_lib/shop-auth.js';
 import shopStock from './_lib/shop-stock.js';
 import shops from './_lib/shops.js';
 import stats from './_lib/stats.js';
+import track from './_lib/track.js';
 
 const ROUTES = {
   'admin-auth': adminAuth,
@@ -30,7 +31,8 @@ const ROUTES = {
   'shop-auth': shopAuth,
   'shop-stock': shopStock,
   shops,
-  stats
+  stats,
+  track
 };
 
 export function routeName(req) {
