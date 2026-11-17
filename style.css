@@ -2755,6 +2755,16 @@ body {
 
 /* Mention du bas */
 .mf-note { border-top: 1px solid #e5e5e5; }
+.mf-social { display: flex; gap: 10px; flex-wrap: wrap; }
+.mf-social a {
+    width: 44px; height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid #ddd; border-radius: 50%;
+    color: #111; font-size: 1.05rem;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.mf-social a:hover { background: #111; color: #fff; border-color: #111; }
+
 .mf-note p {
     max-width: 1400px;
     margin: 0 auto;
