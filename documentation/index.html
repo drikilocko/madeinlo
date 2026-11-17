@@ -225,16 +225,17 @@
         }
 
         /* Pour les mots et les lettres splittés */
+        /* Split text corporate : révélation mot par mot, flou -> net, sans rebond */
         .word {
             display: inline-block;
             white-space: nowrap;
             margin-right: 0.25em;
+            opacity: 0;
+            will-change: opacity, transform, filter;
         }
 
         .char {
             display: inline-block;
-            opacity: 0;
-            will-change: opacity, transform;
         }
     </style>
 </head>
@@ -470,19 +471,20 @@
                 );
             }
 
-            // --- ANIMATION TEXTE (Lettre par lettre) ---
-            const chars = slide.querySelectorAll('.char');
-            if (chars.length) {
+            // --- ANIMATION TEXTE : mot par mot, flou -> net, montée douce (style corporate) ---
+            const words = slide.querySelectorAll('.word');
+            const reveal = {
+                from: { opacity: 0, y: '0.35em', filter: 'blur(10px)' },
+                to: { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: 'power3.out', stagger: 0.08 }
+            };
+            if (words.length) {
                 if (i === 0) {
-                    gsap.fromTo(chars,
-                        { opacity: 0, y: 50 },
-                        { opacity: 1, y: 0, stagger: 0.04, duration: 0.8, ease: "back.out(1.5)", delay: 0.5 }
-                    );
+                    gsap.fromTo(words, reveal.from, { ...reveal.to, delay: 0.6 });
                 } else {
-                    gsap.fromTo(chars,
-                        { opacity: 0, y: 50 },
+                    gsap.fromTo(words,
+                        reveal.from,
                         {
-                            opacity: 1, y: 0, stagger: 0.04, duration: 0.8, ease: "back.out(1.5)",
+                            ...reveal.to,
                             scrollTrigger: {
                                 trigger: slide,
                                 start: "top 30%", // Démarre l'animation quand la tuile est presque installée
