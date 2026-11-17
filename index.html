@@ -555,14 +555,6 @@
         }
         #popup-buy-btn:hover { transform: none; box-shadow: none; background: #b8962e; color: #000; }
         #popup-buy-btn:disabled { background: #eee !important; color: #999 !important; cursor: not-allowed; }
-        .pp-wa {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 15px 24px; border-radius: 12px; border: 1.5px solid #ddd;
-            color: #111; text-decoration: none; font-weight: 600; font-size: 0.92rem;
-            transition: border-color 0.2s;
-        }
-        .pp-wa:hover { border-color: #1fa855; }
-        .pp-wa i { color: #1fa855; font-size: 1.15rem; }
 
         .pp-added { margin-top: 1rem; padding: 14px 16px; border-radius: 12px; background: rgba(46, 125, 50, 0.07); border: 1px solid rgba(46, 125, 50, 0.25); }
         .pp-added p { margin: 0 0 10px; font-weight: 700; color: #2e7d32; }
@@ -610,9 +602,7 @@
                 box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
                 flex-direction: row;
             }
-            #popup-buy-btn { flex: 1.6; padding: 16px 12px; font-size: 0.9rem; }
-            .pp-wa { flex: 1; padding: 12px; font-size: 0; gap: 0; }
-            .pp-wa i { font-size: 1.5rem; }
+            #popup-buy-btn { flex: 1; padding: 16px 12px; font-size: 0.9rem; }
             #popup-pairings { margin-bottom: 2rem; }
         }
 
@@ -877,9 +867,6 @@
 
                     <div class="pp-cta">
                         <button id="popup-buy-btn" type="button">Ajouter au panier</button>
-                        <a id="popup-wa-btn" class="pp-wa" href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer">
-                            <i class="fa-brands fa-whatsapp"></i> Commander sur WhatsApp
-                        </a>
                     </div>
 
                     <div class="pp-added" id="popup-added" hidden>
@@ -1034,9 +1021,6 @@
             buyBtn.textContent = isSoldOut ? 'Épuisé' : 'Ajouter au panier';
             buyBtn.onclick = isSoldOut ? null : addToCart;
 
-            // WhatsApp (message pré-rempli)
-            updateWhatsAppLink();
-
             // Show product layout
             document.getElementById('popup-product-layout').style.display = 'grid';
 
@@ -1174,17 +1158,6 @@
         function productLink(p) {
             return location.origin + location.pathname + '#product-' + p.id;
         }
-
-        function updateWhatsAppLink() {
-            const p = _popupProduct;
-            if (!p) return;
-            const priceNum = Math.round(parseFloat(String(p.price || '0').replace(',', '.')) || 0);
-            const size = _selectedSize && _selectedSize !== 'Unique' ? ` (taille ${_selectedSize})` : '';
-            const msg = `Bonjour, je souhaite commander : ${p.name}${size} — ${priceNum.toLocaleString('fr-FR')} FCFA.\n${productLink(p)}`;
-            document.getElementById('popup-wa-btn').href = 'https://wa.me/22870894072?text=' + encodeURIComponent(msg);
-        }
-
-        document.getElementById('popup-sizes').addEventListener('click', updateWhatsAppLink);
 
         // Partager le produit (menu de partage du téléphone, sinon copie du lien)
         document.getElementById('popup-share').addEventListener('click', async function () {
