@@ -1,19 +1,13 @@
 import { supabaseGet } from './_supabase.js';
 import crypto from 'crypto';
+import { setup } from './_helpers.js';
 
 export default async function handler(req, res) {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (setup(req, res, ['GET'])) return;
 
   try {
-    const products = (await supabaseGet('products', {})) || [];
-    const shopStock = (await supabaseGet('shop_stock', {})) || [];
+    const products = (await supabaseGet('products', { select: 'id,stock_qty' })) || [];
+    const shopStock = (await supabaseGet('shop_stock', { select: 'qty' })) || [];
 
     const productsArr = Array.isArray(products) ? products : [];
     const shopStockArr = Array.isArray(shopStock) ? shopStock : [];
@@ -34,8 +28,7 @@ export default async function handler(req, res) {
     console.error('Check updates handler error:', e.message);
     return res.status(200).json({
       status: 'success',
-      signature: 'default-fallback',
-      warning: e.message || 'Database unavailable'
+      signature: 'default-fallback'
     });
   }
 }

@@ -12,9 +12,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <script
-        src="https://www.paypal.com/sdk/js?client-id=AS12XZApgZjWI2Jjbo7e1pDi9rj9RqmQShPllOA0FYDaz7s3rUUiDH4C4uLqxWMuGybzAcyCGZ6F_KKK&currency=USD"
-        data-sdk-integration-source="button-factory"></script>
 
     <style>
         :root {
@@ -243,18 +240,33 @@
             color: var(--primary-color);
         }
 
-        /* Error message for PayPal */
-        #paypal-error-msg {
-            display: none;
-            background: rgba(255, 82, 82, 0.1);
-            color: #ff5252;
-            padding: 15px;
+        /* --- Paiement PayDunya --- */
+        .pay-alert {
+            background: rgba(255, 82, 82, 0.08);
+            color: #d32f2f;
+            padding: 14px 16px;
             border-radius: 10px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 82, 82, 0.2);
+            border: 1px solid rgba(255, 82, 82, 0.25);
             font-size: 0.9rem;
-            text-align: center;
         }
+        .pay-hint { font-size: 0.8rem; opacity: 0.6; margin: 6px 0 0; }
+        .card-info {
+            display: flex; gap: 14px; align-items: flex-start;
+            background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px; padding: 16px; font-size: 0.9rem; line-height: 1.5;
+        }
+        .card-info i { font-size: 1.4rem; color: var(--primary-color); margin-top: 2px; }
+        .card-brands { display: flex; gap: 10px; font-size: 1.8rem; margin-top: 10px; opacity: 0.8; }
+        #payment-wait { text-align: center; padding: 10px 0; }
+        #payment-wait .wait-icon { font-size: 2.6rem; color: var(--primary-color); margin-bottom: 14px; }
+        #payment-wait h4 { margin: 0 0 8px; font-size: 1.15rem; }
+        #payment-wait p { margin: 0 0 6px; font-size: 0.92rem; opacity: 0.75; }
+        .btn-secondary {
+            width: 100%; padding: 14px; margin-top: 12px; background: transparent; color: inherit;
+            border: 1px solid var(--border-color); border-radius: 12px; font-weight: 700; cursor: pointer;
+        }
+        .btn-confirm:disabled { opacity: 0.6; cursor: wait; transform: none; }
 
         /* Success Step UI */
         #success-step {
@@ -314,49 +326,64 @@
                 </div>
             </div>
 
-            <div class="section-card">
+            <div class="section-card" id="payment-card">
                 <h3>Méthode de Paiement</h3>
-                <div id="paypal-error-msg" style="display:none;">
-                    <i class="fas fa-exclamation-triangle"></i> Erreur PayPal : Client ID incorrect. Les boutons ne
-                    peuvent pas s'afficher.
-                </div>
+                <div id="payment-error" class="pay-alert" style="display:none;"></div>
 
-                <div class="payment-methods">
-                    <div class="method-card active" onclick="selectMethod('paypal')">
-                        <i class="fab fa-paypal icon"></i>
-                        <span>PayPal / Carte</span>
+                <div id="payment-form">
+                    <div class="payment-methods">
+                        <div class="method-card active" data-method="momo" onclick="selectMethod('momo')">
+                            <i class="fas fa-mobile-alt icon"></i>
+                            <span>Mobile Money</span>
+                        </div>
+                        <div class="method-card" data-method="card" onclick="selectMethod('card')">
+                            <i class="fas fa-credit-card icon"></i>
+                            <span>Carte bancaire</span>
+                        </div>
                     </div>
-                    <div class="method-card" onclick="selectMethod('momo')">
-                        <i class="fas fa-mobile-alt icon"></i>
-                        <span>Mobile Money</span>
-                    </div>
-                </div>
 
-                <!-- PayPal Button Container -->
-                <div id="paypal-button-container"></div>
+                    <!-- Mobile Money (SoftPay : validation directement sur le téléphone) -->
+                    <div id="momo-fields" style="display:flex; flex-direction: column; gap: 15px;">
+                        <div class="form-group">
+                            <label for="momo_operator">Opérateur</label>
+                            <select id="momo_operator" class="form-control">
+                                <option value="tmoney-tg">T-Money (Togo)</option>
+                                <option value="moov-tg">Moov Money / Flooz (Togo)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="momo_number">Numéro Mobile Money</label>
+                            <input type="tel" id="momo_number" class="form-control" inputmode="numeric" placeholder="Ex: 90 00 00 00">
+                            <p class="pay-hint">Vous recevrez une demande de validation sur ce téléphone.</p>
+                        </div>
+                    </div>
 
-                <!-- Mobile Money Fields -->
-                <div id="momo-fields" style="display:none; flex-direction: column; gap: 15px;">
-                    <div class="form-group">
-                        <label>Choisissez votre opérateur</label>
-                        <select id="momo_operator" class="form-control">
-                            <option value="tmoney">T-Money (Togo)</option>
-                            <option value="moov">Moov Money (Togo)</option>
-                        </select>
+                    <!-- Carte bancaire (page sécurisée PayDunya, au-dessus du site) -->
+                    <div id="card-fields" style="display:none;">
+                        <div class="card-info">
+                            <i class="fas fa-lock"></i>
+                            <div>
+                                Le paiement par carte s'ouvre dans une fenêtre sécurisée PayDunya, sans quitter la boutique.
+                                Vos données bancaires ne transitent jamais par notre site.
+                                <div class="card-brands"><i class="fab fa-cc-visa"></i><i class="fab fa-cc-mastercard"></i></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Numéro Mobile Money</label>
-                        <input type="text" id="momo_number" class="form-control" placeholder="00 00 00 00">
-                    </div>
-                    <button class="btn-confirm" id="confirm-momo-btn" onclick="processMomo()">
-                        <span id="momo-btn-text">Confirmer avec Mobile Money</span>
-                        <span id="momo-btn-spinner" style="display:none;">
-                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Traitement en cours...
-                        </span>
+
+                    <button class="btn-confirm" id="pay-btn" onclick="startPayment()">
+                        <span id="pay-btn-text">Payer</span>
                     </button>
-                    <p style="font-size: 0.8rem; opacity: 0.5; text-align: center;">
-                        Un agent vous contactera pour finaliser le transfert.
-                    </p>
+                </div>
+
+                <!-- Attente de confirmation du paiement -->
+                <div id="payment-wait" style="display:none;">
+                    <div class="wait-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                    <h4 id="wait-title">En attente de votre paiement…</h4>
+                    <p id="wait-msg">Validez le paiement sur votre téléphone.</p>
+                    <p style="font-size:0.8rem;">Cette page se met à jour automatiquement dès que le paiement est confirmé.</p>
+                    <button class="btn-confirm" id="reopen-card-btn" style="display:none;" onclick="reopenCardWindow()">Ouvrir la page de paiement</button>
+                    <button class="btn-secondary" id="check-btn" onclick="checkPayment(true)">J'ai payé, vérifier maintenant</button>
+                    <button class="btn-secondary" onclick="abandonPayment()">Changer de moyen de paiement</button>
                 </div>
             </div>
         </div>
@@ -395,34 +422,29 @@
     </div><!-- end .checkout-container -->
 
     <script>
-        // --- CONFIGURATION ---
-        const CONVERSION_RATE = 655.957; // 1 EUR = 655.957 FCFA
-
         // --- GESTION DES MÉTHODES DE PAIEMENT ---
+        let selectedMethod = 'momo';
+
         function selectMethod(method) {
-            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+            selectedMethod = method === 'card' ? 'card' : 'momo';
+            document.querySelectorAll('.method-card').forEach(c => {
+                c.classList.toggle('active', c.dataset.method === selectedMethod);
+            });
+            document.getElementById('momo-fields').style.display = selectedMethod === 'momo' ? 'flex' : 'none';
+            document.getElementById('card-fields').style.display = selectedMethod === 'card' ? 'block' : 'none';
+            updatePayButton();
+        }
 
-            const e = (typeof event !== 'undefined') ? event : null;
-            let selectedCard = null;
+        function updatePayButton() {
+            const label = selectedMethod === 'card' ? 'Payer par carte' : 'Payer avec Mobile Money';
+            document.getElementById('pay-btn-text').textContent =
+                cartTotalFCFA > 0 ? `${label} — ${cartTotalFCFA.toLocaleString('fr-FR')} FCFA` : label;
+        }
 
-            if (e && e.currentTarget && e.currentTarget.classList && e.currentTarget.classList.contains('method-card')) {
-                selectedCard = e.currentTarget;
-            } else {
-                selectedCard = document.querySelector(`.method-card[onclick*="${method}"]`);
-            }
-
-            if (selectedCard) selectedCard.classList.add('active');
-
-            const momoFields = document.getElementById('momo-fields');
-            const paypalContainer = document.getElementById('paypal-button-container');
-
-            if (method === 'momo') {
-                momoFields.style.display = 'flex';
-                paypalContainer.style.display = 'none';
-            } else {
-                momoFields.style.display = 'none';
-                paypalContainer.style.display = 'block';
-            }
+        function escapeHtml(v) {
+            return String(v === undefined || v === null ? '' : v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         function validateForm() {
@@ -476,10 +498,10 @@
 
                     summaryContainer.innerHTML += `
                         <div class="product-item">
-                            <img src="${item.image_url}" class="product-img" alt="Produit" onerror="this.src='img/1.png';">
+                            <img src="${escapeHtml(item.image_url)}" class="product-img" alt="Produit" onerror="this.src='img/1.png';">
                             <div class="product-info">
-                                <h4 style="margin:0 0 5px 0; font-size:1.1rem; font-weight:700;">${item.name || 'Produit sans nom'}</h4>
-                                <p style="margin:2px 0; font-size:0.85rem; opacity:0.6;">Taille : ${item.size || 'M'}</p>
+                                <h4 style="margin:0 0 5px 0; font-size:1.1rem; font-weight:700;">${escapeHtml(item.name || 'Produit sans nom')}</h4>
+                                <p style="margin:2px 0; font-size:0.85rem; opacity:0.6;">Taille : ${escapeHtml(item.size || 'M')}</p>
                                 <p style="margin:2px 0; font-size:0.85rem; opacity:0.6;">Quantité : ${item.quantity}</p>
                                 <p style="margin:5px 0 0 0; font-size:1.05rem; font-weight:800; color:var(--primary-color);">${itemTotal.toLocaleString('fr-FR')} FCFA</p>
                             </div>
@@ -493,202 +515,223 @@
                 console.log("Cart is empty");
                 summaryContainer.innerHTML = '<p style="text-align:center; opacity:0.3; padding: 2.5rem 0; font-size: 0.9rem;">Votre panier est vide.</p>';
                 document.getElementById('total-price-display').innerText = "0 FCFA";
+                cartTotalFCFA = 0;
+            }
+            updatePayButton();
+        }
+
+        // --- PAIEMENT PAYDUNYA ---
+        const PENDING_KEY = 'mil_pending_payment';
+        const POLL_INTERVAL_MS = 4000;
+        const POLL_TIMEOUT_MS = 15 * 60 * 1000;
+        let pending = null;
+        let pollTimer = null;
+        let cardWindow = null;
+        let checking = false;
+
+        function savePending(p) {
+            pending = p;
+            try { p ? localStorage.setItem(PENDING_KEY, JSON.stringify(p)) : localStorage.removeItem(PENDING_KEY); } catch (e) { }
+        }
+
+        function loadPending() {
+            try {
+                const p = JSON.parse(localStorage.getItem(PENDING_KEY));
+                if (p && p.order_id && p.token && Date.now() - p.started < 24 * 60 * 60 * 1000) return p;
+            } catch (e) { }
+            return null;
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('payment-error');
+            el.textContent = msg || '';
+            el.style.display = msg ? 'block' : 'none';
+        }
+
+        function setWaiting(on, method) {
+            document.getElementById('payment-form').style.display = on ? 'none' : 'block';
+            document.getElementById('payment-wait').style.display = on ? 'block' : 'none';
+            if (on) {
+                const isCard = method === 'card';
+                document.getElementById('wait-msg').textContent = isCard
+                    ? 'Finalisez le paiement dans la fenêtre sécurisée PayDunya.'
+                    : 'Une demande de paiement a été envoyée sur votre téléphone. Validez-la avec votre code secret.';
+                document.getElementById('reopen-card-btn').style.display = isCard ? 'block' : 'none';
             }
         }
 
-        // --- PAIEMENT MOBILE MONEY ---
-        async function processMomo() {
+        // Panier -> lignes { product_id, qty } (le prix est recalculé par le serveur)
+        function cartItems() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const qty = {};
+            const sizes = [];
+            cart.forEach(item => {
+                const id = parseInt(item.id);
+                if (!id) return;
+                qty[id] = (qty[id] || 0) + 1;
+                if (item.size) sizes.push(item.size);
+            });
+            return {
+                items: Object.keys(qty).map(id => ({ product_id: parseInt(id), qty: qty[id] })),
+                size: [...new Set(sizes)].join(', ') || 'M'
+            };
+        }
+
+        async function startPayment() {
+            showError('');
             if (!validateForm()) return;
 
-            const btn = document.getElementById('confirm-momo-btn');
-            const btnText = document.getElementById('momo-btn-text');
-            const btnSpinner = document.getElementById('momo-btn-spinner');
+            const { items, size } = cartItems();
+            if (items.length === 0) return showError('Votre panier est vide.');
 
-            // Disable button and show spinner
+            const method = selectedMethod === 'card' ? 'card' : document.getElementById('momo_operator').value;
+            const paymentPhone = document.getElementById('momo_number').value.replace(/\D/g, '');
+            if (method !== 'card' && paymentPhone.length < 8) {
+                document.getElementById('momo_number').focus();
+                return showError('Veuillez saisir un numéro Mobile Money valide.');
+            }
+
+            // La fenêtre carte doit être ouverte pendant le clic (sinon le navigateur la bloque)
+            if (method === 'card') {
+                cardWindow = window.open('', 'paydunya_checkout', 'width=520,height=760');
+                if (cardWindow) cardWindow.document.write('<p style="font-family:sans-serif;text-align:center;margin-top:40vh">Chargement du paiement sécurisé…</p>');
+            }
+
+            const btn = document.getElementById('pay-btn');
             btn.disabled = true;
-            btn.style.opacity = '0.7';
-            btn.style.cursor = 'not-allowed';
-            btnText.style.display = 'none';
-            btnSpinner.style.display = 'inline';
+            document.getElementById('pay-btn-text').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Préparation du paiement…';
 
-            const name = document.getElementById('client_name').value.trim();
-            const phone = document.getElementById('client_phone').value.trim();
-            const address = document.getElementById('client_address').value.trim();
-            const momoNum = document.getElementById('momo_number').value.trim();
+            try {
+                const res = await fetch('api/payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'init',
+                        method,
+                        payment_phone: paymentPhone,
+                        size,
+                        items,
+                        customer: {
+                            name: document.getElementById('client_name').value.trim(),
+                            phone: document.getElementById('client_phone').value.trim(),
+                            email: document.getElementById('client_email').value.trim(),
+                            address: document.getElementById('client_address').value.trim()
+                        }
+                    })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.order_id) throw new Error(data.error || 'Le paiement n\'a pas pu être lancé.');
 
-            if (!momoNum) {
-                alert("Veuillez remplir votre numéro Mobile Money.");
+                savePending({ order_id: data.order_id, token: data.token, method, checkout_url: data.checkout_url || null, started: Date.now() });
+
+                if (method === 'card') {
+                    if (cardWindow && !cardWindow.closed) cardWindow.location.href = data.checkout_url;
+                    else cardWindow = null; // fenêtre bloquée : bouton "Ouvrir la page de paiement"
+                }
+                setWaiting(true, method);
+                if (data.message && method !== 'card') document.getElementById('wait-msg').textContent = data.message;
+                startPolling();
+            } catch (err) {
+                if (cardWindow && !cardWindow.closed) cardWindow.close();
+                showError(err.message);
+            } finally {
+                btn.disabled = false;
+                updatePayButton();
+            }
+        }
+
+        function reopenCardWindow() {
+            if (!pending || !pending.checkout_url) return;
+            cardWindow = window.open(pending.checkout_url, 'paydunya_checkout', 'width=520,height=760');
+            if (!cardWindow) window.location.href = pending.checkout_url; // popups bloquées : même onglet
+        }
+
+        function startPolling() {
+            clearInterval(pollTimer);
+            pollTimer = setInterval(() => checkPayment(false), POLL_INTERVAL_MS);
+            checkPayment(false);
+        }
+
+        // Vérifie le paiement auprès du serveur (qui interroge PayDunya). Seul "paid" valide la commande.
+        async function checkPayment(manual) {
+            if (!pending || checking) return;
+            if (Date.now() - pending.started > POLL_TIMEOUT_MS && !manual) {
+                clearInterval(pollTimer);
+                document.getElementById('wait-title').textContent = 'Paiement non confirmé pour le moment';
+                document.getElementById('wait-msg').textContent = 'Si vous avez payé, cliquez sur « J\'ai payé, vérifier maintenant ».';
                 return;
             }
-
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            if (cart.length === 0) return alert("Votre panier est vide.");
-
+            checking = true;
+            const checkBtn = document.getElementById('check-btn');
+            if (manual) checkBtn.disabled = true;
             try {
-                const response = await fetch('api/orders', {
+                const res = await fetch('api/payment', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'create',
-                        order: {
-                            type: 'delivery',
-                            product_id: cart[0].id || 0,
-                            product_name: cart[0].name || 'Multiple items',
-                            product_image: cart[0].image_url || '',
-                            product_price: cartTotalFCFA + ' FCFA',
-                            size: cart[0].size || 'M',
-                            client_name: name,
-                            client_email: document.getElementById('client_email').value.trim() || '',
-                            client_phone: phone,
-                            client_address: `MOMO [${momoNum}] | ${address}`,
-                            status: 'pending'
-                        },
-                        items: cart.map(i => ({ product_id: i.id, qty: 1 }))
-                    })
+                    body: JSON.stringify({ action: 'status', order_id: pending.order_id, token: pending.token })
                 });
-
-                const result = await response.json();
-                if (result.status === 'success') {
-                    showSuccess("Votre demande de paiement Mobile Money a été enregistrée. Un email de confirmation a été envoyé. Un agent vous appellera en cas d'urgence.");
-                } else {
-                    alert("Erreur lors de l'enregistrement de la commande: " + (result.error || 'Inconnue'));
-                    // Re-enable button on error
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
-                    btnText.style.display = 'inline';
-                    btnSpinner.style.display = 'none';
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    if (res.status === 404) { abandonPayment(); showError('Paiement introuvable. Veuillez recommencer.'); }
+                    return;
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Erreur lors de la connexion au serveur.");
-                // Re-enable button on network error
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-                btnText.style.display = 'inline';
-                btnSpinner.style.display = 'none';
+                const st = data.payment_status;
+                if (st === 'paid') {
+                    clearInterval(pollTimer);
+                    if (cardWindow && !cardWindow.closed) cardWindow.close();
+                    const orderId = pending.order_id;
+                    savePending(null);
+                    showSuccess(`Paiement confirmé ! Votre commande n°${orderId} est validée. Nous vous contacterons pour la livraison.`);
+                } else if (st === 'cancelled' || st === 'failed') {
+                    abandonPayment();
+                    showError(st === 'cancelled' ? 'Le paiement a été annulé. Vous pouvez réessayer.' : 'Le paiement a échoué. Vérifiez votre solde ou essayez un autre moyen.');
+                } else if (st === 'mismatch') {
+                    abandonPayment();
+                    showError('Le paiement reçu ne correspond pas à la commande. Contactez-nous avec votre numéro de commande.');
+                } else if (manual) {
+                    document.getElementById('wait-title').textContent = 'Paiement pas encore reçu';
+                }
+            } catch (e) {
+                // réseau : on réessaiera au prochain passage
+            } finally {
+                checking = false;
+                if (manual) checkBtn.disabled = false;
             }
         }
 
-        // --- INTEGRATION PAYPAL ---
-        if (typeof paypal !== 'undefined') {
-            paypal.Buttons({
-                onClick: (data, actions) => {
-                    if (!validateForm()) {
-                        return actions.reject();
-                    }
-                    return actions.resolve();
-                },
-                createOrder: (data, actions) => {
-                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    const groupedCart = {};
-
-                    cart.forEach(item => {
-                        const key = (item.id || '0') + '_' + (item.size || 'M');
-                        if (!groupedCart[key]) {
-                            groupedCart[key] = { ...item, quantity: 0 };
-                        }
-                        groupedCart[key].quantity += 1;
-                    });
-
-                    let totalItemValue = 0;
-                    Object.values(groupedCart).forEach(item => {
-                        const priceStr = String(item.price || '0');
-                        const fcfaPrice = Math.round(parseFloat(priceStr) || 0);
-                        const eurPrice = parseFloat((fcfaPrice / CONVERSION_RATE).toFixed(2));
-                        totalItemValue += eurPrice * item.quantity;
-                    });
-
-                    const finalTotal = totalItemValue.toFixed(2);
-
-                    if (parseFloat(finalTotal) <= 0) {
-                        alert("Le montant total doit être supérieur à 0 pour utiliser PayPal.");
-                        return;
-                    }
-
-                    const orderData = {
-                        purchase_units: [{
-                            amount: {
-                                currency_code: 'USD',
-                                value: finalTotal
-                            }
-                        }]
-                    };
-
-                    console.log("SENDING TO PAYPAL:", JSON.stringify(orderData, null, 2));
-                    return actions.order.create(orderData);
-                },
-                onApprove: function (data, actions) {
-                    console.log("PAYMENT APPROVED - STARTING CAPTURE:", data);
-                    return actions.order.capture().then(async function (details) {
-                        console.log("CAPTURE SUCCESSFUL:", details);
-
-                        // Enregistrer dans la base de données locale
-                        await createDatabaseOrder('paid', details.id);
-
-                        // Afficher l'écran de succès
-                        showSuccess("Paiement PayPal réussi ! Votre commande a été enregistrée et un email de confirmation vous a été envoyé.");
-                    }).catch(function (err) {
-                        console.error("CAPTURE FAILED:", err);
-                        alert("PayPal capture error. Please check console for details.");
-                    });
-                },
-
-                onCancel: function (data) {
-                    console.log("PAYMENT CANCELLED:", data);
-                },
-
-                onError: function (err) {
-                    console.error("PAYPAL SDK ERROR:", err);
-                    alert("Une erreur PayPal est survenue. Vérifiez la console.");
-                }
-            }).render('#paypal-button-container');
-        } else {
-            console.error("PayPal SDK not loaded - normal if ID is incorrect");
-            document.getElementById('paypal-error-msg').style.display = 'block';
+        function abandonPayment() {
+            clearInterval(pollTimer);
+            if (cardWindow && !cardWindow.closed) cardWindow.close();
+            savePending(null);
+            document.getElementById('wait-title').textContent = 'En attente de votre paiement…';
+            setWaiting(false);
         }
 
-        async function createDatabaseOrder(status, transactionId = '') {
-            const name = document.getElementById('client_name').value.trim() || 'Client PayPal';
-            const email = document.getElementById('client_email').value.trim() || '';
-            const phone = document.getElementById('client_phone').value.trim() || 'N/A';
-            const address = document.getElementById('client_address').value.trim() || 'N/A';
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-            try {
-                await fetch('api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'create',
-                        order: {
-                            type: 'delivery',
-                            product_id: cart[0].id || 0,
-                            product_name: cart[0].name || 'Multiple items',
-                            product_image: cart[0].image_url || '',
-                            product_price: cartTotalFCFA + ' FCFA',
-                            size: cart[0].size || 'M',
-                            client_name: name,
-                            client_email: email,
-                            client_phone: phone,
-                            client_address: `PAYPAL [${transactionId}] | ${address}`,
-                            status: status
-                        },
-                        items: cart.map(i => ({ product_id: i.id, qty: 1 }))
-                    })
-                });
-            } catch (err) {
-                console.error("Failed to record order in DB:", err);
+        // Retour de la fenêtre PayDunya (return_url / cancel_url) : on prévient la page principale et on ferme
+        function handlePaydunyaReturn() {
+            const params = new URLSearchParams(location.search);
+            const ret = params.get('payment');
+            if (!ret) return false;
+            if (window.opener && !window.opener.closed) {
+                try { window.opener.postMessage({ type: 'mil-payment', result: ret }, location.origin); } catch (e) { }
+                window.close();
+                return true;
             }
+            history.replaceState(null, '', location.pathname); // retour dans le même onglet
+            return false;
         }
+
+        window.addEventListener('message', (e) => {
+            if (e.origin !== location.origin || !e.data || e.data.type !== 'mil-payment') return;
+            checkPayment(true);
+        });
 
         function showSuccess(msg) {
             document.getElementById('checkout-main-content').style.display = 'none';
             document.querySelector('.order-summary').style.display = 'none';
             document.getElementById('success-step').style.display = 'block';
             document.getElementById('success-msg').innerText = msg;
-            localStorage.removeItem('cart');
+            localStorage.removeItem('cart'); // le panier n'est vidé qu'après paiement confirmé
         }
 
         function clearCart() {
@@ -699,9 +742,26 @@
         }
 
         window.onload = () => {
+            if (handlePaydunyaReturn()) return;
             refreshSummary();
-            selectMethod('paypal');
-            console.log("Initialization complete.");
+            selectMethod('momo');
+
+            // Opérateurs disponibles (liste fournie par le serveur)
+            fetch('api/payment').then(r => r.json()).then(cfg => {
+                if (!cfg.available) showError('Le paiement en ligne est momentanément indisponible.');
+                if (Array.isArray(cfg.operators) && cfg.operators.length) {
+                    document.getElementById('momo_operator').innerHTML = cfg.operators
+                        .map(o => `<option value="${escapeHtml(o.key)}">${escapeHtml(o.label)}</option>`).join('');
+                }
+            }).catch(() => { });
+
+            // Reprise d'un paiement en cours (page rechargée, retour de PayDunya dans le même onglet)
+            const p = loadPending();
+            if (p) {
+                savePending(p);
+                setWaiting(true, p.method);
+                startPolling();
+            }
         };
     </script>
 </body>

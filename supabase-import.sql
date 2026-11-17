@@ -1,6 +1,6 @@
--- Made in Lo - Data import from MySQL dump
--- Run this AFTER supabase-rls.sql in Supabase SQL Editor
--- This disables RLS, inserts data, then re-enables RLS
+-- Made in Lo - Import des anciennes données (dump MySQL) — OPTIONNEL
+-- À exécuter APRÈS supabase-setup.sql, une seule fois, sur une base vide.
+-- Contient des commandes de TEST et 2 boutiques dont les mots de passe doivent être changés ensuite.
 
 SET row_security = off;
 
@@ -146,3 +146,15 @@ INSERT INTO admin_notifications (id, shop_id, shop_name, message, is_read, creat
 (3, 1, 'dream', 'Vente enregistrée : 4 unité(s) de ''Produit 9'' vendue(s) par le shop ''dream''.', false, '2026-06-06 16:07:25');
 
 SET row_security = on;
+
+-- Remet les compteurs d'id à jour (sinon : "duplicate key" au prochain ajout)
+do $$
+declare t text;
+begin
+  foreach t in array array['products','categories','orders','shops','shop_stock',
+                           'stock_shipments','admin_notifications','activity_log']
+  loop
+    execute format(
+      'select setval(pg_get_serial_sequence(''public.%1$I'', ''id''), coalesce((select max(id) from public.%1$I), 0) + 1, false)', t);
+  end loop;
+end $$;

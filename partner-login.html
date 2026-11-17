@@ -73,6 +73,7 @@
         
         #error-msg { color: #ff5252; font-size: 0.85rem; margin-top: 1rem; display: none; }
     </style>
+    <script src="auth-client.js"></script>
 </head>
 <body>
 
@@ -103,16 +104,18 @@
             try {
                 const res = await fetch('api/shop-auth', {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'login', login, password })
                 });
-                const data = await res.json();
+                const data = await res.json().catch(() => ({}));
+                const errorEl = document.getElementById('error-msg');
 
-                if (data.status === 'success') {
-                    localStorage.setItem('shopId', data.shop_id);
-                    localStorage.setItem('shopName', data.shop_name);
+                if (res.ok && data.status === 'success' && data.token) {
+                    MILAuth.setShopSession(data);
                     window.location.href = 'partner-dashboard.html';
                 } else {
-                    document.getElementById('error-msg').style.display = 'block';
+                    errorEl.textContent = data.error || 'Identifiants incorrects. Veuillez réessayer.';
+                    errorEl.style.display = 'block';
                 }
             } catch (err) {
                 console.error(err);

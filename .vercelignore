@@ -1,0 +1,10 @@
+# Fichiers internes qui ne doivent jamais être servis publiquement
+data/
+database.sql
+supabase-*.sql
+crash.txt
+import-from-mysql.js
+products.json
+.kilo/
+*.md
+.env*

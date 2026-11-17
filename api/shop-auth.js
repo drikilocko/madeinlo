@@ -1,61 +1,79 @@
-import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
+import { supabaseGet, supabasePatch } from './_supabase.js';
 import bcrypt from 'bcryptjs';
-import { parseJsonBody } from './_helpers.js';
+import { parseJsonBody, setup, sendError, HttpError } from './_helpers.js';
+import { signShopToken, getShop, checkRateLimit, recordFailure, resetAttempts, clientIp } from './_auth.js';
+
+// Hash factice pour garder un temps de réponse constant quand l'identifiant n'existe pas
+const DUMMY_HASH = bcrypt.hashSync('made-in-lo-dummy-password', 10);
+
+function compare(password, hash) {
+  // Les hash PHP ($2y$) sont compatibles avec bcryptjs une fois le préfixe adapté
+  const normalized = String(hash || '').replace(/^\$2y\$/, '$2a$');
+  try { return bcrypt.compareSync(password, normalized); } catch { return false; }
+}
 
 export default async function handler(req, res) {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (setup(req, res, ['POST'])) return;
 
   try {
     const input = await parseJsonBody(req);
 
-    if (!input.action) {
-      return res.status(400).json({ error: 'Action requise' });
+    if (input.action === 'login') {
+      const login = String(input.login || '').trim().slice(0, 60);
+      const password = String(input.password || '').slice(0, 72);
+      if (!login || !password) throw new HttpError(400, 'Identifiant et mot de passe requis');
+
+      const ipKey = `shop-ip:${clientIp(req)}`;
+      const loginKey = `shop-login:${login.toLowerCase()}`;
+      checkRateLimit(ipKey, { max: 20 });
+      checkRateLimit(loginKey, { max: 8 });
+
+      const shop = (await supabaseGet('shops', { filter: { login: `eq.${login}` } }))[0];
+      const valid = compare(password, shop ? shop.password : DUMMY_HASH);
+
+      if (!shop || !valid) {
+        recordFailure(ipKey);
+        recordFailure(loginKey);
+        throw new HttpError(401, 'Identifiants incorrects');
+      }
+
+      resetAttempts(loginKey);
+      return res.status(200).json({
+        status: 'success',
+        token: signShopToken(shop),
+        shop_id: shop.id,
+        shop_name: shop.name
+      });
     }
 
-    if (input.action === 'login') {
-      const login = input.login || '';
-      const password = input.password || '';
+    if (input.action === 'check') {
+      const shop = await getShop(req);
+      if (!shop) return res.status(401).json({ status: 'not_authenticated' });
+      return res.status(200).json({ status: 'success', shop_id: shop.id, shop_name: shop.name });
+    }
 
-      const shops = await supabaseGet('shops', {});
-      const shop = shops.find(s => s.login === login);
+    if (input.action === 'update_password') {
+      // La boutique connectée change SON mot de passe, en confirmant l'ancien
+      const shop = await getShop(req);
+      if (!shop) throw new HttpError(401, 'Session expirée, reconnectez-vous');
 
-      if (!shop) {
-        return res.status(401).json({ error: 'Identifiants incorrects' });
-      }
+      const current = String(input.current_password || '').slice(0, 72);
+      const next = String(input.password || '');
+      if (!compare(current, shop.password)) throw new HttpError(403, 'Mot de passe actuel incorrect');
+      if (next.length < 8) throw new HttpError(400, 'Le nouveau mot de passe doit faire au moins 8 caractères');
 
-      const valid = bcrypt.compareSync(password, shop.password);
-      if (valid) {
-        return res.status(200).json({
-          status: 'success',
-          shop: {
-            id: shop.id,
-            name: shop.name
-          }
-        });
-      } else {
-        return res.status(401).json({ error: 'Identifiants incorrects' });
-      }
-    } else if (input.action === 'check') {
-      return res.status(401).json({ status: 'not_authenticated' });
-    } else if (input.action === 'update_password') {
-      const shopId = input.shop_id;
-      const hashedPassword = bcrypt.hashSync(input.password, 10);
+      const hash = bcrypt.hashSync(next.slice(0, 72), 10);
+      await supabasePatch('shops', { password: hash }, { id: shop.id });
+      // Nouveau jeton : les anciennes sessions sont invalidées
+      return res.status(200).json({ status: 'success', token: signShopToken({ ...shop, password: hash }) });
+    }
 
-      await supabasePatch('shops', { password: hashedPassword }, { id: shopId });
-      return res.status(200).json({ status: 'success' });
-    } else if (input.action === 'logout') {
+    if (input.action === 'logout') {
       return res.status(200).json({ status: 'logged_out' });
     }
 
-    return res.status(400).json({ error: 'Action inconnue' });
+    throw new HttpError(400, 'Action inconnue');
   } catch (e) {
-    return res.status(500).json({ error: e.message || 'Internal server error' });
+    return sendError(res, e);
   }
 }

@@ -1,37 +1,26 @@
-import { supabaseGet, supabasePost, supabasePatch, supabaseDelete } from './_supabase.js';
-import { parseJsonBody } from './_helpers.js';
+import { supabaseGet, supabasePatch } from './_supabase.js';
+import { parseJsonBody, setup, sendError, HttpError, requireInt } from './_helpers.js';
+import { requireAdmin } from './_auth.js';
 
 export default async function handler(req, res) {
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  const { method } = req;
+  if (setup(req, res)) return;
 
   try {
-    if (method === 'GET') {
+    await requireAdmin(req);
+
+    if (req.method === 'GET') {
       const data = await supabaseGet('admin_notifications', { order: 'created_at.desc', limit: 20 });
-      return res.status(200).json(data || []);
+      return res.status(200).json(data);
     }
 
-    if (method === 'POST') {
-      const input = await parseJsonBody(req);
-
-      if (input.action === 'mark_read') {
-        await supabasePatch('admin_notifications', { is_read: true }, { id: input.id });
-        return res.status(200).json({ status: 'success' });
-      }
-
-      return res.status(200).json({});
+    const input = await parseJsonBody(req);
+    if (input.action === 'mark_read') {
+      await supabasePatch('admin_notifications', { is_read: true }, { id: requireInt(input.id, 'id') });
+      return res.status(200).json({ status: 'success' });
     }
 
-    return res.status(405).json({ error: 'Method not allowed' });
+    throw new HttpError(400, 'Action inconnue');
   } catch (e) {
-    return res.status(500).json({ error: e.message || 'Internal server error' });
+    return sendError(res, e);
   }
 }

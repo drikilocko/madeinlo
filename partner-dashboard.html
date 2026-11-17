@@ -60,7 +60,7 @@
             padding: 0.8rem 0.5rem;
         }
 
-        .sidebar.collapsed .logo, 
+        .sidebar.collapsed .logo,
         .sidebar.collapsed .nav-links span,
         .sidebar.collapsed .logout-btn span {
             display: none;
@@ -177,7 +177,7 @@
         .card-content { padding: 1.5rem; }
         .card-content h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
         .card-content .cat { font-size: 0.7rem; text-transform: uppercase; opacity: 0.5; letter-spacing: 1px; }
-        
+
         .stock-info {
             margin-top: 1.5rem;
             display: flex;
@@ -274,8 +274,12 @@
                 <h3>Changer le mot de passe</h3>
                 <form id="password-form" onsubmit="updatePassword(event)">
                     <div style="margin-bottom: 1.5rem;">
-                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; font-weight: 600;">Nouveau mot de passe</label>
-                        <input type="password" id="new-pass" required style="width: 100%; padding: 1rem; border: 1px solid #eee; border-radius: 8px;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; font-weight: 600;">Mot de passe actuel</label>
+                        <input type="password" id="current-pass" required autocomplete="current-password" style="width: 100%; padding: 1rem; border: 1px solid #eee; border-radius: 8px;">
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; font-weight: 600;">Nouveau mot de passe (8 caractères minimum)</label>
+                        <input type="password" id="new-pass" required minlength="8" autocomplete="new-password" style="width: 100%; padding: 1rem; border: 1px solid #eee; border-radius: 8px;">
                     </div>
                     <button type="submit" style="width: 100%; padding: 1.2rem; background: #000; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">Mettre à jour</button>
                 </form>
@@ -283,13 +287,15 @@
         </div>
     </main>
 
+    <script src="auth-client.js" data-role="shop"></script>
     <script>
-        const shopId = localStorage.getItem('shopId');
-        const shopName = localStorage.getItem('shopName');
-
-        if (!shopId) {
-            window.location.href = 'partner-login.html';
+        const session = MILAuth.shopSession();
+        if (!session || !session.token) {
+            window.location.replace('partner-login.html');
         }
+        const shopId = session ? session.shop_id : null;
+        const shopName = session ? session.shop_name : '';
+        const esc = (v) => MILAuth.escape(v);
 
         document.getElementById('shop-name-display').textContent = shopName || '';
 
@@ -298,15 +304,15 @@
             document.getElementById('shipments-section').style.display = 'none';
             document.getElementById('history-section').style.display = 'none';
             document.getElementById('settings-section').style.display = 'none';
-            
+
             document.getElementById(id + '-section').style.display = (id === 'history' || id === 'settings' ? 'block' : 'grid');
-            
+
             document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
             btn.classList.add('active');
 
             const titles = { inventory: 'Stock Reçu', shipments: 'Réceptions en attente', history: 'Historique des Ventes', settings: 'Paramètres du Compte' };
             const subs = { inventory: 'Produits en stock dans votre boutique', shipments: 'Veuillez vérifier et accepter les produits envoyés par le siège', history: 'Suivi de vos ventes et réceptions', settings: 'Gérez la sécurité de votre accès partenaire' };
-            
+
             document.getElementById('page-title').innerText = titles[id];
             document.getElementById('page-subtitle').innerText = subs[id];
 
@@ -321,7 +327,7 @@
                 const data = await res.json();
                 const container = document.getElementById('shipments-section');
                 const badge = document.getElementById('ship-count-badge');
-                
+
                 container.innerHTML = '';
                 if (data.length > 0) {
                     badge.innerText = data.length;
@@ -334,15 +340,15 @@
                 data.forEach(item => {
                     container.innerHTML += `
                         <div class="stock-card">
-                            <img src="${item.image_url}" class="product-img" alt="${item.name}">
+                            <img src="${esc(item.image_url)}" class="product-img" alt="${esc(item.name)}">
                             <div class="card-content">
-                                <span class="cat">${item.category}</span>
-                                <h3>${item.name}</h3>
+                                <span class="cat">${esc(item.category)}</span>
+                                <h3>${esc(item.name)}</h3>
                                 <div class="stock-info">
                                     <span style="font-size: 0.8rem; opacity: 0.6;">Quantité envoyée :</span>
-                                    <span class="qty-badge">${item.qty}</span>
+                                    <span class="qty-badge">${parseInt(item.qty) || 0}</span>
                                 </div>
-                                <button onclick="acceptShipment(${item.id})" style="width:100%; margin-top: 1rem; padding: 0.8rem; background: var(--primary-color); color: #000; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                                <button onclick="acceptShipment(${parseInt(item.id)})" style="width:100%; margin-top: 1rem; padding: 0.8rem; background: var(--primary-color); color: #000; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
                                     <i class="fas fa-check"></i> Accepter la réception
                                 </button>
                             </div>
@@ -363,15 +369,19 @@
                     alert('Stock accepté et ajouté à votre inventaire !');
                     fetchShipments();
                     fetchStock();
+                } else {
+                    alert('Erreur : ' + (data.message || data.error || 'Action impossible'));
                 }
             } catch (err) { console.error(err); }
         }
+
+        let stockNames = {};
 
         async function fetchStock() {
             try {
                 const res = await fetch(`api/shop-stock?shop_id=${shopId}`);
                 const data = await res.json();
-                
+
                 const container = document.getElementById('inventory-section');
                 container.innerHTML = '';
 
@@ -382,23 +392,27 @@
                     return;
                 }
 
+                stockNames = {};
                 availableProducts.forEach(item => {
+                    const pid = parseInt(item.product_id);
+                    const qty = parseInt(item.qty) || 0;
+                    stockNames[pid] = item.name || '';
                     container.innerHTML += `
-                        <div class="stock-card" id="card-${item.product_id}">
-                            <img src="${item.image_url}" class="product-img" alt="${item.name}">
+                        <div class="stock-card" id="card-${pid}">
+                            <img src="${esc(item.image_url)}" class="product-img" alt="${esc(item.name)}">
                             <div class="card-content">
-                                <span class="cat">${item.category}</span>
-                                <h3>${item.name}</h3>
-                                <p style="font-weight: 700; color: var(--primary-color);">${item.price} FCFA</p>
-                                
+                                <span class="cat">${esc(item.category)}</span>
+                                <h3>${esc(item.name)}</h3>
+                                <p style="font-weight: 700; color: var(--primary-color);">${esc(item.price)} FCFA</p>
+
                                 <div class="stock-info">
                                     <span style="font-size: 0.8rem; opacity: 0.6;">Quantité :</span>
-                                    <span class="qty-badge" id="qty-${item.product_id}">${item.qty}</span>
+                                    <span class="qty-badge" id="qty-${pid}">${qty}</span>
                                 </div>
-                                
+
                                 <div style="display: flex; gap: 10px; margin-top: 1rem;">
-                                    <input type="number" id="sell-qty-${item.product_id}" value="1" min="1" max="${item.qty}" style="width: 60px; padding: 0.5rem; border: 1px solid #eee; border-radius: 8px; text-align: center;">
-                                    <button class="sell-btn" onclick="sellProduct(${item.product_id}, '${item.name.replace(/'/g, "\\'")}')" style="flex: 1; padding: 0.8rem; background: #000; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                    <input type="number" id="sell-qty-${pid}" value="1" min="1" max="${qty}" style="width: 60px; padding: 0.5rem; border: 1px solid #eee; border-radius: 8px; text-align: center;">
+                                    <button class="sell-btn" onclick="sellProduct(${pid})" style="flex: 1; padding: 0.8rem; background: #000; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
                                         <i class="fas fa-shopping-cart"></i> Vendre
                                     </button>
                                 </div>
@@ -411,10 +425,10 @@
             }
         }
 
-        async function sellProduct(productId, productName) {
+        async function sellProduct(productId) {
+            const productName = stockNames[productId] || 'ce produit';
             const qtySold = parseInt(document.getElementById(`sell-qty-${productId}`).value);
-            const shopName = localStorage.getItem('shopName') || '';
-            
+
             if (!qtySold || qtySold < 1) return alert("Veuillez choisir une quantité valide");
             if (!confirm(`Voulez-vous enregistrer la vente de ${qtySold} x : ${productName} ?`)) return;
 
@@ -422,15 +436,13 @@
                 const res = await fetch('api/shop-stock', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        action: 'sell', 
-                        shop_id: shopId, 
-                        product_id: productId, 
-                        shop_name: shopName,
+                    body: JSON.stringify({
+                        action: 'sell',
+                        product_id: productId,
                         qty_sold: qtySold
                     })
                 });
-                
+
                 const data = await res.json();
                 if (data.status === 'success') {
                     alert('Vente enregistrée ! Le produit disparaîtra s\'il n\'y a plus de stock.');
@@ -450,13 +462,13 @@
                 const data = await res.json();
                 const body = document.getElementById('history-table-body');
                 body.innerHTML = '';
-                
+
                 data.forEach(log => {
                     body.innerHTML += `
                         <tr style="border-bottom: 1px solid #eee;">
                             <td style="padding: 1rem; font-size: 0.85rem;">${new Date(log.created_at).toLocaleString()}</td>
                             <td style="padding: 1rem;"><span style="padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; background: ${log.type === 'assignment' ? '#e3f2fd; color:#1976d2;' : '#e8f5e9; color:#2e7d32;'}">${log.type === 'assignment' ? 'RÉCEPTION' : 'VENTE'}</span></td>
-                            <td style="padding: 1rem; font-size: 0.85rem;">${log.message}</td>
+                            <td style="padding: 1rem; font-size: 0.85rem;">${esc(log.message)}</td>
                         </tr>
                     `;
                 });
@@ -465,16 +477,22 @@
 
         async function updatePassword(e) {
             e.preventDefault();
+            const currentPass = document.getElementById('current-pass').value;
             const newPass = document.getElementById('new-pass').value;
+            if (newPass.length < 8) return alert('Le nouveau mot de passe doit faire au moins 8 caractères.');
             try {
                 const res = await fetch('api/shop-auth', {
                     method: 'POST',
-                    body: JSON.stringify({ action: 'update_password', shop_id: shopId, password: newPass })
+                    body: JSON.stringify({ action: 'update_password', current_password: currentPass, password: newPass })
                 });
-                const data = await res.json();
-                if (data.status === 'success') {
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.status === 'success') {
+                    // Nouveau jeton : les autres sessions ouvertes sont déconnectées
+                    MILAuth.setShopSession({ token: data.token, shop_id: shopId, shop_name: shopName });
                     alert('Mot de passe mis à jour !');
                     document.getElementById('password-form').reset();
+                } else {
+                    alert('Erreur : ' + (data.error || 'Impossible de changer le mot de passe'));
                 }
             } catch (err) { console.error(err); }
         }
@@ -489,13 +507,11 @@
         }
 
         async function logout() {
-            await fetch('api/shop-auth', { method: 'POST', body: JSON.stringify({ action: 'logout' }) });
-            localStorage.removeItem('shopId');
-            localStorage.removeItem('shopName');
+            MILAuth.shopLogout();
             window.location.href = 'partner-login.html';
         }
 
-        fetchStock();
+        if (session && session.token) fetchStock();
     </script>
     <script src="toast.js"></script>
 </body>
