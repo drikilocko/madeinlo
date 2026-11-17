@@ -398,11 +398,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let refreshTimer = null;
     const scheduleRefresh = () => {
         clearTimeout(refreshTimer);
-        refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 250);
+        refreshTimer = setTimeout(() => {
+            // Jamais pendant qu'une fiche produit est ouverte (page figée : la position lue serait 0)
+            if (document.documentElement.classList.contains('page-frozen')) return;
+            ScrollTrigger.refresh();
+        }, 250);
     };
     window.addEventListener('load', scheduleRefresh);
     document.addEventListener('load', (e) => {
-        if (e.target && e.target.tagName === 'IMG') scheduleRefresh();
+        const t = e.target;
+        if (!t || t.tagName !== 'IMG') return;
+        if (t.closest && t.closest('#popup-overlay')) return; // images de la fiche produit : sans effet sur la page
+        scheduleRefresh();
     }, true);
 
     // --- GESTION DYNAMIQUE DU GALLERY-SHOP (HORIZONTAL CATEGORY ROWS) ---

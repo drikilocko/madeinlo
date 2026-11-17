@@ -949,13 +949,15 @@
         let _savedScrollY = 0;
 
         function _freezePage() {
-            _savedScrollY = window.scrollY;
+            // Position mémorisée AVANT tout changement (Lenis puis figeage)
+            _savedScrollY = (window.lenis && typeof window.lenis.scroll === 'number') ? window.lenis.scroll : window.scrollY;
+            if (window.lenis) window.lenis.stop();
+            document.documentElement.classList.add('page-frozen');
             document.body.style.position = 'fixed';
             document.body.style.top = '-' + _savedScrollY + 'px';
             document.body.style.left = '0';
             document.body.style.right = '0';
             document.body.style.overflow = 'hidden';
-            if (window.lenis) window.lenis.stop();
         }
 
         function _unfreezePage() {
@@ -964,11 +966,17 @@
             document.body.style.left = '';
             document.body.style.right = '';
             document.body.style.overflow = '';
-            window.scrollTo(0, _savedScrollY);
-            if (window.lenis) {
-                window.lenis.start();
-                window.lenis.scrollTo(_savedScrollY, { immediate: true, force: true }); // resynchronise Lenis : pas de saut
-            }
+            document.documentElement.classList.remove('page-frozen');
+            const y = _savedScrollY;
+            const restore = () => {
+                window.scrollTo(0, y);
+                if (window.lenis) window.lenis.scrollTo(y, { immediate: true, force: true });
+            };
+            if (window.lenis) window.lenis.start();
+            restore();
+            // Une 2e fois à la frame suivante, au cas où un recalcul aurait bougé la page
+            requestAnimationFrame(restore);
+            if (window.ScrollTrigger) window.ScrollTrigger.refresh();
         }
 
         // ======= OVERRIDE global openProductModal =======
