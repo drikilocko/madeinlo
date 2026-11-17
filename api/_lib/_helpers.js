@@ -1,7 +1,12 @@
+// "15000", "15 000", "15 000 FCFA", "10000.00", "10000,50" -> nombre de FCFA (entier)
 export function parsePrice(str) {
   if (str === undefined || str === null) return 0;
-  const num = parseFloat(String(str).replace(/[^0-9]/g, ''));
-  return isNaN(num) ? 0 : num;
+  if (typeof str === 'number') return Number.isFinite(str) ? Math.round(str) : 0;
+  const s = String(str).replace(/\s| |fcfa|cfa|xof|f$/gi, '');
+  // Décimales (1 ou 2 chiffres après . ou ,) : "10000.00" = 10000
+  const dec = /^(\d+)[.,](\d{1,2})$/.exec(s);
+  const num = dec ? parseFloat(`${dec[1]}.${dec[2]}`) : parseFloat(s.replace(/[^0-9]/g, ''));
+  return Number.isFinite(num) ? Math.round(num) : 0;
 }
 
 export function parseGallery(gallery) {
