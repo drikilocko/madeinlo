@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isPreloaderShown && preloader) {
         preloader.style.display = 'none';
         document.body.style.overflow = '';
-        gsap.set(['nav', 'main', 'footer'], { clearProps: 'opacity,filter' });
+        gsap.set('nav', { opacity: 1, filter: 'blur(0px)' }); // apparence du header inchangée
+        gsap.set(['main', 'footer'], { clearProps: 'opacity,filter' });
     }
 
     const enterBtns = document.querySelectorAll('.enter-btn, #enter-button');
@@ -106,7 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     duration: 3,
                     ease: 'power2.out',
                     stagger: 0.1,
-                    clearProps: 'filter,opacity' // un filtre laissé sur la page rend le scroll saccadé
+                    // Filtre retiré du contenu (scroll fluide) ; le header garde son apparence d'origine
+                    onComplete: () => gsap.set(['main', 'footer'], { clearProps: 'filter,opacity' })
                 },
                 '<'
             );
@@ -145,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         duration: 3,
                         ease: 'power2.out',
                         stagger: 0.1,
-                        clearProps: 'filter,opacity'
+                        onComplete: () => gsap.set(['main', 'footer'], { clearProps: 'filter,opacity' })
                     },
                     '<'
                 );
