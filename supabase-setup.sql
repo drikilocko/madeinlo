@@ -37,6 +37,7 @@ create table if not exists public.products (
     stock_qty   integer not null default 0,
     views       integer not null default 0,
     is_visible  boolean not null default true,
+    pairings    jsonb not null default '[]'::jsonb,  -- produits assortis choisis dans l'admin (ids, 5 max)
     created_at  timestamptz not null default now()
 );
 
@@ -123,6 +124,7 @@ alter table public.products add column if not exists gallery    jsonb   not null
 alter table public.products add column if not exists stock_qty  integer not null default 0;
 alter table public.products add column if not exists views      integer not null default 0;
 alter table public.products add column if not exists is_visible boolean not null default true;
+alter table public.products add column if not exists pairings   jsonb   not null default '[]'::jsonb;
 alter table public.categories add column if not exists is_visible boolean not null default true;
 
 alter table public.orders add column if not exists payment_method text;

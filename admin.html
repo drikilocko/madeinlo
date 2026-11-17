@@ -1065,6 +1065,44 @@
             color: #000 !important;
             font-weight: bold;
         }
+        /* --- PRODUITS ASSORTIS --- */
+        .pair-count-badge {
+            display: inline-block; min-width: 18px; padding: 1px 6px; margin-left: 4px;
+            border-radius: 10px; background: var(--primary-color); color: #000;
+            font-size: 0.7rem; font-weight: 700; text-align: center;
+        }
+        .pair-help {
+            background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 10px; padding: 12px 14px; font-size: 0.85rem; line-height: 1.5; margin: 0 0 1.2rem;
+        }
+        .pair-help i { color: var(--primary-color); margin-right: 6px; }
+        .pair-label { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: 0.6rem; }
+        .pair-selected { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; min-height: 60px; }
+        .pair-empty { grid-column: 1 / -1; padding: 14px; border: 1px dashed rgba(255,255,255,0.15); border-radius: 10px; font-size: 0.85rem; opacity: 0.6; text-align: center; }
+        .pair-card { position: relative; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; background: rgba(255,255,255,0.03); }
+        .pair-card img { width: 100%; height: 110px; object-fit: cover; display: block; }
+        .pair-card span { display: block; padding: 6px 8px; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pair-card button {
+            position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%;
+            border: none; background: rgba(0,0,0,0.75); color: #fff; cursor: pointer; font-size: 0.8rem;
+        }
+        .pair-card button:hover { background: #d32f2f; }
+        .pair-search {
+            width: 100%; padding: 0.8rem 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.04); color: inherit; font-size: 0.9rem; box-sizing: border-box;
+        }
+        .pair-results { margin-top: 10px; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+        .pair-row {
+            display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06); cursor: pointer; background: transparent; color: inherit; text-align: left; width: 100%;
+        }
+        .pair-row:hover:not(:disabled) { border-color: var(--primary-color); background: rgba(212,175,55,0.06); }
+        .pair-row:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pair-row img { width: 42px; height: 42px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+        .pair-row .pair-row-name { flex: 1; font-size: 0.85rem; }
+        .pair-row .pair-row-cat { font-size: 0.7rem; opacity: 0.55; }
+        .pair-row .pair-row-add { font-size: 0.75rem; font-weight: 700; color: var(--primary-color); white-space: nowrap; }
+
         /* --- ÉCRAN DE CONNEXION ADMIN --- */
         #admin-login {
             position: fixed; inset: 0; z-index: 100000;
@@ -1660,6 +1698,9 @@
                 <button type="button" class="modal-tab-btn" id="btn-tab-gallery" onclick="switchModalTab('gallery')">
                     <i class="fas fa-images"></i> Images Secondaires (Sous-produits)
                 </button>
+                <button type="button" class="modal-tab-btn" id="btn-tab-pairings" onclick="switchModalTab('pairings')">
+                    <i class="fas fa-layer-group"></i> Produits assortis <span id="pair-count-badge" class="pair-count-badge">0</span>
+                </button>
             </div>
 
             <form id="product-form">
@@ -1706,6 +1747,20 @@
                         <label>Description</label>
                         <textarea id="p-desc" rows="2"></textarea>
                     </div>
+                </div>
+
+                <!-- PRODUITS ASSORTIS TAB CONTENT -->
+                <div id="modal-tab-pairings-content" style="display: none;">
+                    <p class="pair-help">
+                        <i class="fas fa-lightbulb"></i>
+                        Choisissez jusqu'à <strong>5 produits</strong> proposés avec celui-ci dans la fiche produit
+                        (« Complétez le look »). <br>Si vous n'en choisissez aucun, le site en propose 5 au hasard.
+                    </p>
+                    <label class="pair-label">Produits choisis <span id="pair-counter">0 / 5</span></label>
+                    <div id="pair-selected" class="pair-selected"></div>
+                    <label class="pair-label" for="pair-search" style="margin-top: 1.4rem;">Ajouter un produit</label>
+                    <input type="text" id="pair-search" class="pair-search" placeholder="Rechercher par nom ou catégorie…" oninput="renderPairingPicker()" autocomplete="off">
+                    <div id="pair-results" class="pair-results"></div>
                 </div>
 
                 <!-- GALLERY TAB CONTENT -->
@@ -1863,14 +1918,80 @@
         let mergeTargetName = "";
 
         function switchModalTab(tab) {
-            document.getElementById('btn-tab-general').classList.remove('active');
-            document.getElementById('btn-tab-gallery').classList.remove('active');
-
-            document.getElementById('modal-tab-general-content').style.display = 'none';
-            document.getElementById('modal-tab-gallery-content').style.display = 'none';
+            ['general', 'gallery', 'pairings'].forEach(t => {
+                document.getElementById('btn-tab-' + t).classList.remove('active');
+                document.getElementById('modal-tab-' + t + '-content').style.display = 'none';
+            });
+            if (tab === 'pairings') renderPairingPicker();
 
             document.getElementById('btn-tab-' + tab).classList.add('active');
             document.getElementById('modal-tab-' + tab + '-content').style.display = 'block';
+        }
+
+        // --- PRODUITS ASSORTIS ---
+        const MAX_PAIRINGS = 5;
+        let currentPairings = [];
+
+        function productById(id) {
+            return (window.allProducts || []).find(p => p.id == id);
+        }
+
+        function setPairings(ids) {
+            currentPairings = ids.map(Number).filter(id => id && productById(id)).slice(0, MAX_PAIRINGS);
+            document.getElementById('pair-search').value = '';
+            renderPairings();
+        }
+
+        function renderPairings() {
+            const box = document.getElementById('pair-selected');
+            document.getElementById('pair-counter').textContent = `${currentPairings.length} / ${MAX_PAIRINGS}`;
+            document.getElementById('pair-count-badge').textContent = currentPairings.length;
+            if (currentPairings.length === 0) {
+                box.innerHTML = '<div class="pair-empty">Aucun produit choisi : 5 produits seront proposés au hasard.</div>';
+            } else {
+                box.innerHTML = currentPairings.map(id => {
+                    const p = productById(id);
+                    return `<div class="pair-card">
+                        <img src="${esc(p.image_url || 'img/placeholder.png')}" alt="" onerror="this.src='img/placeholder.png'">
+                        <span title="${esc(p.name)}">${esc(p.name)}</span>
+                        <button type="button" onclick="removePairing(${Number(id)})" title="Retirer"><i class="fas fa-times"></i></button>
+                    </div>`;
+                }).join('');
+            }
+            renderPairingPicker();
+        }
+
+        function renderPairingPicker() {
+            const list = document.getElementById('pair-results');
+            if (!list) return;
+            const selfId = Number(document.getElementById('p-id').value);
+            const q = document.getElementById('pair-search').value.trim().toLowerCase();
+            const full = currentPairings.length >= MAX_PAIRINGS;
+            const matches = (window.allProducts || [])
+                .filter(p => p.id !== selfId && !currentPairings.includes(p.id))
+                .filter(p => !q || (p.name || '').toLowerCase().includes(q) || (p.category || '').toLowerCase().includes(q))
+                .slice(0, 40);
+            if (matches.length === 0) {
+                list.innerHTML = '<div class="pair-empty">Aucun produit trouvé.</div>';
+                return;
+            }
+            list.innerHTML = matches.map(p => `
+                <button type="button" class="pair-row" onclick="addPairing(${Number(p.id)})" ${full ? 'disabled' : ''}>
+                    <img src="${esc(p.image_url || 'img/placeholder.png')}" alt="" onerror="this.src='img/placeholder.png'">
+                    <span class="pair-row-name">${esc(p.name)}<br><span class="pair-row-cat">${esc(p.category)}${p.is_visible === false ? ' · masqué' : ''}</span></span>
+                    <span class="pair-row-add">${full ? 'Maximum atteint' : '+ Ajouter'}</span>
+                </button>`).join('');
+        }
+
+        function addPairing(id) {
+            if (currentPairings.length >= MAX_PAIRINGS || currentPairings.includes(id)) return;
+            currentPairings.push(id);
+            renderPairings();
+        }
+
+        function removePairing(id) {
+            currentPairings = currentPairings.filter(x => x !== id);
+            renderPairings();
         }
 
         function renderGalleryGrid(galleryArray) {
@@ -2027,6 +2148,7 @@
                 document.getElementById('p-upload').value = '';
                 renderGalleryGrid([]);
                 document.getElementById('p-id').value = '';
+                setPairings([]);
                 document.getElementById('modal-title').textContent = "Nouveau Produit";
                 switchModalTab('general');
             }
@@ -2059,6 +2181,10 @@
                 gal = gal ? [gal] : [];
             }
             renderGalleryGrid(gal);
+
+            let pairs = [];
+            try { pairs = typeof p.pairings === 'string' ? JSON.parse(p.pairings) : (p.pairings || []); } catch (e) { }
+            setPairings(Array.isArray(pairs) ? pairs : []);
 
             switchModalTab('general');
             modal.style.display = 'flex';
@@ -2497,7 +2623,8 @@
                 category: document.getElementById('p-category').value,
                 description: document.getElementById('p-desc').value,
                 image_url: document.getElementById('p-img').value,
-                gallery
+                gallery,
+                pairings: currentPairings
             };
 
             const submitBtn = e.target.querySelector('button[type="submit"]');

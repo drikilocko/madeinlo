@@ -1043,6 +1043,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             if (Array.isArray(data)) {
                 allProducts = data;
+                window.mlProducts = data; // utilisé par « Complétez le look » dans la fiche produit
                 if (data.length === 0) {
                     const gallery = document.querySelector('.gallery-container');
                     if (gallery) {

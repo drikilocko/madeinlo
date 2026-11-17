@@ -265,6 +265,94 @@
             display: block;
         }
 
+        #popup-pairings {
+            margin-top: 3rem;
+            padding-top: 2.2rem;
+            border-top: 1px solid #eee;
+        }
+
+        #popup-pairings h3 {
+            margin: 0 0 1.4rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        #popup-pairings-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .pairing-card {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 0;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            font: inherit;
+            color: inherit;
+        }
+
+        .pairing-card-img {
+            width: 100%;
+            aspect-ratio: 4 / 5;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #f3f3f3;
+        }
+
+        .pairing-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .pairing-card:hover .pairing-card-img img {
+            transform: scale(1.05);
+        }
+
+        .pairing-card-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pairing-card-price {
+            font-size: 0.85rem;
+            color: #b8962e;
+            font-weight: 700;
+        }
+
+        .pairing-card:focus-visible {
+            outline: 2px solid #b8962e;
+            outline-offset: 4px;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 900px) {
+            #popup-pairings-grid {
+                grid-template-columns: none;
+                grid-auto-flow: column;
+                grid-auto-columns: 42%;
+                overflow-x: auto;
+                padding-bottom: 6px;
+                scroll-snap-type: x mandatory;
+            }
+
+            .pairing-card {
+                scroll-snap-align: start;
+            }
+        }
+
         #popup-thumbs {
             display: flex;
             gap: 8px;
@@ -541,15 +629,6 @@
 
     <footer id="main-footer" class="site-footer">
         <div class="mf-grid">
-            <nav class="mf-col" aria-label="Boutique">
-                <h4 class="mf-title">Boutique</h4>
-                <ul class="mf-links">
-                    <li><a href="#image-gallery">Toute la collection</a></li>
-                    <li><a href="checkout.html">Mon panier</a></li>
-                    <li><a href="documentation/index.html">Documentation</a></li>
-                </ul>
-            </nav>
-
             <div class="mf-col">
                 <h4 class="mf-title">Made in Lo</h4>
                 <ul class="mf-links">
@@ -579,6 +658,16 @@
                     <p class="mf-action-text">Boutiques partenaires : gérez votre stock et vos ventes.</p>
                     <a class="mf-btn" href="partner-login.html">Accéder à mon espace</a>
                 </div>
+            </div>
+            <!-- div et non <nav> : le CSS du site fixe toutes les balises <nav> en haut de page -->
+            <div class="mf-col" role="navigation" aria-label="Navigation du pied de page">
+                <h4 class="mf-title">Navigation</h4>
+                <ul class="mf-links">
+                    <li><a href="#home">Accueil</a></li>
+                    <li><a href="#image-gallery">Toute la collection</a></li>
+                    <li><a href="checkout.html">Mon panier</a></li>
+                    <li><a href="documentation/index.html">Documentation</a></li>
+                </ul>
             </div>
         </div>
 
@@ -626,6 +715,12 @@
                     <i class="fa-solid fa-cart-plus"></i> Ajouter au panier
                 </button>
             </div>
+
+            <!-- Produits assortis -->
+            <section id="popup-pairings" aria-labelledby="popup-pairings-title" hidden>
+                <h3 id="popup-pairings-title">Complétez le look</h3>
+                <div id="popup-pairings-grid"></div>
+            </section>
         </div>
 
         <!-- Étape 2 : Formulaire commande (Supprimé car redirigé vers checkout.html) -->
@@ -755,9 +850,14 @@
             // Show product layout
             document.getElementById('popup-product-layout').style.display = 'flex';
 
-            // Open overlay
-            document.getElementById('popup-overlay').classList.add('open');
-            _freezePage();
+            // Open overlay (si on passe d'un produit à un autre, la page est déjà figée)
+            const overlayEl = document.getElementById('popup-overlay');
+            const alreadyOpen = overlayEl.classList.contains('open');
+            overlayEl.classList.add('open');
+            if (!alreadyOpen) _freezePage();
+            document.getElementById('popup-box').scrollTop = 0;
+
+            renderPairings(product);
 
             // ZOOM on main image
             const mainImg = document.getElementById('popup-main-img');
@@ -780,6 +880,74 @@
                 };
             }
         };
+
+        // ======= COMPLÉTEZ LE LOOK =======
+        // 5 suggestions : d'abord les produits choisis dans l'admin, puis complétées au hasard.
+        const PAIRINGS_COUNT = 5;
+
+        function _shuffle(list) {
+            const a = list.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function renderPairings(product) {
+            const section = document.getElementById('popup-pairings');
+            const grid = document.getElementById('popup-pairings-grid');
+            const catalog = (window.mlProducts || []).filter(p => p && p.id !== product.id);
+
+            let chosenIds = [];
+            try {
+                chosenIds = typeof product.pairings === 'string' ? JSON.parse(product.pairings) : (product.pairings || []);
+            } catch (e) { chosenIds = []; }
+
+            const byId = new Map(catalog.map(p => [Number(p.id), p]));
+            const picks = [];
+            (Array.isArray(chosenIds) ? chosenIds : []).forEach(id => {
+                const p = byId.get(Number(id));
+                if (p && !picks.includes(p)) picks.push(p);
+            });
+            if (picks.length < PAIRINGS_COUNT) {
+                _shuffle(catalog.filter(p => !picks.includes(p)))
+                    .slice(0, PAIRINGS_COUNT - picks.length)
+                    .forEach(p => picks.push(p));
+            }
+
+            grid.innerHTML = '';
+            if (picks.length === 0) { section.hidden = true; return; }
+
+            picks.slice(0, PAIRINGS_COUNT).forEach(p => {
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'pairing-card';
+                card.setAttribute('aria-label', 'Voir ' + (p.name || 'ce produit'));
+
+                const imgWrap = document.createElement('div');
+                imgWrap.className = 'pairing-card-img';
+                const img = document.createElement('img');
+                img.src = p.image_url || 'img/placeholder.png';
+                img.alt = p.name || '';
+                img.loading = 'lazy';
+                img.onerror = function () { this.src = 'img/placeholder.png'; };
+                imgWrap.appendChild(img);
+
+                const name = document.createElement('span');
+                name.className = 'pairing-card-name';
+                name.textContent = p.name || '';
+
+                const price = document.createElement('span');
+                price.className = 'pairing-card-price';
+                price.textContent = (Math.round(parseFloat(p.price) || 0)).toLocaleString('fr-FR') + ' FCFA';
+
+                card.append(imgWrap, name, price);
+                card.addEventListener('click', () => window.openProductModal(p));
+                grid.appendChild(card);
+            });
+            section.hidden = false;
+        }
 
         window.closeProductView = closePopup;
 

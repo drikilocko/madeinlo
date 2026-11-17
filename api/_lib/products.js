@@ -14,7 +14,36 @@ const IMAGE_TYPES = {
   'image/gif': { ext: 'gif', magic: b => b.slice(0, 3).toString() === 'GIF' }
 };
 
-function productFields(p) {
+const MAX_PAIRINGS = 5;
+
+// Produits assortis choisis par l'admin : ids uniques, sans le produit lui-même, 5 max
+function parsePairings(value, selfId) {
+  if (!Array.isArray(value)) return [];
+  const ids = [];
+  for (const v of value) {
+    const id = toInt(v, { min: 1 });
+    if (id !== null && id !== selfId && !ids.includes(id)) ids.push(id);
+    if (ids.length >= MAX_PAIRINGS) break;
+  }
+  return ids;
+}
+
+// Si la colonne "pairings" n'existe pas encore en base (SQL pas encore lancé),
+// on enregistre quand même le reste du produit au lieu d'échouer.
+async function withoutMissingPairings(fields, write) {
+  try {
+    return await write(fields);
+  } catch (e) {
+    if ('pairings' in fields && /pairings/i.test(e.message || '')) {
+      console.warn('Colonne products.pairings absente : lancez supabase-setup.sql');
+      const { pairings, ...rest } = fields;
+      return await write(rest);
+    }
+    throw e;
+  }
+}
+
+function productFields(p, selfId = null) {
   const fields = {
     name: cleanText(p.name, 150),
     description: cleanText(p.description, 3000, { multiline: true }),
@@ -24,6 +53,7 @@ function productFields(p) {
     gallery: parseGallery(p.gallery),
     stock_qty: toInt(p.stock_qty, { min: 0, max: 1000000 }) ?? 0
   };
+  if (Array.isArray(p.pairings)) fields.pairings = parsePairings(p.pairings, selfId);
   if (!fields.name) throw new HttpError(400, 'Le nom du produit est requis');
   return fields;
 }
@@ -85,14 +115,14 @@ export default async function handler(req, res) {
 
     if (action === 'add') {
       const fields = productFields(input.product || input);
-      const data = await supabasePost('products', fields);
+      const data = await withoutMissingPairings(fields, f => supabasePost('products', f));
       return res.status(200).json({ status: 'success', id: data[0].id });
     }
 
     if (action === 'edit') {
       const p = input.product || input;
       const id = requireInt(p.id ?? input.id, 'id');
-      await supabasePatch('products', productFields(p), { id });
+      await withoutMissingPairings(productFields(p, id), f => supabasePatch('products', f, { id }));
       return res.status(200).json({ status: 'success' });
     }
 
