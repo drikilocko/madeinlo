@@ -751,6 +751,41 @@
             </div>
         </section>
 
+        <!-- NOTRE HISTOIRE : 3 phrases qui se révèlent en boucle (story.js) -->
+        <section id="notre-histoire" class="story" aria-labelledby="story-label">
+            <p class="story-label" id="story-label">MADE<span>•</span>IN<span>•</span>LO — Notre histoire</p>
+
+            <div class="story-stage">
+                <span class="story-chip" data-part="0" style="--x: -24%; --y: 3.6rem; --c: #f3f7d9;">Lomé, Togo</span>
+                <span class="story-chip" data-part="0" style="--x: 28%; --y: 0rem; --c: #f6c9df;">Depuis 2018</span>
+                <span class="story-chip" data-part="1" style="--x: -30%; --y: 0.4rem; --c: #d9ecf7;">Ankara Jerseys</span>
+                <span class="story-chip" data-part="1" style="--x: 24%; --y: 3.8rem; --c: #f7e3c9;">Wax &amp; broderie</span>
+                <span class="story-chip" data-part="2" style="--x: -22%; --y: 0.2rem; --c: #e5dcf7;">Mode · Musique · Arts</span>
+                <span class="story-chip" data-part="2" style="--x: 30%; --y: 3.4rem; --c: #d9f2e4;">Pensé pour le monde</span>
+
+                <!-- Texte complet pour les lecteurs d'écran -->
+                <div class="sr-only">
+                    <p>Fondée à Lomé en 2018, MADE•IN•LO donne une âme africaine au streetwear contemporain.</p>
+                    <p>Le Streetwear Authentique : les codes urbains rencontrent le wax, la broderie et les savoir-faire textiles africains.</p>
+                    <p>Entre mode, musique et arts visuels, nous imaginons un langage créatif africain, pensé pour le monde entier.</p>
+                </div>
+
+                <div class="story-lines" aria-hidden="true">
+                    <p class="story-line">Fondée à Lomé en 2018, MADE•IN•LO donne une âme africaine au streetwear contemporain.</p>
+                    <p class="story-line">Le Streetwear Authentique : les codes urbains rencontrent le wax, la broderie et les savoir-faire textiles africains.</p>
+                    <p class="story-line">Entre mode, musique et arts visuels, nous imaginons un langage créatif africain, pensé pour le monde entier.</p>
+                </div>
+
+                <div class="story-progress" aria-hidden="true">
+                    <span class="story-step"><i></i>01</span>
+                    <span class="story-step"><i></i>02</span>
+                    <span class="story-step"><i></i>03</span>
+                </div>
+            </div>
+
+            <p class="story-bg" aria-hidden="true">Streetwear Authentique</p>
+        </section>
+
         <section id="image-gallery" class="overflow-hidden">
             <!-- div (pas <header>) : le CSS du site positionne toutes les balises <header> -->
             <div class="shop-head">
@@ -1233,6 +1268,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="toast.js"></script>
     <script src="animation.js?v=1.3"></script>
+    <script src="story.js"></script>
 
 </body>
 
