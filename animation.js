@@ -337,14 +337,55 @@ document.addEventListener('DOMContentLoaded', () => {
     // Synchronisation vitale pour éliminer les saccades
     lenis.on('scroll', ScrollTrigger.update);
 
-    // --- NOUVEAU : Animation de la Custom Scrollbar ---
-    const customScrollDot = document.getElementById('scroll-dot');
-    const customScrollLine = document.getElementById('custom-scroll');
-    if (customScrollDot && customScrollLine) {
-        lenis.on('scroll', (e) => {
-            const maxScroll = customScrollLine.clientHeight - customScrollDot.clientHeight;
-            const translateY = e.progress * maxScroll;
-            customScrollDot.style.transform = `translate(-50%, ${translateY}px)`;
+    // --- Barre de défilement fine sur toute la hauteur (curseur proportionnel, déplaçable) ---
+    const scrollThumb = document.getElementById('scroll-dot');
+    const scrollTrack = document.getElementById('custom-scroll');
+    if (scrollThumb && scrollTrack) {
+        let thumbH = 40;
+        const maxScroll = () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        const placeThumb = (progress) => {
+            const p = Math.min(1, Math.max(0, progress || 0));
+            scrollThumb.style.transform = `translate3d(0, ${(scrollTrack.clientHeight - thumbH) * p}px, 0)`;
+        };
+        const measureScrollbar = () => {
+            const vh = window.innerHeight;
+            const docH = document.documentElement.scrollHeight;
+            thumbH = Math.max(48, Math.round((vh / Math.max(docH, vh)) * vh));
+            scrollThumb.style.height = thumbH + 'px';
+            scrollTrack.style.display = docH > vh + 2 ? '' : 'none';
+            placeThumb(window.scrollY / maxScroll());
+        };
+
+        lenis.on('scroll', (e) => placeThumb(e.progress));
+        window.addEventListener('resize', measureScrollbar);
+        window.addEventListener('load', measureScrollbar);
+        ScrollTrigger.addEventListener('refresh', measureScrollbar);
+        measureScrollbar();
+
+        // Glisser le curseur
+        let dragging = false, startY = 0, startScroll = 0;
+        scrollThumb.addEventListener('pointerdown', (e) => {
+            dragging = true;
+            startY = e.clientY;
+            startScroll = window.scrollY;
+            scrollThumb.setPointerCapture(e.pointerId);
+            scrollTrack.classList.add('is-dragging');
+            e.preventDefault();
+        });
+        scrollThumb.addEventListener('pointermove', (e) => {
+            if (!dragging) return;
+            const ratio = maxScroll() / Math.max(1, scrollTrack.clientHeight - thumbH);
+            lenis.scrollTo(startScroll + (e.clientY - startY) * ratio, { immediate: true });
+        });
+        const stopDrag = () => { dragging = false; scrollTrack.classList.remove('is-dragging'); };
+        scrollThumb.addEventListener('pointerup', stopDrag);
+        scrollThumb.addEventListener('pointercancel', stopDrag);
+
+        // Cliquer sur la barre : aller à cet endroit
+        scrollTrack.addEventListener('click', (e) => {
+            if (e.target === scrollThumb) return;
+            const rect = scrollTrack.getBoundingClientRect();
+            lenis.scrollTo(((e.clientY - rect.top) / rect.height) * maxScroll());
         });
     }
 
@@ -1044,8 +1085,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (Array.isArray(data)) {
                 allProducts = data;
                 window.mlProducts = data; // utilisé par « Complétez le look » dans la fiche produit
-                const countEl = document.getElementById('shop-count');
-                if (countEl) countEl.textContent = data.length ? `${data.length} pièce${data.length > 1 ? 's' : ''}` : '';
                 if (data.length === 0) {
                     const gallery = document.querySelector('.gallery-container');
                     if (gallery) {

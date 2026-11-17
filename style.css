@@ -2304,32 +2304,49 @@ body {
 }
 
 /* --- CUSTOM SCROLLBAR VERTICALE --- */
+/* Barre de défilement fine, sur toute la hauteur de l'écran (pilotée par animation.js) */
 #custom-scroll {
     position: fixed;
-    top: 50%;
-    right: 20px;
-    /* Détaché du bord droit */
-    transform: translateY(-50%);
-    height: 50vh;
-    /* Ligne fine au milieu de l'écran */
-    width: 1px;
-    background-color: var(--border-color);
-    opacity: 0.5;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 10px;                 /* zone de prise en main, plus large que le trait visible */
     z-index: 9999;
+    cursor: pointer;
+}
+
+#custom-scroll::before {         /* rail très discret */
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 3px;
+    width: 2px;
+    background: rgba(0, 0, 0, 0.06);
 }
 
 #scroll-dot {
     position: absolute;
     top: 0;
-    left: 50%;
-    transform: translate(-50%, 0);
-    width: 6px;
-    height: 6px;
-    background-color: var(--primary-color);
-    border-radius: 50%;
-    transition: transform 0.1s ease-out;
-    /* Mouvement fluide */
+    right: 3px;
+    width: 2px;
+    height: 48px;
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.55);
+    will-change: transform;
+    cursor: grab;
+    touch-action: none;
+    transition: width 0.2s ease, right 0.2s ease, background-color 0.2s ease;
 }
+
+#custom-scroll:hover #scroll-dot,
+#custom-scroll.is-dragging #scroll-dot {
+    width: 5px;
+    right: 2px;
+    background: #b8962e;
+}
+
+#custom-scroll.is-dragging #scroll-dot { cursor: grabbing; }
 
 /* ===== NOUVELLE VUE PRODUIT SOLIDE (ALTERNATIVE) ===== */
 #product-view {
@@ -2841,14 +2858,6 @@ html.lenis, html.lenis body { height: auto; }
     line-height: 1.55;
     color: #555;
 }
-.shop-count {
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #111;
-}
-.shop-count:empty { display: none; }
 
 @media (max-width: 900px) {
     .shop-head {
