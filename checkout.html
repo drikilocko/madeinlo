@@ -525,7 +525,7 @@
             if (cart.length === 0) return alert("Votre panier est vide.");
 
             try {
-                const response = await fetch('api/orders.php', {
+                const response = await fetch('api/orders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -657,7 +657,7 @@
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
             try {
-                await fetch('api/orders.php', {
+                await fetch('api/orders', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

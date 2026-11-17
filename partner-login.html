@@ -101,7 +101,7 @@
             const password = document.getElementById('password').value;
 
             try {
-                const res = await fetch('api/shop-auth.php', {
+                const res = await fetch('api/shop-auth', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'login', login, password })
                 });

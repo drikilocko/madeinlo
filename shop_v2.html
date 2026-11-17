@@ -260,7 +260,7 @@
             // Fetch products from PHP API
             async function fetchProducts() {
                 try {
-                    const response = await fetch('api/products.php');
+                    const response = await fetch('api/products');
                     const data = await response.json();
                     
                     if (data.error) {

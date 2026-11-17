@@ -390,7 +390,7 @@
         const notification = document.getElementById('notification');
 
         async function fetchProducts() {
-            const res = await fetch('api/products.php');
+            const res = await fetch('api/products');
             allProducts = await res.json();
             renderProducts();
         }
@@ -460,7 +460,7 @@
                 description: document.getElementById('p-desc').value
             };
 
-            const res = await fetch('api/products.php', {
+            const res = await fetch('api/products', {
                 method: 'POST',
                 body: JSON.stringify({ action, product })
             });
@@ -474,7 +474,7 @@
 
         async function deleteProduct(id) {
             if (confirm('Voulez-vous vraiment supprimer ce produit ?')) {
-                const res = await fetch('api/products.php', {
+                const res = await fetch('api/products', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'delete', id })
                 });

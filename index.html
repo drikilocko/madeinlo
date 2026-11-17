@@ -480,9 +480,6 @@
     <div id="preloader">
         <div class="preloader-content">
             <div class="spinner"></div>
-            <div class="video-frame">
-                <img id="preloader-seq" class="preloader-video" src="frame/1.jpg" alt="Animation">
-            </div>
             <div class="preloader-buttons">
                 <a href="documentation/index.html" class="enter-btn">Documentation</a>
                 <button class="enter-btn shop-btn">Shop</button>
@@ -545,7 +542,6 @@
     <footer id="main-footer">
         <div class="footer-container">
             <div class="footer-column footer-brand">
-                <img id="footer-bg-seq" src="frame/1.jpg" class="footer-frame" alt="Made in Lo Animation">
                 <h3>Made in Lo</h3>
             </div>
             <div class="footer-column footer-nav">
@@ -636,7 +632,7 @@
 
             // Increment views on server
             if (product && product.id) {
-                fetch('api/products.php', {
+                fetch('api/products', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'increment_view', id: product.id })

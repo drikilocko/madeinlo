@@ -39,73 +39,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const enterBtns = document.querySelectorAll('.enter-btn, #enter-button');
     const shopBtn = document.querySelector('.shop-btn');
     const preloaderContent = document.querySelector('.preloader-content');
-    const preloaderSeq = document.getElementById('preloader-seq');
     const spinner = document.querySelector('.spinner');
     const body = document.body;
 
-    if (!isPreloaderShown && preloader && enterBtns.length > 0 && preloaderSeq && spinner) {
+    if (!isPreloaderShown && preloader && enterBtns.length > 0) {
         body.style.overflow = 'hidden';
         let contentHasBeenShown = false;
-
-        // --- NOUVELLE LOGIQUE POUR LA SEQUENCE D'IMAGES (CI-DESSOUS) ---
-        const totalFrames = 192; // 8 secondes à 24 FPS
-        const frames = [];
-        let loadedCount = 0;
-        let currentFrame = 1;
-        let direction = 1; // 1 pour avant, -1 pour arrière
-        let animationId;
-
-        // Fonction pour précharger toutes les images en mémoire
-        const preloadImages = () => {
-            for (let i = 1; i <= totalFrames; i++) {
-                const img = new Image();
-                img.src = `frame/${i}.jpg`;
-                img.onload = () => {
-                    loadedCount++;
-                    if (loadedCount === Math.floor(totalFrames * 0.4) && !contentHasBeenShown) {
-                        showPreloaderContent();
-                    }
-                };
-                frames.push(img);
-            }
-        };
-
-        const targetFPS = 24;
-        const frameDuration = 1000 / targetFPS;
-        let lastTimestamp = 0;
-
-        const animateSequence = (timestamp) => {
-            if (!lastTimestamp) lastTimestamp = timestamp;
-            const elapsed = timestamp - lastTimestamp;
-
-            if (elapsed > frameDuration) {
-                // Logique PING-PONG
-                currentFrame += direction;
-
-                if (currentFrame >= totalFrames) {
-                    currentFrame = totalFrames;
-                    direction = -1; // On repart en arrière
-                } else if (currentFrame <= 1) {
-                    currentFrame = 1;
-                    direction = 1; // On repart en avant
-                }
-
-                preloaderSeq.src = frames[currentFrame - 1].src;
-                lastTimestamp = timestamp - (elapsed % frameDuration);
-            }
-            animationId = requestAnimationFrame(animateSequence);
-        };
 
         const showPreloaderContent = () => {
             if (contentHasBeenShown) return;
             contentHasBeenShown = true;
 
-            spinner.style.display = 'none';
+            if (spinner) spinner.style.display = 'none';
 
-            // Démarrage de l'animation fluide via requestAnimationFrame
-            animationId = requestAnimationFrame(animateSequence);
-
-            gsap.to([preloaderSeq, ...enterBtns], {
+            gsap.to(enterBtns, {
                 opacity: 1,
                 duration: 0.6,
                 stagger: 0.1,
@@ -115,8 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
-        // Lancer le chargement
-        preloadImages();
+        // Afficher les boutons dès que la page est chargée (sécurité : 1,5 s max)
+        if (document.readyState === 'complete') {
+            showPreloaderContent();
+        } else {
+            window.addEventListener('load', showPreloaderContent);
+            setTimeout(showPreloaderContent, 1500);
+        }
 
         // État initial synchronisé pour éviter les bugs d'affichage
         gsap.set(['nav', 'main', 'footer'], { opacity: 0, filter: 'blur(30px)' });
@@ -140,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 onComplete: () => {
                     body.style.overflow = '';
                     preloader.style.display = 'none';
-                    cancelAnimationFrame(animationId);
                 }
             });
 
@@ -178,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     onComplete: () => {
                         body.style.overflow = '';
                         preloader.style.display = 'none';
-                        cancelAnimationFrame(animationId);
                     }
                 });
 
@@ -292,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- NOUVEAU : TRANSITION FOND NOIR VERS LE FOOTER & ANIMATION VIDEO FOOTER ---
+    // --- NOUVEAU : TRANSITION FOND NOIR VERS LE FOOTER ---
     const mainFooter = document.getElementById('main-footer');
     const helpSection = document.getElementById('help'); // La section FAQ
 
@@ -323,46 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (mainFooter) {
         mainFooter.style.backgroundColor = '#000000'; // S'assurer que le footer est bien noir
-
-        // Animation de la séquence vidéo dans le footer
-        const footerBgSeq = document.getElementById('footer-bg-seq');
-        if (footerBgSeq) {
-            let footerCurrentFrame = 1;
-            let footerDirection = 1;
-            let footerAnimationId;
-            let footerLastTimestamp = 0;
-            const targetFPS = 24;
-            const frameDuration = 1000 / targetFPS;
-
-            const animateFooterSequence = (timestamp) => {
-                if (!footerLastTimestamp) footerLastTimestamp = timestamp;
-                const elapsed = timestamp - footerLastTimestamp;
-
-                if (elapsed > frameDuration) {
-                    footerCurrentFrame += footerDirection;
-
-                    if (footerCurrentFrame >= 192) {
-                        footerCurrentFrame = 192;
-                        footerDirection = -1;
-                    } else if (footerCurrentFrame <= 1) {
-                        footerCurrentFrame = 1;
-                        footerDirection = 1;
-                    }
-
-                    footerBgSeq.src = `frame/${footerCurrentFrame}.jpg`;
-                    footerLastTimestamp = timestamp - (elapsed % frameDuration);
-                }
-                footerAnimationId = requestAnimationFrame(animateFooterSequence);
-            };
-
-            // Démarrer l'animation uniquement quand le footer est visible
-            ScrollTrigger.create({
-                trigger: mainFooter,
-                start: 'top bottom',
-                onEnter: () => footerAnimationId = requestAnimationFrame(animateFooterSequence),
-                onLeaveBack: () => cancelAnimationFrame(footerAnimationId)
-            });
-        }
     }
 
     // --- CODE POUR LE MENU BURGER ---
@@ -969,7 +879,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).addTo(shopMap);
 
         // Charger les shops depuis l'API
-        fetch('api/shops.php')
+        fetch('api/shops')
             .then(res => {
                 if (!res.ok) throw new Error(`Status ${res.status}`);
                 const contentType = res.headers.get('content-type') || '';
@@ -1063,7 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
             orderData.shop_name = shop.name;
         }
 
-        fetch('api/orders.php', {
+        fetch('api/orders', {
             method: 'POST',
             body: JSON.stringify(orderData)
         })
@@ -1112,7 +1022,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- CHARGEMENT DEPUIS L'API PHP ---
-    fetch('api/products.php')
+    fetch('api/products')
         .then(res => {
             if (!res.ok) throw new Error(`Status ${res.status}`);
             const contentType = res.headers.get('content-type') || '';

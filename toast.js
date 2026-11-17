@@ -320,7 +320,7 @@
             if (updateDetected) return; // Ne pas spammer si déjà détecté
 
             try {
-                const res = await fetch('api/check-updates.php');
+                const res = await fetch('api/check-updates');
                 if (!res.ok) return;
 
                 const contentType = res.headers.get('content-type') || '';

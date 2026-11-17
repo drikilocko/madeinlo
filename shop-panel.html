@@ -249,7 +249,7 @@
         document.getElementById('public-access-btn').addEventListener('click', async () => {
             publicMode = true;
             document.getElementById('login-error').style.display = 'none';
-            const res = await fetch('api/shops.php');
+            const res = await fetch('api/shops');
             const shops = await res.json();
             const list = document.getElementById('public-shops-list');
             const container = document.getElementById('public-shops');
@@ -289,7 +289,7 @@
         async function checkAuth() {
             if (publicMode) return;
             try {
-                const res = await fetch('api/shop-auth.php', {
+                const res = await fetch('api/shop-auth', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'check' })
                 });
@@ -314,7 +314,7 @@
             const login = document.getElementById('login-id').value;
             const pass = document.getElementById('login-pass').value;
 
-            const res = await fetch('api/shop-auth.php', {
+            const res = await fetch('api/shop-auth', {
                 method: 'POST',
                 body: JSON.stringify({ action: 'login', login: login, password: pass })
             });
@@ -339,7 +339,7 @@
         }
 
         async function fetchInventory() {
-            const res = await fetch('api/shop-stock.php?shop_id=' + currentShop.id);
+            const res = await fetch('api/shop-stock?shop_id=' + currentShop.id);
             const stock = await res.json();
             const list = document.getElementById('inventory-list');
             list.innerHTML = '';
@@ -372,7 +372,7 @@
             if (!currentShop || publicMode) return;
             if (!confirm('Souhaitez-vous signaler la vente de cet article ?')) return;
 
-            const res = await fetch('api/shop-stock.php', {
+            const res = await fetch('api/shop-stock', {
                 method: 'POST',
                 body: JSON.stringify({ action: 'sell', shop_id: currentShop.id, product_id: prodId, qty: 1 })
             });
@@ -387,7 +387,7 @@
                 window.location.reload();
                 return;
             }
-            fetch('api/shop-auth.php', { method: 'POST', body: JSON.stringify({ action: 'logout' }) })
+            fetch('api/shop-auth', { method: 'POST', body: JSON.stringify({ action: 'logout' }) })
             .then(() => window.location.reload());
         }
     </script>

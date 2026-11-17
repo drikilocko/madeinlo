@@ -1911,7 +1911,7 @@
         async function unmergeItem(parentId, imageUrl) {
             if (!parentId || !imageUrl) return;
             if (confirm("Voulez-vous dÃ©tacher cette image pour en faire un produit indÃ©pendant (primaire) ?\nElle sera retirÃ©e de cette galerie et un nouveau produit avec cette image sera crÃ©Ã©.")) {
-                const res = await fetch('api/products.php', {
+                const res = await fetch('api/products', {
                     method: 'POST',
                     body: JSON.stringify({
                         action: 'unmerge',
@@ -2007,7 +2007,7 @@
             if (sourceIds.length === 0) return alert("Veuillez sÃ©lectionner au moins un autre produit Ã  fusionner.");
 
             if (confirm(`Voulez-vous fusionner ces ${sourceIds.length} produits vers "${mergeTargetName}" ?\nIls deviendront des images secondaires et seront supprimÃ©s.`)) {
-                const res = await fetch('api/products.php', {
+                const res = await fetch('api/products', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'bulk_merge', source_ids: sourceIds, target_id: mergeTargetId })
                 });
@@ -2087,7 +2087,7 @@
 
         async function fetchCategories() {
             try {
-                const res = await fetch('api/categories.php');
+                const res = await fetch('api/categories');
                 const cats = await res.json();
                 categoryVisibility = {};
                 cats.forEach(c => { categoryVisibility[c.name] = { visible: !!c.is_visible, id: c.id }; });
@@ -2114,7 +2114,7 @@
         async function createCategory() {
             const name = prompt("Nom de la nouvelle catÃ©gorie :");
             if (name && name.trim() !== "") {
-                const res = await fetch('api/categories.php', {
+                const res = await fetch('api/categories', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'add', name: name.trim() })
                 });
@@ -2128,7 +2128,7 @@
             if (!id) return;
             const newName = prompt(`Renommer la catÃ©gorie "${oldName}" en :`, oldName);
             if (newName && newName.trim() !== "" && newName !== oldName) {
-                const res = await fetch('api/categories.php', {
+                const res = await fetch('api/categories', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'edit', id, old_name: oldName, new_name: newName.trim() })
                 });
@@ -2141,7 +2141,7 @@
         async function deleteCategory(name, id) {
             if (!id) return;
             if (confirm(`Voulez-vous vraiment supprimer la catÃ©gorie "${name}" ?\nLes produits resteront mais seront classÃ©s en "General".`)) {
-                const res = await fetch('api/categories.php', {
+                const res = await fetch('api/categories', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'delete', id, name })
                 });
@@ -2263,7 +2263,7 @@
         }
 
         async function toggleProductVisibility(id, newVis) {
-            await fetch('api/products.php', {
+            await fetch('api/products', {
                 method: 'POST',
                 body: JSON.stringify({ action: 'toggle_visibility', id, is_visible: newVis })
             });
@@ -2284,7 +2284,7 @@
                 console.warn('Catégorie introuvable:', name);
                 return;
             }
-            await fetch('api/categories.php', {
+            await fetch('api/categories', {
                 method: 'POST',
                 body: JSON.stringify({ action: 'toggle_visibility', id: catInfo.id, is_visible: newVis ? 1 : 0 })
             });
@@ -2343,7 +2343,7 @@
         }
 
         async function bulkToggleVisibility(vis) {
-            await fetch('api/products.php', {
+            await fetch('api/products', {
                 method: 'POST',
                 body: JSON.stringify({ action: 'bulk_toggle_visibility', ids: Array.from(selectedProductIds), is_visible: vis })
             });
@@ -2360,7 +2360,7 @@
         }
 
         async function updateBulkCategory(ids, newCategory) {
-            const res = await fetch('api/products.php', {
+            const res = await fetch('api/products', {
                 method: 'POST',
                 body: JSON.stringify({ action: 'bulk_update_category', ids: ids, category: newCategory })
             });
@@ -2372,7 +2372,7 @@
         async function deleteSelected() {
             if (confirm(`Supprimer les ${selectedProductIds.size} produits sÃ©lectionnÃ©s ?`)) {
                 const promises = Array.from(selectedProductIds).map(id =>
-                    fetch('api/products.php', { method: 'POST', body: JSON.stringify({ action: 'delete', id }) })
+                    fetch('api/products', { method: 'POST', body: JSON.stringify({ action: 'delete', id }) })
                 );
                 await Promise.all(promises);
                 selectedProductIds.clear();
@@ -2424,7 +2424,7 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
 
             try {
-                const res = await fetch('api/products.php', {
+                const res = await fetch('api/products', {
                     method: 'POST',
                     body: formData
                 });
@@ -2455,7 +2455,7 @@
                 btn.disabled = true;
 
                 try {
-                    const res = await fetch('api/products.php', {
+                    const res = await fetch('api/products', {
                         method: 'POST',
                         body: JSON.stringify({ action: 'bulk_add', count: count })
                     });
@@ -2478,7 +2478,7 @@
 
         async function deleteProduct(id) {
             if (confirm('Supprimer ce produit ?')) {
-                await fetch('api/products.php', { method: 'POST', body: JSON.stringify({ action: 'delete', id }) });
+                await fetch('api/products', { method: 'POST', body: JSON.stringify({ action: 'delete', id }) });
                 fetchProducts();
             }
         }
@@ -2565,7 +2565,7 @@
         }
 
         async function fetchShops() {
-            const res = await fetch('api/shops.php');
+            const res = await fetch('api/shops');
             const shops = await res.json();
 
             latestShopsList = shops;
@@ -2683,7 +2683,7 @@
 
             if (editingShopId) {
                 // Modification
-                await fetch('api/shops.php', {
+                await fetch('api/shops', {
                     method: 'POST',
                     body: JSON.stringify({ action: 'edit', id: editingShopId, shop })
                 });
@@ -2693,7 +2693,7 @@
                     alert("Veuillez saisir un mot de passe pour la crÃ©ation.");
                     return;
                 }
-                await fetch('api/shops.php', { method: 'POST', body: JSON.stringify({ action: 'add', shop }) });
+                await fetch('api/shops', { method: 'POST', body: JSON.stringify({ action: 'add', shop }) });
             }
 
             document.getElementById('shop-form').reset();
@@ -2756,7 +2756,7 @@
 
         async function deleteShop(id) {
             if (confirm('Supprimer ce shop ?')) {
-                await fetch('api/shops.php', { method: 'POST', body: JSON.stringify({ action: 'delete', id }) });
+                await fetch('api/shops', { method: 'POST', body: JSON.stringify({ action: 'delete', id }) });
                 fetchShops();
             }
         }
@@ -2794,8 +2794,8 @@
             showStep(1);
 
             const [allProds, shopStocks] = await Promise.all([
-                fetch('api/products.php').then(r => r.json()),
-                fetch('api/shop-stock.php?shop_id=' + shopId).then(r => r.json())
+                fetch('api/products').then(r => r.json()),
+                fetch('api/shop-stock?shop_id=' + shopId).then(r => r.json())
             ]);
 
             allProductsCache = allProds;
@@ -2948,7 +2948,7 @@
 
                 if (shouldProcess) {
                     try {
-                        const res = await fetch('api/shop-stock.php', {
+                        const res = await fetch('api/shop-stock', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -2994,7 +2994,7 @@
         let allOrders = [];
 
         async function fetchOrders() {
-            const res = await fetch('api/orders.php');
+            const res = await fetch('api/orders');
             const orders = await res.json();
             allOrders = orders;
             const body = document.getElementById('orders-table-body');
@@ -3058,7 +3058,7 @@
         }
 
         async function updateOrderStatus(orderId, status) {
-            await fetch('api/orders.php', {
+            await fetch('api/orders', {
                 method: 'POST',
                 body: JSON.stringify({ action: 'update_status', order_id: orderId, status: status })
             });
@@ -3066,7 +3066,7 @@
         }
 
         async function fetchActivityLog() {
-            const res = await fetch('api/history.php');
+            const res = await fetch('api/history');
             const data = await res.json();
             const body = document.getElementById('history-log-body');
             body.innerHTML = '';
@@ -3090,7 +3090,7 @@
         // --- GESTION DES STATS RÃ‰ELLES ---
         async function fetchStats() {
             try {
-                const res = await fetch('api/stats.php');
+                const res = await fetch('api/stats');
                 const stats = await res.json();
 
                 // Update text counters
@@ -3179,7 +3179,7 @@
 
         async function fetchNotifications() {
             try {
-                const res = await fetch('api/notifications.php');
+                const res = await fetch('api/notifications');
                 const data = await res.json();
                 const container = document.getElementById('notif-items');
                 const countBadge = document.getElementById('notif-count');
@@ -3210,7 +3210,7 @@
         }
 
         async function markNotifRead(id) {
-            await fetch('api/notifications.php', { method: 'POST', body: JSON.stringify({ action: 'mark_read', id }) });
+            await fetch('api/notifications', { method: 'POST', body: JSON.stringify({ action: 'mark_read', id }) });
             fetchNotifications();
         }
 
