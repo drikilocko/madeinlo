@@ -12,16 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
             ease: "power1.inOut"
         }).progress(1);
 
+        let lastDirection = 0;
         ScrollTrigger.create({
             start: "top top",
             end: "max",
             onUpdate: (self) => {
                 // Direction 1 = vers le bas (cacher), Direction -1 = vers le haut (afficher)
-                if (self.direction === 1) {
-                    showAnim.reverse();
-                } else {
-                    showAnim.play();
-                }
+                if (self.direction === lastDirection) return;
+                lastDirection = self.direction;
+                if (self.direction === 1) showAnim.reverse();
+                else showAnim.play();
             }
         });
     }
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isPreloaderShown && preloader) {
         preloader.style.display = 'none';
         document.body.style.overflow = '';
-        gsap.set(['nav', 'main', 'footer'], { opacity: 1, filter: 'blur(0px)' });
+        gsap.set(['nav', 'main', 'footer'], { clearProps: 'opacity,filter' });
     }
 
     const enterBtns = document.querySelectorAll('.enter-btn, #enter-button');
@@ -105,7 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     opacity: 1,
                     duration: 3,
                     ease: 'power2.out',
-                    stagger: 0.1
+                    stagger: 0.1,
+                    clearProps: 'filter,opacity' // un filtre laissé sur la page rend le scroll saccadé
                 },
                 '<'
             );
@@ -143,7 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         opacity: 1,
                         duration: 3,
                         ease: 'power2.out',
-                        stagger: 0.1
+                        stagger: 0.1,
+                        clearProps: 'filter,opacity'
                     },
                     '<'
                 );
@@ -326,11 +328,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- OPTIMISATION FLUIDITÉ (LENIS + GSAP SYNC) ---
     const lenis = new Lenis({
-        duration: 1.0, // Réduit de 2.2s à 1.0s pour un scroll réactif et ultra-fluide sans inertie lourde
+        duration: 1.0,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smooth: true,
-        mouseMultiplier: 1,
-        smoothTouch: false,
+        smoothWheel: true,   // molette / pavé tactile fluides
+        wheelMultiplier: 1,
+        smoothTouch: false,  // sur mobile : scroll natif (plus fiable)
     });
     window.lenis = lenis; // Expose globally so popup can stop/start scroll
 
@@ -352,6 +354,17 @@ document.addEventListener('DOMContentLoaded', () => {
         lenis.raf(time * 1000);
     });
     gsap.ticker.lagSmoothing(0);
+
+    // Les images qui se chargent changent la hauteur de la page : on recalcule une seule fois après
+    let refreshTimer = null;
+    const scheduleRefresh = () => {
+        clearTimeout(refreshTimer);
+        refreshTimer = setTimeout(() => ScrollTrigger.refresh(), 250);
+    };
+    window.addEventListener('load', scheduleRefresh);
+    document.addEventListener('load', (e) => {
+        if (e.target && e.target.tagName === 'IMG') scheduleRefresh();
+    }, true);
 
     // --- GESTION DYNAMIQUE DU GALLERY-SHOP (HORIZONTAL CATEGORY ROWS) ---
     const loadMoreBtn = document.getElementById('load-more-gallery');
@@ -1091,7 +1104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     };
-    revealSections('.footer-column');
+    revealSections('.footer-column, .mf-col');
 
     // --- BURGER MENU LOGIC ---
     const mobileBurgerMenu = document.querySelector('.burger');
@@ -1139,7 +1152,6 @@ function initCardParallax() {
         img.style.height = '130%';
         img.style.objectFit = 'cover';
         img.style.objectPosition = 'center';
-        img.style.willChange = 'transform';
 
         // L'image translate en yPercent de -5% à +5%.
         // À yPercent = +5%, le haut de l'image est encore à -10% au-dessus de la carte -> 0% de noir visible.
@@ -1152,7 +1164,7 @@ function initCardParallax() {
                     trigger: card,
                     start: 'top bottom',
                     end: 'bottom top',
-                    scrub: 0.6,
+                    scrub: true,
                     invalidateOnRefresh: false
                 }
             }
