@@ -465,6 +465,157 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
+        /* =========================================================
+           FICHE PRODUIT (preview) — mise en page pro
+           ========================================================= */
+        #popup-box { padding: 3.5rem 3rem 3rem; }
+
+        #popup-product-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+            gap: 4rem;
+            max-width: 1240px;
+            margin: 0 auto;
+            min-height: 0;
+            align-items: start;
+        }
+
+        #popup-img-col { min-width: 0; display: flex; flex-direction: column; }
+        #popup-img-wrap {
+            width: 100%;
+            aspect-ratio: 4 / 5;
+            max-height: 78vh;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #f3f3f1;
+        }
+        #popup-main-img { width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+        #popup-thumbs { margin-top: 12px; gap: 10px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+        .popup-thumb { width: 72px; height: 90px; flex-shrink: 0; border-radius: 10px; border-width: 2px; }
+
+        #popup-info-col {
+            position: sticky;
+            top: 0;
+            min-width: 0;
+            gap: 0;
+            justify-content: flex-start;
+            padding-top: 0.5rem;
+        }
+
+        .pp-cat {
+            margin: 0 0 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #b8962e;
+        }
+        #popup-prod-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+            margin: 0;
+        }
+        .pp-price-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 1rem 0 0; }
+        .popup-price { font-size: 1.5rem; font-weight: 700; color: #111; }
+        .pp-stock { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 600; }
+        .pp-stock::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+        .pp-stock.in { color: #2e7d32; }
+        .pp-stock.low { color: #e65100; }
+        .pp-stock.out { color: #c62828; }
+
+        .pp-block { margin-top: 2rem; padding-top: 1.6rem; border-top: 1px solid #eee; }
+        .pp-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+        .pp-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        #popup-size-chosen { color: #b8962e; letter-spacing: 0; text-transform: none; margin-left: 4px; }
+        #popup-sizes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .popup-size-btn {
+            padding: 14px 0;
+            border-radius: 10px;
+            border: 1.5px solid #ddd;
+            font-size: 0.95rem;
+        }
+        .popup-size-btn:hover { background: #fff; color: #000; border-color: #000; }
+        .popup-size-btn.active { background: #000; color: #fff; border-color: #000; }
+        #popup-sizes.shake { animation: ppShake 0.35s; }
+        @keyframes ppShake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+        .pp-size-error { margin: 0.6rem 0 0; color: #c62828; font-size: 0.85rem; font-weight: 600; }
+
+        .pp-cta { display: flex; flex-direction: column; gap: 10px; margin-top: 1.6rem; }
+        #popup-buy-btn {
+            width: 100%;
+            margin: 0;
+            padding: 18px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        #popup-buy-btn:hover { transform: none; box-shadow: none; background: #b8962e; color: #000; }
+        #popup-buy-btn:disabled { background: #eee !important; color: #999 !important; cursor: not-allowed; }
+        .pp-wa {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 15px 24px; border-radius: 12px; border: 1.5px solid #ddd;
+            color: #111; text-decoration: none; font-weight: 600; font-size: 0.92rem;
+            transition: border-color 0.2s;
+        }
+        .pp-wa:hover { border-color: #1fa855; }
+        .pp-wa i { color: #1fa855; font-size: 1.15rem; }
+
+        .pp-added { margin-top: 1rem; padding: 14px 16px; border-radius: 12px; background: rgba(46, 125, 50, 0.07); border: 1px solid rgba(46, 125, 50, 0.25); }
+        .pp-added p { margin: 0 0 10px; font-weight: 700; color: #2e7d32; }
+        .pp-added-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .pp-added-actions a, .pp-added-actions button {
+            flex: 1; min-width: 140px; padding: 12px; border-radius: 10px; font: inherit; font-size: 0.85rem;
+            font-weight: 700; text-align: center; cursor: pointer; text-decoration: none;
+        }
+        .pp-added-cart { background: #111; color: #fff; }
+        .pp-added-actions button { background: #fff; border: 1px solid #ddd; color: #111; }
+
+        .pp-trust { list-style: none; margin: 1.8rem 0 0; padding: 1.4rem 0 0; border-top: 1px solid #eee; display: grid; gap: 12px; }
+        .pp-trust li { display: flex; align-items: center; gap: 12px; font-size: 0.88rem; color: #444; }
+        .pp-trust i { width: 18px; text-align: center; color: #b8962e; }
+
+        .pp-acc { margin-top: 1.6rem; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+        .pp-acc summary {
+            list-style: none; cursor: pointer; padding: 1.1rem 0; font-size: 0.8rem; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase; display: flex; justify-content: space-between;
+        }
+        .pp-acc summary::-webkit-details-marker { display: none; }
+        .pp-acc summary::after { content: '+'; font-size: 1.2rem; font-weight: 400; }
+        .pp-acc[open] summary::after { content: '−'; }
+        .pp-acc .popup-desc { margin: 0 0 1.2rem; font-size: 0.95rem; line-height: 1.75; }
+
+        .pp-share {
+            margin-top: 1.2rem; padding: 0; border: none; background: none; cursor: pointer;
+            font: inherit; font-size: 0.85rem; color: #666; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .pp-share:hover { color: #111; }
+
+        @media (max-width: 900px) {
+            #popup-box { padding: 3.6rem 16px 0; }
+            #popup-product-layout { grid-template-columns: 1fr; gap: 1.6rem; }
+            #popup-img-wrap { max-height: 62vh; border-radius: 14px; }
+            #popup-info-col { position: static; padding-top: 0; }
+            /* Bouton d'achat toujours accessible en bas de l'écran */
+            .pp-cta {
+                position: sticky;
+                bottom: 0;
+                z-index: 5;
+                margin: 1.4rem -16px 0;
+                padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+                background: #fff;
+                box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+                flex-direction: row;
+            }
+            #popup-buy-btn { flex: 1.6; padding: 16px 12px; font-size: 0.9rem; }
+            .pp-wa { flex: 1; padding: 12px; font-size: 0; gap: 0; }
+            .pp-wa i { font-size: 1.5rem; }
+            #popup-pairings { margin-bottom: 2rem; }
+        }
+
         /* CHECKOUT STEP */
         #popup-checkout {
             display: none;
@@ -699,25 +850,59 @@
 
             <!-- Étape 1 : Détails produit -->
             <div id="popup-product-layout">
+                <!-- Galerie -->
                 <div id="popup-img-col">
-                    <div id="popup-img-wrap" style="border-radius: 16px; overflow: hidden; height: 480px; width: 100%;">
+                    <div id="popup-img-wrap">
                         <img id="popup-main-img" src="" alt="">
                     </div>
-                    <div id="popup-thumbs"></div>
+                    <div id="popup-thumbs" aria-label="Autres photos"></div>
                 </div>
+
+                <!-- Informations + achat -->
                 <div id="popup-info-col">
+                    <p class="pp-cat" id="popup-cat-val"></p>
                     <h2 id="popup-prod-name"></h2>
-                    <div class="popup-meta">
+                    <div class="pp-price-row">
                         <span class="popup-price" id="popup-price-val"></span>
-                        <span class="popup-cat" id="popup-cat-val"></span>
+                        <span class="pp-stock" id="popup-stock"></span>
                     </div>
-                    <p class="popup-desc" id="popup-desc-val"></p>
-                    <p class="popup-sizes-label">Taille :</p>
-                    <div id="popup-sizes"></div>
+
+                    <div class="pp-block" id="popup-size-block">
+                        <div class="pp-label-row">
+                            <span class="pp-label">Taille <span id="popup-size-chosen"></span></span>
+                        </div>
+                        <div id="popup-sizes" role="radiogroup" aria-label="Choisir une taille"></div>
+                        <p class="pp-size-error" id="popup-size-error" role="alert" hidden>Choisissez votre taille pour continuer.</p>
+                    </div>
+
+                    <div class="pp-cta">
+                        <button id="popup-buy-btn" type="button">Ajouter au panier</button>
+                        <a id="popup-wa-btn" class="pp-wa" href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer">
+                            <i class="fa-brands fa-whatsapp"></i> Commander sur WhatsApp
+                        </a>
+                    </div>
+
+                    <div class="pp-added" id="popup-added" hidden>
+                        <p><i class="fa-solid fa-circle-check"></i> Ajouté à votre panier</p>
+                        <div class="pp-added-actions">
+                            <a href="checkout.html" class="pp-added-cart">Voir le panier</a>
+                            <button type="button" onclick="closePopup()">Continuer mes achats</button>
+                        </div>
+                    </div>
+
+                    <ul class="pp-trust">
+                        <li><i class="fa-solid fa-lock"></i> Paiement sécurisé : Mobile Money ou carte bancaire</li>
+                        <li><i class="fa-solid fa-location-dot"></i> Livraison à l'adresse choisie sur la carte</li>
+                        <li><i class="fa-solid fa-box-open"></i> Suivi de commande en ligne après paiement</li>
+                    </ul>
+
+                    <details class="pp-acc" open>
+                        <summary>Description</summary>
+                        <p class="popup-desc" id="popup-desc-val"></p>
+                    </details>
+
+                    <button type="button" class="pp-share" id="popup-share"><i class="fa-solid fa-share-nodes"></i> <span>Partager ce produit</span></button>
                 </div>
-                <button id="popup-buy-btn" onclick="addToCart()">
-                    <i class="fa-solid fa-cart-plus"></i> Ajouter au panier
-                </button>
             </div>
 
             <!-- Produits assortis -->
@@ -762,7 +947,7 @@
         // ======= OVERRIDE global openProductModal =======
         window.openProductModal = function (product) {
             _popupProduct = product;
-            _selectedSize = 'M';
+            _selectedSize = null;
 
             // Increment views on server
             if (product && product.id) {
@@ -773,86 +958,87 @@
                 }).catch(err => console.log('Error incrementing views', err));
             }
 
-            // Fill data
-            document.getElementById('popup-main-img').src = product.image_url || '';
+            // ----- Remplissage de la fiche -----
+            const priceNum = Math.round(parseFloat(String(product.price || '0').replace(',', '.')) || 0);
+            document.getElementById('popup-main-img').src = product.image_url || 'img/placeholder.png';
+            document.getElementById('popup-main-img').alt = product.name || '';
             document.getElementById('popup-prod-name').textContent = product.name || '';
-            document.getElementById('popup-price-val').textContent = (product.price || '0') + ' FCFA';
-            document.getElementById('popup-cat-val').textContent = product.category || '';
+            document.getElementById('popup-price-val').textContent = priceNum.toLocaleString('fr-FR') + ' FCFA';
+            document.getElementById('popup-cat-val').textContent = product.category || 'Made in Lo';
             document.getElementById('popup-desc-val').textContent = product.description || 'Une pièce unique signée Made in Lo.';
+            document.getElementById('popup-added').hidden = true;
+            document.getElementById('popup-size-error').hidden = true;
 
-            // Gallery thumbs
+            // Galerie
             const thumbsEl = document.getElementById('popup-thumbs');
             thumbsEl.innerHTML = '';
             let gallery = [];
             try { gallery = product.gallery ? (typeof product.gallery === 'string' ? JSON.parse(product.gallery) : product.gallery) : []; } catch (e) { }
-            const allImgs = [product.image_url, ...gallery].filter(Boolean);
-            if (allImgs.length > 1) {
-                allImgs.forEach(function (url) {
-                    const img = document.createElement('img');
-                    img.src = url;
-                    img.className = 'popup-thumb' + (url === product.image_url ? ' active' : '');
-                    img.onclick = function () {
-                        document.getElementById('popup-main-img').src = url;
-                        thumbsEl.querySelectorAll('.popup-thumb').forEach(function (t) { t.classList.remove('active'); });
-                        img.classList.add('active');
+            const allImgs = [product.image_url, ...(Array.isArray(gallery) ? gallery : [])].filter(Boolean);
+            thumbsEl.style.display = allImgs.length > 1 ? 'flex' : 'none';
+            allImgs.forEach(function (url, i) {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = (product.name || 'Produit') + ' — photo ' + (i + 1);
+                img.className = 'popup-thumb' + (i === 0 ? ' active' : '');
+                img.onclick = function () {
+                    document.getElementById('popup-main-img').src = url;
+                    thumbsEl.querySelectorAll('.popup-thumb').forEach(function (t) { t.classList.remove('active'); });
+                    img.classList.add('active');
+                };
+                thumbsEl.appendChild(img);
+            });
+
+            // Tailles (pas de taille pour les accessoires) — le client doit choisir
+            const needsSize = !/accessoire/i.test(product.category || '');
+            const sizeBlock = document.getElementById('popup-size-block');
+            const sizesEl = document.getElementById('popup-sizes');
+            const chosenEl = document.getElementById('popup-size-chosen');
+            sizesEl.innerHTML = '';
+            chosenEl.textContent = '';
+            sizeBlock.style.display = needsSize ? '' : 'none';
+            _selectedSize = needsSize ? null : 'Unique';
+            if (needsSize) {
+                ['S', 'M', 'L', 'XL'].forEach(function (s) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.textContent = s;
+                    btn.className = 'popup-size-btn';
+                    btn.setAttribute('role', 'radio');
+                    btn.setAttribute('aria-checked', 'false');
+                    btn.onclick = function () {
+                        _selectedSize = s;
+                        chosenEl.textContent = '· ' + s;
+                        document.getElementById('popup-size-error').hidden = true;
+                        sizesEl.querySelectorAll('.popup-size-btn').forEach(function (b) {
+                            b.classList.remove('active');
+                            b.setAttribute('aria-checked', 'false');
+                        });
+                        btn.classList.add('active');
+                        btn.setAttribute('aria-checked', 'true');
                     };
-                    thumbsEl.appendChild(img);
+                    sizesEl.appendChild(btn);
                 });
             }
 
-            // Sizes
-            const sizesEl = document.getElementById('popup-sizes');
-            sizesEl.innerHTML = '';
-            ['S', 'M', 'L', 'XL'].forEach(function (s) {
-                const btn = document.createElement('button');
-                btn.textContent = s;
-                btn.className = 'popup-size-btn' + (s === 'M' ? ' active' : '');
-                btn.onclick = function () {
-                    _selectedSize = s;
-                    sizesEl.querySelectorAll('.popup-size-btn').forEach(function (b) { b.classList.remove('active'); });
-                    btn.classList.add('active');
-                };
-                sizesEl.appendChild(btn);
-            });
+            // Stock
+            const stock = parseInt(product.stock_qty || 0);
+            const isSoldOut = stock <= 0;
+            const stockEl = document.getElementById('popup-stock');
+            if (isSoldOut) { stockEl.textContent = 'Rupture de stock'; stockEl.className = 'pp-stock out'; }
+            else if (stock <= 3) { stockEl.textContent = `Plus que ${stock} en stock`; stockEl.className = 'pp-stock low'; }
+            else { stockEl.textContent = 'En stock'; stockEl.className = 'pp-stock in'; }
 
-            // Check if sold out
-            const isSoldOut = parseInt(product.stock_qty || 0) <= 0;
             const buyBtn = document.getElementById('popup-buy-btn');
+            buyBtn.disabled = isSoldOut;
+            buyBtn.textContent = isSoldOut ? 'Épuisé' : 'Ajouter au panier';
+            buyBtn.onclick = isSoldOut ? null : addToCart;
 
-            if (isSoldOut) {
-                buyBtn.innerHTML = '<i class="fa-solid fa-ban"></i> Rupture de stock';
-                buyBtn.style.background = '#333';
-                buyBtn.style.color = '#888';
-                buyBtn.style.border = '1px solid #444';
-                buyBtn.style.cursor = 'not-allowed';
-                buyBtn.disabled = true;
-                buyBtn.onclick = null;
-
-                const metaEl = document.querySelector('.popup-meta');
-                let soldOutBadge = document.getElementById('popup-soldout-badge');
-                if (!soldOutBadge) {
-                    soldOutBadge = document.createElement('span');
-                    soldOutBadge.id = 'popup-soldout-badge';
-                    soldOutBadge.style.cssText = 'color: #ff5252; background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-left: 10px; display: inline-flex; align-items: center; gap: 5px;';
-                    metaEl.appendChild(soldOutBadge);
-                }
-                soldOutBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> SOLD OUT';
-                soldOutBadge.style.display = 'inline-flex';
-            } else {
-                buyBtn.innerHTML = '<i class="fa-solid fa-cart-plus"></i> Ajouter au panier';
-                buyBtn.style.background = '';
-                buyBtn.style.color = '';
-                buyBtn.style.border = '';
-                buyBtn.style.cursor = '';
-                buyBtn.disabled = false;
-                buyBtn.onclick = addToCart;
-
-                const soldOutBadge = document.getElementById('popup-soldout-badge');
-                if (soldOutBadge) soldOutBadge.style.display = 'none';
-            }
+            // WhatsApp (message pré-rempli)
+            updateWhatsAppLink();
 
             // Show product layout
-            document.getElementById('popup-product-layout').style.display = 'flex';
+            document.getElementById('popup-product-layout').style.display = 'grid';
 
             // Open overlay (si on passe d'un produit à un autre, la page est déjà figée)
             const overlayEl = document.getElementById('popup-overlay');
@@ -985,25 +1171,76 @@
             }
         }
 
-        function addToCart() {
-            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        function productLink(p) {
+            return location.origin + location.pathname + '#product-' + p.id;
+        }
 
-            const productToAdd = {
+        function updateWhatsAppLink() {
+            const p = _popupProduct;
+            if (!p) return;
+            const priceNum = Math.round(parseFloat(String(p.price || '0').replace(',', '.')) || 0);
+            const size = _selectedSize && _selectedSize !== 'Unique' ? ` (taille ${_selectedSize})` : '';
+            const msg = `Bonjour, je souhaite commander : ${p.name}${size} — ${priceNum.toLocaleString('fr-FR')} FCFA.\n${productLink(p)}`;
+            document.getElementById('popup-wa-btn').href = 'https://wa.me/22870894072?text=' + encodeURIComponent(msg);
+        }
+
+        document.getElementById('popup-sizes').addEventListener('click', updateWhatsAppLink);
+
+        // Partager le produit (menu de partage du téléphone, sinon copie du lien)
+        document.getElementById('popup-share').addEventListener('click', async function () {
+            if (!_popupProduct) return;
+            const url = productLink(_popupProduct);
+            const label = this.querySelector('span');
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title: _popupProduct.name, url });
+                    return;
+                }
+                await navigator.clipboard.writeText(url);
+                label.textContent = 'Lien copié ✓';
+            } catch (e) {
+                label.textContent = 'Partage impossible';
+            }
+            setTimeout(() => { label.textContent = 'Partager ce produit'; }, 2000);
+        });
+
+        function addToCart() {
+            if (!_popupProduct) return;
+            if (!_selectedSize) {
+                const err = document.getElementById('popup-size-error');
+                const sizes = document.getElementById('popup-sizes');
+                err.hidden = false;
+                sizes.classList.remove('shake');
+                void sizes.offsetWidth; // relance l'animation
+                sizes.classList.add('shake');
+                sizes.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            let cart = [];
+            try { cart = JSON.parse(localStorage.getItem('cart')) || []; } catch (e) { cart = []; }
+            cart.push({
                 id: _popupProduct.id || 0,
-                name: _popupProduct.name || 'Produit Inconnu',
+                name: _popupProduct.name || 'Produit',
                 price: _popupProduct.price || '0',
                 image_url: _popupProduct.image_url || '',
                 size: _selectedSize
-            };
-
-            cart.push(productToAdd);
+            });
             localStorage.setItem('cart', JSON.stringify(cart));
-
             updateCartUI();
 
-            // Fermer le popup pour continuer les achats
-            closePopup();
+            // Confirmation visible au lieu de fermer la fiche
+            const btn = document.getElementById('popup-buy-btn');
+            btn.textContent = 'Ajouté ✓';
+            setTimeout(() => { if (!btn.disabled) btn.textContent = 'Ajouter au panier'; }, 1800);
+            const added = document.getElementById('popup-added');
+            added.hidden = false;
+            added.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && document.getElementById('popup-overlay').classList.contains('open')) closePopup();
+        });
 
         // Initialize cart UI on load
         window.addEventListener('DOMContentLoaded', updateCartUI);
