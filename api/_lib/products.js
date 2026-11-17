@@ -14,25 +14,6 @@ const IMAGE_TYPES = {
   'image/gif': { ext: 'gif', magic: b => b.slice(0, 3).toString() === 'GIF' }
 };
 
-function fallbackProducts() {
-  const list = [];
-  for (let i = 1; i <= 30; i++) {
-    list.push({
-      id: i,
-      name: `Pièce Made in Lo #${i}`,
-      description: `Modèle d'exception Made in Lo (Édition #${i})`,
-      price: String(15000 + (i % 5) * 5000),
-      image_url: `produit/${i}.webp`,
-      category: i % 3 === 0 ? 'Ensembles' : (i % 2 === 0 ? 'Bas' : 'Hauts'),
-      gallery: [],
-      stock_qty: 10,
-      views: 0,
-      is_visible: true
-    });
-  }
-  return list;
-}
-
 function productFields(p) {
   const fields = {
     name: cleanText(p.name, 150),
@@ -68,7 +49,7 @@ export default async function handler(req, res) {
         order: 'category.asc,created_at.desc',
         filter: { is_visible: 'eq.true' }
       });
-      return res.status(200).json(data.length > 0 ? data : fallbackProducts());
+      return res.status(200).json(data);
     }
 
     // POST

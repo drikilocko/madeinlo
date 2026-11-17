@@ -1032,6 +1032,16 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             if (Array.isArray(data)) {
                 allProducts = data;
+                if (data.length === 0) {
+                    const gallery = document.querySelector('.gallery-container');
+                    if (gallery) {
+                        const empty = document.createElement('p');
+                        empty.className = 'gallery-empty';
+                        empty.textContent = 'Notre collection arrive bientôt. Revenez très vite !';
+                        empty.style.cssText = 'grid-column:1/-1;width:100%;text-align:center;padding:4rem 1rem;opacity:.6;font-size:1rem;';
+                        gallery.appendChild(empty);
+                    }
+                }
                 filterGallery('tout'); // Remplit la grille Masonry
                 distributeProductsHorizontal(allProducts); // Remplit les lignes Horizontales en dessous
 

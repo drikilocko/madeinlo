@@ -8,11 +8,14 @@ INSERT INTO shops (id, name, address, lat, lng, login, password, is_primary, cre
 (1, 'dream', 'lome', '6.150200', '1.241306', 'admin2', '$2y$10$HVmq7q.vR.QjHDILJlDDT.lpdMRZ2uAB16IcNCD37nShTzqNdS/PW', true, '2026-05-14 02:45:42'),
 (3, 'dream4', 'lome', '6.183726', '1.192060', 'jj', '$2y$10$6y386za7cAiMPE89PVjL5.hIgZwFZAfZPjyYyCW33FyOS1mfB9G9W', false, '2026-05-17 00:46:49');
 
-INSERT INTO categories (id, name, is_visible, created_at) VALUES
-(1, 'ensemble', true, '2026-05-16 01:19:08'),
-(2, 'haut', true, '2026-05-16 01:19:08'),
-(3, 'Accessoires', true, '2026-05-16 01:19:08'),
-(4, 'Chaussures', true, '2026-05-16 01:19:08');
+-- Sans id : supabase-setup.sql a déjà créé des catégories (les doublons de nom sont ignorés)
+INSERT INTO categories (name, is_visible, created_at) VALUES
+('ensemble', true, '2026-05-16 01:19:08'),
+('haut', true, '2026-05-16 01:19:08'),
+('Accessoires', true, '2026-05-16 01:19:08'),
+('Chaussures', true, '2026-05-16 01:19:08'),
+('Nouveautés', true, '2026-05-16 01:19:08')
+ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO products (id, name, description, price, stock_qty, image_url, category, gallery, is_visible, views, created_at) VALUES
 (2, 'Produit 2', 'Description du produit 2', '10000.00', 6, 'produit/2.webp', 'ensemble', '[]', true, 6, '2026-05-16 00:32:46'),
