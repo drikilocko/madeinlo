@@ -3,7 +3,7 @@ import {
   parseGallery, getQueryParam, parseJsonBody, setup, sendError, HttpError,
   cleanText, cleanUrl, toInt, requireInt, toIdList
 } from './_helpers.js';
-import { requireAdmin } from './_auth.js';
+import { requireAdmin, checkRateLimit, clientIp } from './_auth.js';
 import crypto from 'crypto';
 
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024; // 3 Mo (limite Vercel : 4,5 Mo par requête)
@@ -91,6 +91,9 @@ export default async function handler(req, res) {
     if (action === 'increment_view') {
       const id = toInt(input.id, { min: 1 });
       if (id === null) return res.status(200).json({ status: 'ignored' });
+      // Anti-abus : empêche de gonfler artificiellement le compteur de vues
+      try { checkRateLimit(`view:${clientIp(req)}`, { max: 60, windowMs: 60 * 1000 }); }
+      catch { return res.status(200).json({ status: 'ignored' }); }
       const product = await getProduct(id);
       if (product) await supabasePatch('products', { views: (product.views || 0) + 1 }, { id });
       return res.status(200).json({ status: 'success' });

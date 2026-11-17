@@ -45,6 +45,8 @@ export function setup(req, res, methods = ['GET', 'POST']) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
   if (req.method === 'OPTIONS') {
     res.setHeader('Allow', [...methods, 'OPTIONS'].join(', '));
     res.status(204).end();

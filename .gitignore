@@ -27,3 +27,8 @@ npm-debug.log*
 dist/
 build/
 crash.txt
+
+# Fichiers de données / seed contenant des infos sensibles (jamais versionnés)
+supabase-import.sql
+database.sql
+*.dump
