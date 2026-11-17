@@ -2873,7 +2873,7 @@ html.lenis, html.lenis body { height: auto; }
 
 .story {
     position: relative;
-    overflow: hidden;
+    overflow: hidden;   /* coupe seulement à gauche/droite le bandeau qui défile */
     background: var(--background-color, #fff);
     padding: 4.5rem 2rem 0;
     min-height: 92vh;
@@ -2970,19 +2970,45 @@ html.lenis, html.lenis body { height: auto; }
 }
 .story-step.active { color: #111; }
 
-/* Grand texte décoratif en fond */
+/* Grand texte décoratif : bandeau qui défile lentement, en continu */
 .story-bg {
     position: relative;
     z-index: 1;
-    margin: auto 0 -0.18em;
+    width: 100vw;
+    margin: auto 0 0;
+    padding: 0 0 2.5rem;            /* le texte n'est plus coupé en bas */
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+}
+.story-bg-track {
+    display: flex;
+    width: max-content;
+    animation: storyMarquee 70s linear infinite;
+    will-change: transform;
+}
+.story-bg-group { display: flex; flex-shrink: 0; }
+.story-bg-item {
+    display: inline-flex;
+    align-items: center;
+    padding-right: 0.35em;
     font-size: clamp(4rem, 13vw, 15rem);
     font-weight: 800;
     letter-spacing: -0.04em;
-    line-height: 1;
+    line-height: 1.15;              /* place pour les lettres qui descendent (q, p) */
     white-space: nowrap;
     color: rgba(0, 0, 0, 0.045);
-    pointer-events: none;
-    user-select: none;
+}
+.story-bg-item i { font-style: normal; padding-left: 0.35em; }
+
+/* Les 2 groupes sont identiques : -50% retombe exactement au point de départ */
+@keyframes storyMarquee {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .story-bg-track { animation: none; }
 }
 
 @media (max-width: 700px) {
