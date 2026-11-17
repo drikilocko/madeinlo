@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- NOUVEAU : CHANGER LA COULEUR DE LA NAV SUR SECTIONS SOMBRES ---
-    const darkSections = document.querySelectorAll('#a-propos, footer');
+    const darkSections = document.querySelectorAll('#a-propos'); // le footer est clair
     const navElement = document.querySelector('nav');
 
     if (darkSections.length > 0 && navElement) {
@@ -273,10 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 scrub: true
             }
         });
-    }
-
-    if (mainFooter) {
-        mainFooter.style.backgroundColor = '#000000'; // S'assurer que le footer est bien noir
     }
 
     // --- CODE POUR LE MENU BURGER ---

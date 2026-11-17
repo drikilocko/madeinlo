@@ -540,62 +540,55 @@
     </main>
 
     <footer id="main-footer" class="site-footer">
-        <div class="mf-top">
-            <div class="mf-top-inner">
-                <div>
-                    <p class="mf-kicker">Made in Lo — Lomé</p>
-                    <h2 class="mf-headline">Des pièces uniques,<br>pensées et créées au Togo.</h2>
-                </div>
-                <a href="#image-gallery" class="mf-cta">Découvrir la collection <i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-        </div>
-
         <div class="mf-grid">
-            <div class="mf-col mf-brand">
-                <a href="index.html" class="mf-logo">Made in Lo</a>
-                <p class="mf-text">Mode africaine contemporaine. Chaque pièce est imaginée à Lomé et fabriquée avec soin, en séries limitées.</p>
-                <div class="mf-social">
-                    <a href="https://www.instagram.com/made.in.lo/" target="_blank" rel="noopener noreferrer" aria-label="Instagram Made in Lo"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Made in Lo"><i class="fa-brands fa-whatsapp"></i></a>
-                </div>
-            </div>
-
             <nav class="mf-col" aria-label="Boutique">
                 <h4 class="mf-title">Boutique</h4>
                 <ul class="mf-links">
                     <li><a href="#image-gallery">Toute la collection</a></li>
                     <li><a href="checkout.html">Mon panier</a></li>
                     <li><a href="documentation/index.html">Documentation</a></li>
-                    <li><a href="partner-login.html">Espace partenaires</a></li>
                 </ul>
             </nav>
 
             <div class="mf-col">
-                <h4 class="mf-title">Contact</h4>
-                <ul class="mf-links mf-contact">
-                    <li><i class="fa-brands fa-whatsapp"></i><a href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer">+228 70 89 40 72</a></li>
-                    <li><i class="fa-brands fa-instagram"></i><a href="https://www.instagram.com/made.in.lo/" target="_blank" rel="noopener noreferrer">@made.in.lo</a></li>
-                    <li><i class="fa-solid fa-location-dot"></i><span>Lomé, Togo</span></li>
+                <h4 class="mf-title">Made in Lo</h4>
+                <ul class="mf-links">
+                    <li><a href="https://www.instagram.com/made.in.lo/" target="_blank" rel="noopener noreferrer">Instagram <i class="fa-solid fa-arrow-up-right-from-square mf-ext" aria-hidden="true"></i></a></li>
+                    <li><a href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer">WhatsApp <i class="fa-solid fa-arrow-up-right-from-square mf-ext" aria-hidden="true"></i></a></li>
+                    <li><span>Lomé, Togo</span></li>
                 </ul>
             </div>
 
             <div class="mf-col">
-                <h4 class="mf-title">Paiement sécurisé</h4>
-                <div class="mf-pay">
-                    <span class="mf-chip">T-Money</span>
-                    <span class="mf-chip">Moov Money</span>
-                    <span class="mf-chip mf-chip-icon" title="Visa"><i class="fa-brands fa-cc-visa"></i></span>
-                    <span class="mf-chip mf-chip-icon" title="Mastercard"><i class="fa-brands fa-cc-mastercard"></i></span>
+                <h4 class="mf-title">Paiement</h4>
+                <ul class="mf-links">
+                    <li><span>Mobile Money (T-Money, Moov)</span></li>
+                    <li><span>Carte bancaire (Visa, Mastercard)</span></li>
+                    <li><span>Paiement sécurisé par PayDunya</span></li>
+                </ul>
+            </div>
+
+            <div class="mf-col mf-actions">
+                <div class="mf-action">
+                    <h5 class="mf-action-title">Mes commandes</h5>
+                    <p class="mf-action-text">Une question sur votre commande ? Écrivez-nous avec votre numéro de commande.</p>
+                    <a class="mf-btn" href="https://wa.me/22870894072" target="_blank" rel="noopener noreferrer">Nous contacter</a>
                 </div>
-                <p class="mf-text mf-small"><i class="fa-solid fa-lock"></i> Paiements traités par PayDunya. Votre commande est validée dès la confirmation du paiement.</p>
+                <div class="mf-action">
+                    <h5 class="mf-action-title">Espace partenaires</h5>
+                    <p class="mf-action-text">Boutiques partenaires : gérez votre stock et vos ventes.</p>
+                    <a class="mf-btn" href="partner-login.html">Accéder à mon espace</a>
+                </div>
             </div>
         </div>
 
-        <div class="mf-bottom">
-            <p>© <span id="mf-year">2026</span> Made in Lo. Tous droits réservés.</p>
-            <button type="button" class="mf-top-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" aria-label="Revenir en haut de la page">
-                Haut de page <i class="fa-solid fa-arrow-up"></i>
-            </button>
+        <div class="mf-brandbar">
+            <a href="index.html" class="mf-logo">Made in Lo</a>
+            <p class="mf-copy">© <span id="mf-year">2026</span> Made in Lo. Tous droits réservés.</p>
+        </div>
+
+        <div class="mf-note">
+            <p>Les prix sont indiqués en FCFA et peuvent être modifiés sans préavis. Pièces en séries limitées, dans la limite des stocks disponibles.</p>
         </div>
         <script>document.getElementById('mf-year').textContent = new Date().getFullYear();</script>
     </footer>
