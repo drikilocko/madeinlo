@@ -2874,7 +2874,7 @@ html.lenis, html.lenis body { height: auto; }
 .story {
     position: relative;
     overflow: hidden;
-    background: #f1f1ef;
+    background: var(--background-color, #fff);
     padding: 4.5rem 2rem 0;
     min-height: 92vh;
     display: flex;
@@ -2932,7 +2932,7 @@ html.lenis, html.lenis body { height: auto; }
     visibility: hidden;
 }
 .story-line .w { display: inline-block; white-space: nowrap; }
-.story-line .c { display: inline-block; }
+.story-line .c { display: inline-block; backface-visibility: hidden; }
 
 /* Progression 01 · 02 · 03 */
 .story-progress {
@@ -2980,8 +2980,7 @@ html.lenis, html.lenis body { height: auto; }
     letter-spacing: -0.04em;
     line-height: 1;
     white-space: nowrap;
-    color: rgba(255, 255, 255, 0.85);
-    text-shadow: 0 0 1px rgba(0, 0, 0, 0.02);
+    color: rgba(0, 0, 0, 0.045);
     pointer-events: none;
     user-select: none;
 }

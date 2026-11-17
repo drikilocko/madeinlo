@@ -91,41 +91,48 @@
                 .to([line, ...partChips], { opacity: 0, duration: 0.6 }, `+=${HOLD + 1}`)
                 .set(line, { visibility: 'hidden' });
         } else {
-            tl.set(line, { visibility: 'visible' })
+            // Performance : le flou est appliqué UNE fois sur la phrase entière ;
+            // les lettres n'animent que transform + opacity (gérés par la carte graphique).
+            tl.set(line, { visibility: 'visible', willChange: 'filter' })
+                .set(chars, { willChange: 'transform, opacity' })
+                .fromTo(line, { filter: 'blur(12px)' }, { filter: 'blur(0px)', duration: 1.6, ease: 'power2.out' }, 0)
                 // Entrée « mise au point »
                 .fromTo(chars, {
                     opacity: 0,
-                    filter: 'blur(14px)',
                     x: (k, el) => spreadFromCenter(el, line),
                     y: () => gsap.utils.random(-14, 14),
                     scale: 1.18
                 }, {
                     opacity: 1,
-                    filter: 'blur(0px)',
                     x: 0,
                     y: 0,
                     scale: 1,
                     duration: 1.3,
                     ease: 'expo.out',
                     stagger: { each: 0.012, from: 'center' }
+                }, 0)
+                // Phrase nette : on libère les ressources pendant la lecture
+                .call(() => {
+                    gsap.set(line, { clearProps: 'filter,willChange' });
+                    gsap.set(chars, { clearProps: 'willChange' });
                 })
-                // On retire les filtres une fois la phrase nette (plus léger pour le navigateur)
-                .call(() => gsap.set(chars, { clearProps: 'filter' }))
-                .fromTo(partChips, { opacity: 0, y: 14, filter: 'blur(6px)' },
-                    { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.8, ease: 'power3.out', stagger: 0.18 }, 0.4)
-                // Sortie : dissolution aléatoire
+                .fromTo(partChips, { opacity: 0, y: 14 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.18 }, 0.4)
+                // Sortie : dissolution aléatoire (flou sur la phrase, mouvement par lettre)
+                .addLabel('out', `+=${HOLD}`)
+                .set(chars, { willChange: 'transform, opacity' }, 'out')
+                .to(line, { filter: 'blur(8px)', duration: 0.9, ease: 'power2.in' }, 'out')
                 .to(chars, {
                     opacity: 0,
-                    filter: 'blur(10px)',
                     y: -16,
                     x: () => gsap.utils.random(-8, 8),
                     duration: 0.65,
                     ease: 'power2.in',
                     stagger: { each: 0.006, from: 'random' }
-                }, `+=${HOLD}`)
-                .to(partChips, { opacity: 0, y: -10, filter: 'blur(6px)', duration: 0.45, ease: 'power2.in' }, '<')
-                .set(line, { visibility: 'hidden' })
-                .set(chars, { clearProps: 'filter,transform' });
+                }, 'out')
+                .to(partChips, { opacity: 0, y: -10, duration: 0.45, ease: 'power2.in' }, 'out')
+                .set(line, { visibility: 'hidden', clearProps: 'filter,willChange' })
+                .set(chars, { clearProps: 'transform,opacity,willChange' });
         }
 
         // Barre de progression 01 / 02 / 03 synchronisée sur la phrase
