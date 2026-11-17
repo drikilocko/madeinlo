@@ -285,13 +285,11 @@
             display: none; flex-direction: column;
         }
         #map-modal.open { display: flex; }
-        .map-bar {
-            display: flex; align-items: center; justify-content: space-between; gap: 12px;
-            padding: 14px 16px; border-bottom: 1px solid #eee; background: #fff; z-index: 2;
+        .map-close {
+            position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; z-index: 1001;
+            width: 44px; height: 44px; border-radius: 50%; border: none; background: #fff;
+            font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
         }
-        .map-bar h3 { margin: 0; font-size: 1rem; }
-        .map-bar p { margin: 2px 0 0; font-size: 0.8rem; opacity: 0.6; }
-        .map-close { width: 42px; height: 42px; border-radius: 50%; border: 1px solid #ddd; background: #fff; font-size: 1.1rem; cursor: pointer; flex-shrink: 0; }
         #pick-map { flex: 1; position: relative; }
         .map-pin {
             position: absolute; left: 50%; top: 50%; z-index: 500; pointer-events: none;
@@ -309,7 +307,7 @@
         .map-actions button { flex: 1; padding: 16px; border-radius: 12px; font: inherit; font-weight: 700; cursor: pointer; }
         .map-locate { background: #fff; border: 1px solid #ddd; color: #111; }
         .map-confirm { background: #111; border: none; color: #fff; }
-        .map-hint { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 600;
+        .map-hint { position: absolute; top: calc(18px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 600;
             background: rgba(17,17,17,0.85); color: #fff; padding: 8px 14px; border-radius: 999px; font-size: 0.8rem; white-space: nowrap; pointer-events: none; }
 
         .track-box { margin: 24px auto 0; max-width: 420px; padding: 16px; border: 1px solid #eee; border-radius: 12px; text-align: left; }
@@ -484,15 +482,9 @@
     </div><!-- end .checkout-container -->
 
     <!-- Carte plein écran : choix de la position de livraison -->
-    <div id="map-modal" role="dialog" aria-modal="true" aria-labelledby="map-title">
-        <div class="map-bar">
-            <div>
-                <h3 id="map-title">Où devons-nous livrer ?</h3>
-                <p>Déplacez la carte pour placer le repère sur votre porte.</p>
-            </div>
-            <button type="button" class="map-close" onclick="closeMapPicker()" aria-label="Fermer la carte">✕</button>
-        </div>
+    <div id="map-modal" role="dialog" aria-modal="true" aria-label="Choisir la position de livraison">
         <div id="pick-map">
+            <button type="button" class="map-close" onclick="closeMapPicker()" aria-label="Fermer la carte">✕</button>
             <div class="map-hint">Déplacez la carte · le repère reste au centre</div>
             <div class="map-pin-shadow"></div>
             <i class="fas fa-map-marker-alt map-pin" aria-hidden="true"></i>
