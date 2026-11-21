@@ -30,7 +30,7 @@ function mapProduct(row) {
     name: row.name,
     description: row.description || '',
     price: row.price != null ? String(row.price) : '0',
-    image_url: row.image_url || 'img/placeholder.png',
+    image_url: row.image_url || 'img/placeholder.webp',
     category: row.category || 'General',
     gallery: parseGallery(row.gallery),
     stock_qty: row.stock_qty || 0,

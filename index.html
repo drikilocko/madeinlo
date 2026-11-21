@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Made in Lo - Shop</title>
-    <link rel="icon" type="image/png" href="img/6.png">
+    <link rel="icon" type="image/webp" href="img/6.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,10 +17,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="style.css?v=1.3">
-    <link rel="preload" as="image" href="img/2.png">
-    <link rel="preload" as="image" href="img/3.png">
-    <link rel="preload" as="image" href="img/4.png">
-    <link rel="preload" as="image" href="img/5.png">
+    <link rel="preload" as="image" href="img/2.webp">
+    <link rel="preload" as="image" href="img/3.webp">
+    <link rel="preload" as="image" href="img/4.webp">
+    <link rel="preload" as="image" href="img/5.webp">
     <script>
         if (window.location.hash === '#image-gallery') {
             history.replaceState(null, null, window.location.pathname);
@@ -733,20 +733,20 @@
         <section id="home">
             <div class="photo-container">
                 <div class="dist-photo-wrapper">
-                    <img src="img/2.png" alt="Image distribuée 1" class="distributed-photo photo-recto">
-                    <img src="img/3.png" alt="Nouvelle image 1" class="distributed-photo photo-verso">
+                    <img src="img/2.webp" alt="Image distribuée 1" class="distributed-photo photo-recto">
+                    <img src="img/3.webp" alt="Nouvelle image 1" class="distributed-photo photo-verso">
                 </div>
                 <div class="dist-photo-wrapper">
-                    <img src="img/4.png" alt="Image distribuée 2" class="distributed-photo photo-recto">
-                    <img src="img/5.png" alt="Nouvelle image 2" class="distributed-photo photo-verso">
+                    <img src="img/4.webp" alt="Image distribuée 2" class="distributed-photo photo-recto">
+                    <img src="img/5.webp" alt="Nouvelle image 2" class="distributed-photo photo-verso">
                 </div>
                 <div class="dist-photo-wrapper hide-on-mobile">
-                    <img src="img/6.png" alt="Image distribuée 3" class="distributed-photo photo-recto">
-                    <img src="img/7.png" alt="Nouvelle image 3" class="distributed-photo photo-verso">
+                    <img src="img/6.webp" alt="Image distribuée 3" class="distributed-photo photo-recto">
+                    <img src="img/7.webp" alt="Nouvelle image 3" class="distributed-photo photo-verso">
                 </div>
                 <div class="dist-photo-wrapper hide-on-mobile">
-                    <img src="img/8.png" alt="Image distribuée 4" class="distributed-photo photo-recto">
-                    <img src="img/9.png" alt="Nouvelle image 4" class="distributed-photo photo-verso">
+                    <img src="img/8.webp" alt="Image distribuée 4" class="distributed-photo photo-recto">
+                    <img src="img/9.webp" alt="Nouvelle image 4" class="distributed-photo photo-verso">
                 </div>
             </div>
         </section>
@@ -978,7 +978,7 @@
 
             // ----- Remplissage de la fiche -----
             const priceNum = Math.round(parseFloat(String(product.price || '0').replace(',', '.')) || 0);
-            document.getElementById('popup-main-img').src = product.image_url || 'img/placeholder.png';
+            document.getElementById('popup-main-img').src = product.image_url || 'img/placeholder.webp';
             document.getElementById('popup-main-img').alt = product.name || '';
             document.getElementById('popup-prod-name').textContent = product.name || '';
             document.getElementById('popup-price-val').textContent = priceNum.toLocaleString('fr-FR') + ' FCFA';
@@ -1133,10 +1133,10 @@
                 const imgWrap = document.createElement('div');
                 imgWrap.className = 'pairing-card-img';
                 const img = document.createElement('img');
-                img.src = p.image_url || 'img/placeholder.png';
+                img.src = p.image_url || 'img/placeholder.webp';
                 img.alt = p.name || '';
                 img.loading = 'lazy';
-                img.onerror = function () { this.src = 'img/placeholder.png'; };
+                img.onerror = function () { this.src = 'img/placeholder.webp'; };
                 imgWrap.appendChild(img);
 
                 const name = document.createElement('span');

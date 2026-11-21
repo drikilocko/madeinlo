@@ -1745,7 +1745,7 @@
                         <input type="hidden" id="p-img">
                         <div id="p-preview-container"
                             style="margin-top: 10px; text-align: center; border: 1px dashed rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
-                            <img id="p-preview-img" src="img/placeholder.png"
+                            <img id="p-preview-img" src="img/placeholder.webp"
                                 style="max-height: 150px; border-radius: 8px;">
                             <p style="font-size: 0.7rem; opacity: 0.5; margin-top: 5px;">Aperçu de l'image</p>
                         </div>
@@ -1959,7 +1959,7 @@
                 box.innerHTML = currentPairings.map(id => {
                     const p = productById(id);
                     return `<div class="pair-card">
-                        <img src="${esc(p.image_url || 'img/placeholder.png')}" alt="" onerror="this.src='img/placeholder.png'">
+                        <img src="${esc(p.image_url || 'img/placeholder.webp')}" alt="" onerror="this.src='img/placeholder.webp'">
                         <span title="${esc(p.name)}">${esc(p.name)}</span>
                         <button type="button" onclick="removePairing(${Number(id)})" title="Retirer"><i class="fas fa-times"></i></button>
                     </div>`;
@@ -1984,7 +1984,7 @@
             }
             list.innerHTML = matches.map(p => `
                 <button type="button" class="pair-row" onclick="addPairing(${Number(p.id)})" ${full ? 'disabled' : ''}>
-                    <img src="${esc(p.image_url || 'img/placeholder.png')}" alt="" onerror="this.src='img/placeholder.png'">
+                    <img src="${esc(p.image_url || 'img/placeholder.webp')}" alt="" onerror="this.src='img/placeholder.webp'">
                     <span class="pair-row-name">${esc(p.name)}<br><span class="pair-row-cat">${esc(p.category)}${p.is_visible === false ? ' · masqué' : ''}</span></span>
                     <span class="pair-row-add">${full ? 'Maximum atteint' : '+ Ajouter'}</span>
                 </button>`).join('');
@@ -2020,7 +2020,7 @@
                     }
                     block.innerHTML = `
                         <button type="button" class="gallery-item-delete" onclick="removeGalleryItem(this)" title="Supprimer"><i class="fas fa-times"></i></button>
-                        <img src="${url}" class="gallery-item-thumb" onerror="this.src='img/placeholder.png'">
+                        <img src="${url}" class="gallery-item-thumb" onerror="this.src='img/placeholder.webp'">
                         <input type="text" class="gallery-input gallery-item-input" value="${url}" placeholder="URL Image secondaire" onchange="updateGalleryItemThumb(this)">
                         ${unmergeBtn}
                     `;
@@ -2113,7 +2113,7 @@
             block.className = 'gallery-item-block';
             block.innerHTML = `
                 <button type="button" class="gallery-item-delete" onclick="removeGalleryItem(this)" title="Supprimer"><i class="fas fa-times"></i></button>
-                <img src="img/placeholder.png" class="gallery-item-thumb">
+                <img src="img/placeholder.webp" class="gallery-item-thumb">
                 <input type="text" class="gallery-input gallery-item-input" placeholder="URL Image secondaire" onchange="updateGalleryItemThumb(this)">
             `;
 
@@ -2151,7 +2151,7 @@
             modal.style.display = show ? 'flex' : 'none';
             if (show) {
                 document.getElementById('product-form').reset();
-                document.getElementById('p-preview-img').src = 'img/placeholder.png';
+                document.getElementById('p-preview-img').src = 'img/placeholder.webp';
                 document.getElementById('p-upload').value = '';
                 renderGalleryGrid([]);
                 document.getElementById('p-id').value = '';
@@ -2174,7 +2174,7 @@
             document.getElementById('p-stock').value = p.stock_qty || 0;
             document.getElementById('p-category').value = p.category;
             document.getElementById('p-img').value = p.image_url;
-            document.getElementById('p-preview-img').src = p.image_url || 'img/placeholder.png';
+            document.getElementById('p-preview-img').src = p.image_url || 'img/placeholder.webp';
             document.getElementById('p-upload').value = '';
             document.getElementById('p-desc').value = p.description;
 

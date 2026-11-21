@@ -494,7 +494,7 @@ main>section {
 main>section#home {
     position: relative;
     width: 100%;
-    background-image: url('img/1.png');
+    background-image: url('img/1.webp');
     padding: 0;
     background-size: 100% auto;
     /* Affiche mieux l'image sans trop de zoom */

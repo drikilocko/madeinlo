@@ -14,7 +14,7 @@ async function productMap(ids) {
 
 function withProduct(row, map) {
   const p = map.get(row.product_id) || {};
-  return { ...row, name: p.name || 'Produit supprimé', price: p.price || '0', image_url: p.image_url || 'img/placeholder.png', category: p.category || '' };
+  return { ...row, name: p.name || 'Produit supprimé', price: p.price || '0', image_url: p.image_url || 'img/placeholder.webp', category: p.category || '' };
 }
 
 async function getShopById(id) {
