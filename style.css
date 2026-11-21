@@ -494,20 +494,61 @@ main>section {
 main>section#home {
     position: relative;
     width: 100%;
-    background-image: url('img/1.webp');
+    background-image: url('img/5.webp');
     padding: 0;
-    background-size: 100% auto;
-    /* Affiche mieux l'image sans trop de zoom */
+    background-size: cover;
     background-position: center top;
     background-repeat: no-repeat;
-    background-color: #ffffff;
-    color: #000000;
-    height: 130vh;
+    background-color: #e8d9c3;
+    color: #111111;
+    height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     margin-bottom: 0;
     overflow: hidden;
+}
+
+/* Léger voile clair en haut pour garder le titre lisible sur la photo */
+main>section#home::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 42%;
+    background: linear-gradient(to bottom, rgba(245,238,228,0.92), rgba(245,238,228,0));
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Titre MADE·IN·LO STREETWEAR (police du logo, sans contour) */
+.hero-wordmark {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding-top: 7vh;
+}
+.hero-title {
+    margin: 0;
+    font-family: 'Archivo Black', 'Montserrat', sans-serif;
+    font-size: clamp(2.8rem, 11vw, 9rem);
+    line-height: 0.9;
+    letter-spacing: -1px;
+    color: #111;
+    text-transform: uppercase;
+}
+.hero-title span { color: #b8962e; margin: 0 0.05em; }
+.hero-sub {
+    margin: 0.5rem 0 0;
+    font-family: 'Archivo Black', 'Montserrat', sans-serif;
+    font-size: clamp(1rem, 3.4vw, 2.4rem);
+    letter-spacing: clamp(6px, 2.6vw, 22px);
+    text-indent: clamp(6px, 2.6vw, 22px);
+    color: #111;
+    text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+    .hero-wordmark { padding-top: 6vh; }
 }
 
 /* NOUVEAU : Styles restaurés pour la section vidéo */
