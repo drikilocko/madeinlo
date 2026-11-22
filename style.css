@@ -171,18 +171,24 @@ nav:not(.nav-glass):not(.nav-transparent) {
 }
 
 .logo {
-    font-weight: 700;
-    letter-spacing: 5px;
-    text-transform: uppercase;
-    color: #000 !important;
+    display: inline-flex;
+    align-items: center;
     text-decoration: none;
-    font-size: 2rem;
     z-index: 5;
-    white-space: nowrap;
     order: 1;
     /* Place le logo tout à gauche */
     margin-right: auto;
     /* Pousse le reste (les icônes) tout à droite */
+}
+
+.logo img {
+    height: 40px;
+    width: auto;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .logo img { height: 32px; }
 }
 
 .nav-left {
@@ -2684,10 +2690,13 @@ body {
     flex-wrap: wrap;
 }
 .mf-logo {
-    font-size: 1.9rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: #111;
+    display: inline-block;
+    line-height: 0;
+}
+.mf-logo img {
+    height: 46px;
+    width: auto;
+    display: block;
 }
 .mf-copy { margin: 0; font-size: 0.9rem; color: #666; }
 
