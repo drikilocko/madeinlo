@@ -503,8 +503,9 @@ main>section#home {
     background-image: url('img/Sans titre-2.png');
     padding: 0;
     background-size: 100% auto;
-    /* Affiche mieux l'image sans trop de zoom */
-    background-position: center top;
+    /* Affiche mieux l'image sans trop de zoom ; décalée vers le bas
+       pour que la tête du mannequin ne soit pas coupée par le nav */
+    background-position: center 90px;
     background-repeat: no-repeat;
     background-color: var(--background-color);
     color: #000000;
