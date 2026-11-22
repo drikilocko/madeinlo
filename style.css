@@ -7,16 +7,16 @@
 /* --- ANCIENNE SCROLLBAR SUPPRIMÉE --- */
 
 :root {
-    --background-color: #ffffff;
-    /* Tout en blanc pur */
-    --surface-color: #ffffff;
+    --background-color: #f7f2e9;
+    /* Fond cream doux */
+    --surface-color: #f7f2e9;
     --text-color: #212529;
     --primary-color: #8a6c0b;
     /* MODIFIÉ : Une couleur dorée élégante */
     --primary-color-rgb: 138, 108, 11;
     /* NOUVEAU : Version RGB pour les transparences */
     --secondary-color: #6c757d;
-    --surface-color: #ffffff;
+    --surface-color: #f7f2e9;
     --border-color: #dee2e6;
     --header-bg: #1a1a1a;
     --header-text: #ffffff;
@@ -506,7 +506,7 @@ main>section#home {
     /* Affiche mieux l'image sans trop de zoom */
     background-position: center top;
     background-repeat: no-repeat;
-    background-color: #ffffff;
+    background-color: var(--background-color);
     color: #000000;
     height: 130vh;
     display: flex;
@@ -522,7 +522,7 @@ main>section#a-propos {
     overflow: hidden;
     width: 100%;
     /* CORRIGÉ : Utilise 100% pour éviter le débordement */
-    background-color: #ffffff;
+    background-color: var(--background-color);
     padding: 0;
     height: 150vh;
     border-radius: 150px;
@@ -2297,7 +2297,7 @@ body {
     position: fixed;
     inset: 0;
     z-index: 10000;
-    background: #ffffff;
+    background: var(--background-color);
     color: #000000;
     overflow-y: auto;
     display: none;
@@ -2309,7 +2309,7 @@ body {
     margin: 0 auto;
     padding: 1rem 2rem;
     height: 100vh;
-    background: #ffffff;
+    background: var(--background-color);
     display: flex;
     flex-direction: column;
 }
@@ -2608,7 +2608,7 @@ body {
    FOOTER (index.html) — classes mf-*
    ===================================================================== */
 .site-footer {
-    background: #ffffff;
+    background: var(--background-color);
     color: #111;
     margin-top: 0;
     border-top: 1px solid #e5e5e5;
