@@ -26,133 +26,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- GESTION DU PRÉLOADER (Optimisé pour ne pas se répéter) ---
+    // --- PRÉLOADER : fine ligne blanche qui se remplit, puis entrée directe ---
     const preloader = document.getElementById('preloader');
+    const preloaderLine = preloader && preloader.querySelector('.preloader-line > span');
     const isPreloaderShown = sessionStorage.getItem('preloader_shown');
-
-    if (isPreloaderShown && preloader) {
-        preloader.style.display = 'none';
-        document.body.style.overflow = '';
-        gsap.set('nav', { opacity: 1, filter: 'blur(0px)' }); // apparence du header inchangée
-        gsap.set(['main', 'footer'], { clearProps: 'opacity,filter' });
-    }
-
-    const enterBtns = document.querySelectorAll('.enter-btn, #enter-button');
-    const shopBtn = document.querySelector('.shop-btn');
-    const preloaderContent = document.querySelector('.preloader-content');
-    const spinner = document.querySelector('.spinner');
     const body = document.body;
 
-    if (!isPreloaderShown && preloader && enterBtns.length > 0) {
-        body.style.overflow = 'hidden';
-        let contentHasBeenShown = false;
-
-        const showPreloaderContent = () => {
-            if (contentHasBeenShown) return;
-            contentHasBeenShown = true;
-
-            if (spinner) spinner.style.display = 'none';
-
-            gsap.to(enterBtns, {
+    const revealContent = (duration) => {
+        gsap.fromTo(['nav', 'main', 'footer'],
+            { filter: 'blur(20px)', opacity: 0 },
+            {
+                filter: 'blur(0px)',
                 opacity: 1,
-                duration: 0.6,
+                duration: duration,
+                ease: 'power2.out',
                 stagger: 0.1,
+                // Le header garde son apparence d'origine ; on libère le filtre du contenu (scroll fluide)
                 onComplete: () => {
-                    enterBtns.forEach(btn => btn.style.pointerEvents = 'auto');
+                    gsap.set('nav', { opacity: 1, filter: 'blur(0px)' });
+                    gsap.set(['main', 'footer'], { clearProps: 'filter,opacity' });
                 }
-            });
-        };
+            }
+        );
+    };
 
-        // Afficher les boutons dès que la page est chargée (sécurité : 1,5 s max)
-        if (document.readyState === 'complete') {
-            showPreloaderContent();
-        } else {
-            window.addEventListener('load', showPreloaderContent);
-            setTimeout(showPreloaderContent, 1500);
-        }
-
-        // État initial synchronisé pour éviter les bugs d'affichage
+    if (preloader && isPreloaderShown) {
+        // Déjà vu pendant cette session : pas de ré-animation
+        preloader.style.display = 'none';
+        body.style.overflow = '';
+        gsap.set('nav', { opacity: 1, filter: 'blur(0px)' });
+        gsap.set(['main', 'footer'], { clearProps: 'opacity,filter' });
+    } else if (preloader && preloaderLine) {
+        body.style.overflow = 'hidden';
         gsap.set(['nav', 'main', 'footer'], { opacity: 0, filter: 'blur(30px)' });
 
-        // Lancement universel pour tous les boutons "Enter" (Shop & Documentation)
-        if (shopBtn) {
-            shopBtn.addEventListener('click', () => {
-                hidePreloader();
-                setTimeout(() => {
-                    if (typeof lenis !== 'undefined') {
-                        lenis.scrollTo('#image-gallery', { offset: -50 });
-                    } else {
-                        document.getElementById('image-gallery')?.scrollIntoView({ behavior: 'smooth' });
-                    }
-                }, 600);
-            });
-        }
+        let done = false;
+        const finish = () => {
+            if (done) return;
+            done = true;
+            sessionStorage.setItem('preloader_shown', 'true');
 
-        const hidePreloader = () => {
             const tl = gsap.timeline({
                 onComplete: () => {
                     body.style.overflow = '';
                     preloader.style.display = 'none';
                 }
             });
-
-            tl.to(preloaderContent, { opacity: 0, duration: 0.5, ease: 'power2.in' });
-            tl.to(preloader, { yPercent: -100, duration: 1, ease: 'power3.inOut' }, '-=0.2');
-
-            tl.fromTo(['nav', 'main', 'footer'],
-                { filter: 'blur(20px)', opacity: 0 },
-                {
-                    filter: 'blur(0px)',
-                    opacity: 1,
-                    duration: 3,
-                    ease: 'power2.out',
-                    stagger: 0.1,
-                    // Filtre retiré du contenu (scroll fluide) ; le header garde son apparence d'origine
-                    onComplete: () => gsap.set(['main', 'footer'], { clearProps: 'filter,opacity' })
-                },
-                '<'
-            );
+            // La ligne s'étire sur toute la largeur puis le voile se lève
+            tl.to(preloaderLine, { scaleX: 1, duration: 0.45, ease: 'power2.inOut' });
+            tl.to('.preloader-line', { opacity: 0, duration: 0.4, ease: 'power2.in' }, '+=0.1');
+            tl.to(preloader, { yPercent: -100, duration: 1, ease: 'power3.inOut' }, '-=0.15');
+            tl.add(() => revealContent(2.4), '<0.2');
         };
 
-        enterBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const targetUrl = btn.getAttribute('href');
-                const isExternal = targetUrl && targetUrl.includes('documentation');
+        // La ligne se remplit progressivement pendant le chargement
+        gsap.to(preloaderLine, { scaleX: 0.9, duration: 2.2, ease: 'power1.out' });
 
-                if (targetUrl) e.preventDefault();
-
-                // Si c'est la documentation, on redirige automatiquement et instantanément
-                sessionStorage.setItem('preloader_shown', 'true');
-                if (isExternal) {
-                    window.location.href = targetUrl;
-                    return;
-                }
-
-                const tl = gsap.timeline({
-                    onComplete: () => {
-                        body.style.overflow = '';
-                        preloader.style.display = 'none';
-                    }
-                });
-
-                tl.to(preloaderContent, { opacity: 0, duration: 0.5, ease: 'power2.in' });
-                tl.to(preloader, { yPercent: -100, duration: 1, ease: 'power3.inOut' }, '-=0.2');
-
-                // Révélation cinématique 3s pour le Shop
-                tl.fromTo(['nav', 'main', 'footer'],
-                    { filter: 'blur(20px)', opacity: 0 },
-                    {
-                        filter: 'blur(0px)',
-                        opacity: 1,
-                        duration: 3,
-                        ease: 'power2.out',
-                        stagger: 0.1,
-                        onComplete: () => gsap.set(['main', 'footer'], { clearProps: 'filter,opacity' })
-                    },
-                    '<'
-                );
-            });
-        });
+        // On entre une fois la page chargée, avec un minimum de ~1,1 s pour l'effet ;
+        // filet de sécurité : entrée garantie au bout de 2,6 s quoi qu'il arrive.
+        let pageLoaded = document.readyState === 'complete';
+        let minElapsed = false;
+        setTimeout(() => { minElapsed = true; if (pageLoaded) finish(); }, 1100);
+        if (pageLoaded) {
+            setTimeout(finish, 1100);
+        } else {
+            window.addEventListener('load', () => { pageLoaded = true; if (minElapsed) finish(); });
+        }
+        setTimeout(finish, 2600);
     }
     // --- FIN DE LA LOGIQUE DU PRÉLOADER ---
 

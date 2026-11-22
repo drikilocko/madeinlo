@@ -494,7 +494,7 @@ main>section {
 main>section#home {
     position: relative;
     width: 100%;
-    background-image: url('img/1.webp');
+    background-image: url('img/Sans titre-2.png');
     padding: 0;
     background-size: 100% auto;
     /* Affiche mieux l'image sans trop de zoom */
@@ -1002,92 +1002,30 @@ p {
     opacity: 1;
 }
 
-.preloader-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-    /* Espace entre la vidéo et le bouton */
+/* Préloader minimaliste : une fine ligne blanche qui se remplit */
+.preloader-line {
+    width: min(240px, 56vw);
+    height: 1px;
+    background: rgba(255, 255, 255, 0.14);
+    overflow: hidden;
     position: relative;
-    /* Pour positionner le spinner */
 }
 
-/* NOUVEAU : Spinner de chargement */
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    /* Le JS le masquera quand la vidéo sera prête */
-}
-
-
-
-.preloader-buttons {
-    display: flex;
-    gap: 1.5rem;
-    justify-content: center;
+.preloader-line > span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
     width: 100%;
+    background: #fff;
+    transform: scaleX(0);
+    transform-origin: left center;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
 }
 
-.enter-btn {
-    background-color: rgba(255, 255, 255, 0.05);
-    /* Léger fond transparent */
-    backdrop-filter: blur(10px);
-    /* Effet de flou de verre */
-    -webkit-backdrop-filter: blur(10px);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 0.9rem 3.5rem;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.85rem;
-    /* Plus petit pour l'élégance */
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border-radius: 50px;
-    text-decoration: none;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    opacity: 0;
-    pointer-events: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.enter-btn:hover {
-    background-color: #fff;
-    color: #000;
-    border-color: #fff;
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
-}
-
-/* NOUVEAU : Media query pour améliorer la responsivité du préchargeur sur petits écrans */
 @media (max-width: 480px) {
-    .preloader-content {
-        gap: 1.5rem;
-        /* Réduit l'espace entre la vidéo et le bouton */
-    }
-
-    .enter-btn {
-        padding: 0.8rem 1.5rem;
-        /* Réduit la taille du bouton */
-        font-size: 1rem;
-        /* Réduit la taille de la police */
-    }
-
-    .preloader-buttons {
-        flex-direction: column;
-        gap: 1rem;
+    .preloader-line {
+        width: 64vw;
     }
 }
 
@@ -2794,31 +2732,6 @@ body {
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-
-/* Preloader : bouton Shop mis en avant, Documentation en secondaire */
-.preloader-buttons { align-items: center; }
-.enter-btn.shop-btn {
-    padding: 1.25rem 5rem;
-    font-size: 1.05rem;
-    letter-spacing: 3px;
-    background-color: #D4AF37;
-    border-color: #D4AF37;
-    color: #000;
-    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.35);
-}
-.enter-btn.shop-btn:hover {
-    background-color: #fff;
-    border-color: #fff;
-    color: #000;
-}
-.enter-btn.doc-btn {
-    padding: 0.75rem 2.2rem;
-    font-size: 0.75rem;
-}
-@media (max-width: 480px) {
-    .enter-btn.shop-btn { width: 100%; max-width: 320px; padding: 1.15rem 2rem; font-size: 1rem; }
-    .enter-btn.doc-btn { padding: 0.7rem 1.6rem; font-size: 0.75rem; }
-}
 
 /* =====================================================================
    EN-TÊTE DE LA BOUTIQUE (« Notre boutique »)
