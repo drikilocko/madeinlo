@@ -70,6 +70,16 @@
             align-items: start;
         }
 
+        /* Étapes 1 & 2 : le résumé du panier est masqué, le formulaire occupe
+           toute la largeur (le résumé n'apparaît qu'à l'étape Paiement) */
+        .checkout-container.summary-hidden {
+            grid-template-columns: 1fr;
+            max-width: 760px;
+        }
+        .checkout-container.summary-hidden .order-summary {
+            display: none;
+        }
+
         @media (max-width: 992px) {
             .checkout-container {
                 grid-template-columns: 1fr;
@@ -524,7 +534,7 @@
 
 <body>
 
-    <div class="checkout-container">
+    <div class="checkout-container summary-hidden">
         <!-- Colonne Gauche : Formulaire et Paiement -->
         <div id="checkout-main-content">
             <div class="back-nav">
@@ -861,6 +871,10 @@
                 c.classList.toggle('active', n === step);
                 c.classList.toggle('done', n < step);
             });
+
+            // Le résumé du panier n'apparaît qu'à la dernière étape (Paiement)
+            const container = document.querySelector('.checkout-container');
+            if (container) container.classList.toggle('summary-hidden', step !== 3);
 
             if (step === 2) {
                 initInlineMap();
