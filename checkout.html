@@ -238,6 +238,27 @@
 
         .pay-hint { font-size: 0.78rem; color: var(--muted); margin: 7px 0 0; }
 
+        /* --- Champ téléphone avec indicatif pays --- */
+        .phone-field { display: flex; align-items: stretch; }
+        .phone-prefix {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 14px;
+            background: #efe9db;
+            border: 1.5px solid var(--line);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--ink);
+            white-space: nowrap;
+        }
+        .phone-field .form-control {
+            border-radius: 0 12px 12px 0;
+            flex: 1;
+            min-width: 0;
+        }
+
         /* --- Sélecteur Pays (chips) --- */
         .pay-countries { display: flex; flex-wrap: wrap; gap: 9px; }
         .pay-country {
@@ -887,8 +908,11 @@
                         </div>
                         <div class="form-group">
                             <label for="momo_number">Numéro Mobile Money</label>
-                            <input type="tel" id="momo_number" class="form-control" inputmode="numeric" placeholder="Ex: 90 00 00 00">
-                            <p class="pay-hint">Vous recevrez une demande de validation sur ce téléphone.</p>
+                            <div class="phone-field">
+                                <span class="phone-prefix" id="momo-prefix">+228</span>
+                                <input type="tel" id="momo_number" class="form-control" inputmode="numeric" placeholder="90 29 00 81">
+                            </div>
+                            <p class="pay-hint" id="momo-hint">Vous recevrez une demande de validation sur ce téléphone.</p>
                         </div>
                     </div>
 
@@ -1041,15 +1065,16 @@
             BF: { name: 'Burkina Faso', flag: '🇧🇫' }
         };
         // Clés = celles du backend (api/_lib/_paydunya.js OPERATORS)
+        // dial = indicatif pays · len = nb de chiffres attendus · ex = exemple de numéro local
         const OPERATOR_META = {
-            'tmoney-tg': { country: 'TG', name: 'T-Money', sub: 'Togocom', color: '#e2001a', badge: 'T' },
-            'moov-tg': { country: 'TG', name: 'Moov / Flooz', sub: 'Moov Africa', color: '#f58220', badge: 'M' },
-            'moov-bj': { country: 'BJ', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M' },
-            'moov-ci': { country: 'CI', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M' },
-            'free-sn': { country: 'SN', name: 'Free Money', sub: 'Free Sénégal', color: '#cd1d2d', badge: 'F' },
-            'orange-ml': { country: 'ML', name: 'Orange Money', sub: 'Orange Mali', color: '#ff7900', badge: 'O' },
-            'moov-ml': { country: 'ML', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M' },
-            'moov-bf': { country: 'BF', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M' }
+            'tmoney-tg': { country: 'TG', name: 'T-Money', sub: 'Togocom', color: '#e2001a', badge: 'T', dial: '+228', len: 8, ex: '90 29 00 81' },
+            'moov-tg': { country: 'TG', name: 'Moov / Flooz', sub: 'Moov Africa', color: '#f58220', badge: 'M', dial: '+228', len: 8, ex: '99 00 00 00' },
+            'moov-bj': { country: 'BJ', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M', dial: '+229', len: 10, ex: '01 66 00 00 00' },
+            'moov-ci': { country: 'CI', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M', dial: '+225', len: 10, ex: '01 02 03 04 05' },
+            'free-sn': { country: 'SN', name: 'Free Money', sub: 'Free Sénégal', color: '#cd1d2d', badge: 'F', dial: '+221', len: 9, ex: '76 123 45 67' },
+            'orange-ml': { country: 'ML', name: 'Orange Money', sub: 'Orange Mali', color: '#ff7900', badge: 'O', dial: '+223', len: 8, ex: '70 00 00 00' },
+            'moov-ml': { country: 'ML', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M', dial: '+223', len: 8, ex: '70 00 00 00' },
+            'moov-bf': { country: 'BF', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M', dial: '+226', len: 8, ex: '70 00 00 00' }
         };
         // Repli (si l'API ne répond pas) : opérateurs Togo
         let availableOperators = [
@@ -1097,6 +1122,21 @@
                 const m = o.meta;
                 return `<button type="button" class="pay-operator${o.key === selectedOperatorKey ? ' active' : ''}" onclick="selectOperator('${o.key}')"><span class="op-badge" style="background:${m.color}">${escapeHtml(m.badge)}</span><span class="op-texts"><span class="op-name">${escapeHtml(m.name)}</span><span class="op-sub">${escapeHtml(m.sub)}</span></span><span class="op-check"><i class="fas fa-check-circle"></i></span></button>`;
             }).join('');
+
+            updateMomoField();
+        }
+
+        // Met à jour l'indicatif, l'exemple et le nombre de chiffres attendus selon l'opérateur
+        function updateMomoField() {
+            const m = OPERATOR_META[selectedOperatorKey];
+            const prefix = document.getElementById('momo-prefix');
+            const input = document.getElementById('momo_number');
+            const hint = document.getElementById('momo-hint');
+            if (!m || !prefix || !input) return;
+            prefix.textContent = m.dial;
+            input.placeholder = m.ex;
+            input.setAttribute('maxlength', String(m.len + 4)); // marge pour les espaces
+            if (hint) hint.textContent = `${m.name} · ${m.len} chiffres attendus (ex : ${m.ex}). Vous validerez sur ce téléphone.`;
         }
 
         function selectCountry(code) {
@@ -1177,11 +1217,14 @@
                 const center = deliveryLocation ? [deliveryLocation.lat, deliveryLocation.lng] : LOME;
                 // attributionControl:false -> pas de mention "Leaflet | © ..." sur la carte
                 fsMap = L.map('fs-map', { zoomControl: true, attributionControl: false })
-                    .setView(center, deliveryLocation ? 16 : 13);
-                // Fond de carte CARTO Positron : rendu épuré, pro et élégant (open source)
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    subdomains: 'abcd',
-                    maxZoom: 20
+                    .setView(center, deliveryLocation ? 17 : 14);
+                // Fond satellite Esri (sans clé API, rendu type Google Maps) — Esri utilise {z}/{y}/{x}
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19
+                }).addTo(fsMap);
+                // Couche d'étiquettes (noms de rues / lieux) par-dessus le satellite = effet hybride
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19
                 }).addTo(fsMap);
                 // Premier affichage : on tente de centrer sur la position de l'utilisateur
                 if (!deliveryLocation && !fsAutoLocated) { fsAutoLocated = true; locateFs(true); }
@@ -1568,9 +1611,13 @@
                 return showError('Veuillez choisir un pays et un opérateur Mobile Money.');
             }
             const paymentPhone = document.getElementById('momo_number').value.replace(/\D/g, '');
-            if (method !== 'card' && paymentPhone.length < 8) {
-                document.getElementById('momo_number').focus();
-                return showError('Veuillez saisir un numéro Mobile Money valide.');
+            if (method !== 'card') {
+                const meta = OPERATOR_META[method];
+                const expected = meta ? meta.len : 8;
+                if (paymentPhone.length !== expected) {
+                    document.getElementById('momo_number').focus();
+                    return showError(`Le numéro ${meta ? meta.name : 'Mobile Money'} doit comporter ${expected} chiffres${meta ? ` (ex : ${meta.ex})` : ''}.`);
+                }
             }
 
             // La fenêtre carte doit être ouverte pendant le clic (sinon le navigateur la bloque)
