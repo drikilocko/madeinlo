@@ -53,9 +53,10 @@ export default async function handler(req, res) {
         email: cleanText(c.email, 200),
         address: cleanText(c.address, 400, { multiline: true })
       };
-      if (!customer.name || !customer.phone || !customer.address) {
-        throw new HttpError(400, 'Nom, téléphone et adresse de livraison sont requis');
+      if (!customer.name || !customer.phone) {
+        throw new HttpError(400, 'Nom et téléphone sont requis');
       }
+      // L'adresse texte est facultative : la position GPS (validée ci-dessous) est le point de livraison
       if (customer.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
         throw new HttpError(400, 'Adresse email invalide');
       }
@@ -68,7 +69,7 @@ export default async function handler(req, res) {
         throw new HttpError(400, 'Indiquez votre position de livraison sur la carte');
       }
       const gps = `GPS: ${lat.toFixed(6)},${lng.toFixed(6)}`;
-      customer.address = `${customer.address.slice(0, 340)} | ${gps}`;
+      customer.address = customer.address ? `${customer.address.slice(0, 340)} | ${gps}` : gps;
 
       let paymentPhone = '';
       if (!isCard) {

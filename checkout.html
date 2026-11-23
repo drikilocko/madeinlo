@@ -237,6 +237,71 @@
         .method-card span { font-weight: 700; font-size: 1rem; }
 
         .pay-hint { font-size: 0.78rem; color: var(--muted); margin: 7px 0 0; }
+
+        /* --- Sélecteur Pays (chips) --- */
+        .pay-countries { display: flex; flex-wrap: wrap; gap: 9px; }
+        .pay-country {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 999px;
+            border: 1.5px solid var(--line);
+            background: var(--field);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--ink);
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+        .pay-country .flag { font-size: 1.15rem; line-height: 1; }
+        .pay-country:hover { border-color: var(--ink); }
+        .pay-country.active { border-color: var(--ink); background: var(--ink); color: #fff; }
+
+        /* --- Grille Opérateurs --- */
+        .pay-operators { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 420px) { .pay-operators { grid-template-columns: 1fr; } }
+        .pay-operator {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 13px 14px;
+            border-radius: 13px;
+            border: 1.5px solid var(--line);
+            background: var(--field);
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+        .pay-operator:hover { border-color: var(--ink); }
+        .pay-operator.active { border-color: var(--ink); background: #fff; box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.07); }
+        .pay-operator .op-badge {
+            flex: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.05rem;
+        }
+        .pay-operator .op-texts { display: flex; flex-direction: column; min-width: 0; }
+        .pay-operator .op-name { font-weight: 700; font-size: 0.9rem; color: var(--ink); }
+        .pay-operator .op-sub { font-size: 0.72rem; color: var(--muted); }
+        .pay-operator .op-check {
+            margin-left: auto;
+            flex: none;
+            color: var(--ink);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .pay-operator.active .op-check { opacity: 1; }
+        .addr-opt { color: var(--gold); font-weight: 600; text-transform: none; letter-spacing: 0; font-size: 0.72rem; }
+
         .card-info {
             display: flex; gap: 14px; align-items: flex-start;
             background: #faf6ea; border: 1px solid rgba(154, 123, 35, 0.22);
@@ -771,7 +836,7 @@
             <div class="section-card step-panel" data-panel="2" style="display:none;">
                 <h3>Livraison</h3>
                 <div class="form-group">
-                    <label>Adresse de livraison complète</label>
+                    <label id="addr-label">Adresse de livraison complète</label>
                     <textarea id="client_address" class="form-control" rows="3"
                         placeholder="Ex: Quartier Adidogomé, Rue 123, maison bleue après la pharmacie..."></textarea>
                 </div>
@@ -813,11 +878,12 @@
                     <!-- Mobile Money (SoftPay : validation directement sur le téléphone) -->
                     <div id="momo-fields" style="display:flex; flex-direction: column; gap: 15px;">
                         <div class="form-group">
-                            <label for="momo_operator">Opérateur</label>
-                            <select id="momo_operator" class="form-control">
-                                <option value="tmoney-tg">T-Money (Togo)</option>
-                                <option value="moov-tg">Moov Money / Flooz (Togo)</option>
-                            </select>
+                            <label>Pays</label>
+                            <div id="pay-countries" class="pay-countries"><!-- injecté par JS --></div>
+                        </div>
+                        <div class="form-group" id="pay-operators-group">
+                            <label>Opérateur</label>
+                            <div id="pay-operators" class="pay-operators"><!-- injecté par JS --></div>
                         </div>
                         <div class="form-group">
                             <label for="momo_number">Numéro Mobile Money</label>
@@ -965,6 +1031,84 @@
                 cartTotalFCFA > 0 ? `${label} — ${cartTotalFCFA.toLocaleString('fr-FR')} FCFA` : label;
         }
 
+        // --- PAIEMENT MOBILE MONEY : choix du pays puis de l'opérateur (avec icône) ---
+        const PAY_COUNTRIES = {
+            TG: { name: 'Togo', flag: '🇹🇬' },
+            BJ: { name: 'Bénin', flag: '🇧🇯' },
+            CI: { name: "Côte d'Ivoire", flag: '🇨🇮' },
+            SN: { name: 'Sénégal', flag: '🇸🇳' },
+            ML: { name: 'Mali', flag: '🇲🇱' },
+            BF: { name: 'Burkina Faso', flag: '🇧🇫' }
+        };
+        // Clés = celles du backend (api/_lib/_paydunya.js OPERATORS)
+        const OPERATOR_META = {
+            'tmoney-tg': { country: 'TG', name: 'T-Money', sub: 'Togocom', color: '#e2001a', badge: 'T' },
+            'moov-tg': { country: 'TG', name: 'Moov / Flooz', sub: 'Moov Africa', color: '#f58220', badge: 'M' },
+            'moov-bj': { country: 'BJ', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M' },
+            'moov-ci': { country: 'CI', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M' },
+            'free-sn': { country: 'SN', name: 'Free Money', sub: 'Free Sénégal', color: '#cd1d2d', badge: 'F' },
+            'orange-ml': { country: 'ML', name: 'Orange Money', sub: 'Orange Mali', color: '#ff7900', badge: 'O' },
+            'moov-ml': { country: 'ML', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M' },
+            'moov-bf': { country: 'BF', name: 'Moov Money', sub: 'Moov Africa', color: '#f58220', badge: 'M' }
+        };
+        // Repli (si l'API ne répond pas) : opérateurs Togo
+        let availableOperators = [
+            { key: 'tmoney-tg', label: 'T-Money (Togo)' },
+            { key: 'moov-tg', label: 'Moov Money / Flooz (Togo)' }
+        ];
+        let selectedCountry = null;
+        let selectedOperatorKey = null;
+
+        function operatorsByCountry() {
+            const map = {};
+            availableOperators.forEach(o => {
+                const meta = OPERATOR_META[o.key];
+                if (!meta) return; // clé inconnue -> ignorée (évite d'envoyer un opérateur non supporté)
+                (map[meta.country] = map[meta.country] || []).push({ key: o.key, meta });
+            });
+            return map;
+        }
+
+        function renderPaymentOperators() {
+            const byCountry = operatorsByCountry();
+            const countries = Object.keys(byCountry);
+            const cwrap = document.getElementById('pay-countries');
+            const owrap = document.getElementById('pay-operators');
+            if (!cwrap || !owrap) return;
+            if (!countries.length) {
+                cwrap.innerHTML = '';
+                owrap.innerHTML = '<p class="pay-hint">Aucun opérateur disponible pour le moment.</p>';
+                selectedOperatorKey = null;
+                return;
+            }
+            if (!selectedCountry || !byCountry[selectedCountry]) {
+                selectedCountry = countries.includes('TG') ? 'TG' : countries[0];
+            }
+            cwrap.innerHTML = countries.map(code => {
+                const c = PAY_COUNTRIES[code] || { name: code, flag: '🏳️' };
+                return `<button type="button" class="pay-country${code === selectedCountry ? ' active' : ''}" onclick="selectCountry('${code}')"><span class="flag">${c.flag}</span> ${escapeHtml(c.name)}</button>`;
+            }).join('');
+
+            const ops = byCountry[selectedCountry] || [];
+            if (!selectedOperatorKey || !ops.some(o => o.key === selectedOperatorKey)) {
+                selectedOperatorKey = ops.length ? ops[0].key : null;
+            }
+            owrap.innerHTML = ops.map(o => {
+                const m = o.meta;
+                return `<button type="button" class="pay-operator${o.key === selectedOperatorKey ? ' active' : ''}" onclick="selectOperator('${o.key}')"><span class="op-badge" style="background:${m.color}">${escapeHtml(m.badge)}</span><span class="op-texts"><span class="op-name">${escapeHtml(m.name)}</span><span class="op-sub">${escapeHtml(m.sub)}</span></span><span class="op-check"><i class="fas fa-check-circle"></i></span></button>`;
+            }).join('');
+        }
+
+        function selectCountry(code) {
+            selectedCountry = code;
+            selectedOperatorKey = null; // repart sur le 1er opérateur du pays
+            renderPaymentOperators();
+        }
+        function selectOperator(key) {
+            selectedOperatorKey = key;
+            renderPaymentOperators();
+        }
+
         function escapeHtml(v) {
             return String(v === undefined || v === null ? '' : v)
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -976,12 +1120,20 @@
         let deliveryLocation = null;
         let fsMap = null;
         let fsAutoLocated = false;
+        let locationIsGPS = false; // true = position détectée auto (GPS) -> adresse facultative
 
         function updateLocLabel() {
             const label = document.getElementById('loc-coords');
             const trigger = document.getElementById('map-trigger');
             const title = document.getElementById('map-trigger-title');
             const sub = document.getElementById('map-trigger-sub');
+            // Adresse facultative quand la position GPS a été détectée automatiquement
+            const addrLabel = document.getElementById('addr-label');
+            if (addrLabel) {
+                addrLabel.innerHTML = (deliveryLocation && locationIsGPS)
+                    ? 'Adresse de livraison <span class="addr-opt">(facultatif — position GPS détectée)</span>'
+                    : 'Adresse de livraison complète';
+            }
             if (deliveryLocation) {
                 if (label) {
                     label.classList.add('done');
@@ -1023,11 +1175,13 @@
         function initFsMap() {
             if (!fsMap) {
                 const center = deliveryLocation ? [deliveryLocation.lat, deliveryLocation.lng] : LOME;
-                fsMap = L.map('fs-map', { zoomControl: true, attributionControl: true })
+                // attributionControl:false -> pas de mention "Leaflet | © ..." sur la carte
+                fsMap = L.map('fs-map', { zoomControl: true, attributionControl: false })
                     .setView(center, deliveryLocation ? 16 : 13);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; OpenStreetMap'
+                // Fond de carte CARTO Positron : rendu épuré, pro et élégant (open source)
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    subdomains: 'abcd',
+                    maxZoom: 20
                 }).addTo(fsMap);
                 // Premier affichage : on tente de centrer sur la position de l'utilisateur
                 if (!deliveryLocation && !fsAutoLocated) { fsAutoLocated = true; locateFs(true); }
@@ -1051,7 +1205,10 @@
                 return;
             }
             navigator.geolocation.getCurrentPosition(
-                (pos) => { if (fsMap) fsMap.setView([pos.coords.latitude, pos.coords.longitude], 17); },
+                (pos) => {
+                    if (fsMap) fsMap.setView([pos.coords.latitude, pos.coords.longitude], 17);
+                    locationIsGPS = true; // position obtenue automatiquement -> adresse facultative
+                },
                 () => { if (!silent) alert("Impossible d'obtenir votre position. Déplacez la carte à la main, ou collez un lien Google Maps."); },
                 { enableHighAccuracy: true, timeout: 10000 }
             );
@@ -1096,6 +1253,7 @@
                 return;
             }
             if (fsMap) fsMap.setView([coords.lat, coords.lng], 17);
+            locationIsGPS = false; // positionné manuellement via lien -> adresse requise
         }
 
         // Fermer carte / popup panier avec Échap
@@ -1111,9 +1269,10 @@
             const fields = [
                 { id: 'client_name', label: 'Nom complet', step: 1 },
                 { id: 'client_phone', label: 'Numéro de téléphone', step: 1 },
-                { id: 'client_email', label: 'Email', step: 1 },
-                { id: 'client_address', label: 'Adresse de livraison', step: 2 }
+                { id: 'client_email', label: 'Email', step: 1 }
             ];
+            // L'adresse n'est obligatoire que si la position n'a PAS été détectée au GPS
+            if (!locationIsGPS) fields.push({ id: 'client_address', label: 'Adresse de livraison', step: 2 });
 
             for (let f of fields) {
                 const el = document.getElementById(f.id);
@@ -1157,18 +1316,19 @@
                 }
             }
             if (step === 2) {
-                const addr = document.getElementById('client_address');
-                if (!addr.value.trim()) {
-                    alert('Veuillez indiquer votre adresse de livraison.');
-                    addr.focus(); addr.style.borderColor = "#ff5252";
-                    return false;
-                }
-                addr.style.borderColor = "rgba(255,255,255,0.1)";
                 // Le lieu doit avoir été choisi et confirmé sur la carte plein écran
                 if (!deliveryLocation) {
                     alert('Appuyez sur « Choisir le lieu sur la carte » puis confirmez votre position de livraison.');
                     return false;
                 }
+                // Adresse facultative si la position GPS a été détectée automatiquement
+                const addr = document.getElementById('client_address');
+                if (!locationIsGPS && !addr.value.trim()) {
+                    alert('Veuillez indiquer votre adresse de livraison (ou utilisez « Ma position » sur la carte).');
+                    addr.focus(); addr.style.borderColor = "#ff5252";
+                    return false;
+                }
+                addr.style.borderColor = "rgba(255,255,255,0.1)";
             }
             return true;
         }
@@ -1403,7 +1563,10 @@
             const { items, size } = cartItems();
             if (items.length === 0) return showError('Votre panier est vide.');
 
-            const method = selectedMethod === 'card' ? 'card' : document.getElementById('momo_operator').value;
+            const method = selectedMethod === 'card' ? 'card' : selectedOperatorKey;
+            if (selectedMethod !== 'card' && !method) {
+                return showError('Veuillez choisir un pays et un opérateur Mobile Money.');
+            }
             const paymentPhone = document.getElementById('momo_number').value.replace(/\D/g, '');
             if (method !== 'card' && paymentPhone.length < 8) {
                 document.getElementById('momo_number').focus();
@@ -1576,12 +1739,16 @@
             refreshSummary();
             selectMethod('momo');
 
-            // Opérateurs disponibles (liste fournie par le serveur)
+            // Pays + opérateurs par défaut (repli) affichés immédiatement
+            renderPaymentOperators();
+
+            // Opérateurs réellement disponibles (liste fournie par le serveur)
             fetch('api/payment').then(r => r.json()).then(cfg => {
                 if (!cfg.available) showError('Le paiement en ligne est momentanément indisponible.');
                 if (Array.isArray(cfg.operators) && cfg.operators.length) {
-                    document.getElementById('momo_operator').innerHTML = cfg.operators
-                        .map(o => `<option value="${escapeHtml(o.key)}">${escapeHtml(o.label)}</option>`).join('');
+                    availableOperators = cfg.operators;
+                    selectedCountry = null; selectedOperatorKey = null;
+                    renderPaymentOperators();
                 }
             }).catch(() => { });
 
