@@ -1220,12 +1220,8 @@
                 // attributionControl:false -> pas de mention "Leaflet | © ..." sur la carte
                 fsMap = L.map('fs-map', { zoomControl: true, attributionControl: false })
                     .setView(center, deliveryLocation ? 17 : 14);
-                // Fond satellite Esri (sans clé API, rendu type Google Maps) — Esri utilise {z}/{y}/{x}
-                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    maxZoom: 19
-                }).addTo(fsMap);
-                // Couche d'étiquettes (noms de rues / lieux) par-dessus le satellite = effet hybride
-                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+                // Carte normale (plan de rues) Esri, sans clé API — Esri utilise {z}/{y}/{x}
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
                     maxZoom: 19
                 }).addTo(fsMap);
                 // Premier affichage : on tente de centrer sur la position de l'utilisateur
