@@ -421,17 +421,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const isMobile = window.innerWidth <= 900;
         lastIsMobileState = isMobile;
-        const numCols = isMobile ? 2 : 3;
+        // Toujours 3 colonnes (comme sur PC), y compris sur téléphone
+        const numCols = 3;
 
         const col1 = document.getElementById('col-1');
         const col2 = document.getElementById('col-2');
         const col3 = document.getElementById('col-3');
 
         if (col3) {
-            col3.style.display = isMobile ? 'none' : 'flex';
+            col3.style.display = 'flex';
         }
 
-        const activeCols = isMobile ? [col1, col2] : [col1, col2, col3];
+        const activeCols = [col1, col2, col3];
 
         if (!append) {
             [col1, col2, col3].forEach(col => { if (col) col.innerHTML = ''; });

@@ -2543,7 +2543,7 @@ body {
         border-radius: 0 !important;
     }
 
-    /* Galerie shop sur mobile : 2 colonnes flex occupant 100% de l'espace avec gap 0.25rem et aspect-ratio 4/6 */
+    /* Galerie shop sur mobile : 3 colonnes flex (comme sur PC) occupant 100% de l'espace, gap 0.25rem */
     .gallery-container {
         display: flex !important;
         flex-direction: row !important;
@@ -2564,7 +2564,8 @@ body {
     }
 
     .gallery-column.middle-column {
-        margin-top: 0 !important;
+        /* Décalage de la colonne du milieu, comme sur PC (réduit pour le mobile) */
+        margin-top: -30px !important;
     }
 
     .gallery-card {

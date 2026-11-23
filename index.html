@@ -543,6 +543,19 @@
         @keyframes ppShake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
         .pp-size-error { margin: 0.6rem 0 0; color: #c62828; font-size: 0.85rem; font-weight: 600; }
 
+        /* Sélecteur de quantité (fiche produit) */
+        #popup-qty-block { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+        .pp-qty { display: inline-flex; align-items: center; border: 1.5px solid #ddd; border-radius: 12px; overflow: hidden; }
+        .pp-qty button {
+            width: 48px; height: 48px;
+            border: none; background: #fff;
+            font-size: 1.3rem; font-weight: 700; line-height: 1;
+            color: #111; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .pp-qty button:hover { background: #111; color: #fff; }
+        .pp-qty #pp-qty-val { min-width: 46px; text-align: center; font-size: 1.1rem; font-weight: 800; }
+
         .pp-cta { display: flex; flex-direction: column; gap: 10px; margin-top: 1.6rem; }
         #popup-buy-btn {
             width: 100%;
@@ -759,13 +772,13 @@
 
                 <!-- Texte complet pour les lecteurs d'écran -->
                 <div class="sr-only">
-                    <p>Fondée à Lomé en 2018, MADE•IN•LO donne une âme africaine au streetwear contemporain.</p>
+                    <p>Fondée à Lomé en 2018, MADE·IN·LO donne une âme africaine au streetwear contemporain.</p>
                     <p>Le Streetwear Authentique : les codes urbains rencontrent le wax, la broderie et les savoir-faire textiles africains.</p>
                     <p>Entre mode, musique et arts visuels, nous imaginons un langage créatif africain, pensé pour le monde entier.</p>
                 </div>
 
                 <div class="story-lines" aria-hidden="true">
-                    <p class="story-line">Fondée à Lomé en 2018, MADE•IN•LO donne une âme africaine au streetwear contemporain.</p>
+                    <p class="story-line">Fondée à Lomé en 2018, MADE·IN·LO donne une âme africaine au streetwear contemporain.</p>
                     <p class="story-line">Le Streetwear Authentique : les codes urbains rencontrent le wax, la broderie et les savoir-faire textiles africains.</p>
                     <p class="story-line">Entre mode, musique et arts visuels, nous imaginons un langage créatif africain, pensé pour le monde entier.</p>
                 </div>
@@ -901,6 +914,15 @@
                         <p class="pp-size-error" id="popup-size-error" role="alert" hidden>Choisissez votre taille pour continuer.</p>
                     </div>
 
+                    <div class="pp-block" id="popup-qty-block">
+                        <span class="pp-label">Quantité</span>
+                        <div class="pp-qty" role="group" aria-label="Choisir la quantité">
+                            <button type="button" id="pp-qty-minus" aria-label="Diminuer la quantité">&minus;</button>
+                            <span id="pp-qty-val" aria-live="polite">1</span>
+                            <button type="button" id="pp-qty-plus" aria-label="Augmenter la quantité">+</button>
+                        </div>
+                    </div>
+
                     <div class="pp-cta">
                         <button id="popup-buy-btn" type="button">Ajouter au panier</button>
                     </div>
@@ -942,7 +964,21 @@
     <script>
         let _popupProduct = null;
         let _selectedSize = 'M';
+        let _popupQty = 1;
         let _savedScrollY = 0;
+
+        // Sélecteur de quantité de la fiche produit (le client peut en commander plusieurs)
+        function setPopupQty(n) {
+            _popupQty = Math.max(1, Math.min(99, parseInt(n) || 1));
+            const el = document.getElementById('pp-qty-val');
+            if (el) el.textContent = _popupQty;
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const minus = document.getElementById('pp-qty-minus');
+            const plus = document.getElementById('pp-qty-plus');
+            if (minus) minus.addEventListener('click', function () { setPopupQty(_popupQty - 1); });
+            if (plus) plus.addEventListener('click', function () { setPopupQty(_popupQty + 1); });
+        });
 
         function _freezePage() {
             // On bloque le défilement SANS déplacer la page : la position reste intacte,
@@ -960,6 +996,7 @@
         window.openProductModal = function (product) {
             _popupProduct = product;
             _selectedSize = null;
+            setPopupQty(1);
 
             // Increment views on server
             if (product && product.id) {
@@ -1217,19 +1254,22 @@
 
             let cart = [];
             try { cart = JSON.parse(localStorage.getItem('cart')) || []; } catch (e) { cart = []; }
-            cart.push({
-                id: _popupProduct.id || 0,
-                name: _popupProduct.name || 'Produit',
-                price: _popupProduct.price || '0',
-                image_url: _popupProduct.image_url || '',
-                size: _selectedSize
-            });
+            // On ajoute autant d'unités que la quantité choisie
+            for (let i = 0; i < _popupQty; i++) {
+                cart.push({
+                    id: _popupProduct.id || 0,
+                    name: _popupProduct.name || 'Produit',
+                    price: _popupProduct.price || '0',
+                    image_url: _popupProduct.image_url || '',
+                    size: _selectedSize
+                });
+            }
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartUI();
 
             // Confirmation visible au lieu de fermer la fiche
             const btn = document.getElementById('popup-buy-btn');
-            btn.textContent = 'Ajouté ✓';
+            btn.textContent = _popupQty > 1 ? `Ajouté ✓ (${_popupQty})` : 'Ajouté ✓';
             setTimeout(() => { if (!btn.disabled) btn.textContent = 'Ajouter au panier'; }, 1800);
             const added = document.getElementById('popup-added');
             added.hidden = false;
