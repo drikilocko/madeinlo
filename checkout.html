@@ -60,24 +60,13 @@
             letter-spacing: -0.4px;
         }
 
+        /* Le résumé vit désormais dans un popup (icône flottante) : le formulaire
+           occupe toute la largeur sur les 3 étapes */
         .checkout-container {
-            max-width: 1180px;
+            max-width: 760px;
             margin: 0 auto;
             padding: 56px 20px 80px;
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 32px;
-            align-items: start;
-        }
-
-        /* Étapes 1 & 2 : le résumé du panier est masqué, le formulaire occupe
-           toute la largeur (le résumé n'apparaît qu'à l'étape Paiement) */
-        .checkout-container.summary-hidden {
-            grid-template-columns: 1fr;
-            max-width: 760px;
-        }
-        .checkout-container.summary-hidden .order-summary {
-            display: none;
+            display: block;
         }
 
         @media (max-width: 992px) {
@@ -481,16 +470,103 @@
         .map-fs-link-note { margin: 9px 0 0; font-size: 0.76rem; color: var(--muted); }
         .map-fs-confirm { margin-top: 0; }
 
-        /* --- Résumé de commande --- */
+        /* --- Icône flottante du panier --- */
+        .cart-fab {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 900;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: none;
+            background: var(--ink);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .cart-fab:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 10px 26px rgba(0, 0, 0, 0.32); }
+        .cart-fab:active { transform: scale(0.96); }
+        .cart-fab-badge {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            min-width: 21px;
+            height: 21px;
+            padding: 0 5px;
+            border-radius: 999px;
+            background: var(--gold);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--bg);
+        }
+        .cart-fab-badge.empty { display: none; }
+
+        /* --- Popup résumé (animation in/out) --- */
+        .cart-popup {
+            position: fixed;
+            inset: 0;
+            z-index: 9500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+        }
+        .cart-popup.open { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
+        .cart-popup-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+        }
+        .cart-popup-close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            width: 38px;
+            height: 38px;
+            border: none;
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--muted);
+            border-radius: 50%;
+            font-size: 1.6rem;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .cart-popup-close:hover { background: rgba(0, 0, 0, 0.1); color: var(--ink); }
+
+        /* --- Résumé de commande (panneau du popup) --- */
         .order-summary {
-            position: sticky;
-            top: 24px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            max-height: 88vh;
+            overflow-y: auto;
             background: var(--card);
             border: 1px solid var(--line-soft);
             border-radius: var(--radius);
             padding: 30px;
-            box-shadow: var(--shadow);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+            transform: translateY(26px) scale(0.96);
+            opacity: 0;
+            transition: transform 0.36s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease;
         }
+        .cart-popup.open .order-summary { transform: translateY(0) scale(1); opacity: 1; }
         .summary-title {
             font-size: 1.3rem;
             font-weight: 800;
@@ -649,7 +725,13 @@
 
 <body>
 
-    <div class="checkout-container summary-hidden">
+    <!-- Icône flottante : ouvre le résumé du panier (disponible sur les 3 étapes) -->
+    <button type="button" id="cart-fab" class="cart-fab" onclick="openCart()" aria-label="Voir le résumé du panier">
+        <i class="fas fa-bag-shopping"></i>
+        <span class="cart-fab-badge" id="cart-fab-badge">0</span>
+    </button>
+
+    <div class="checkout-container">
         <!-- Colonne Gauche : Formulaire et Paiement -->
         <div id="checkout-main-content">
             <div class="back-nav">
@@ -777,8 +859,11 @@
             </div>
         </div>
 
-        <!-- Colonne Droite : Résumé -->
-        <div class="order-summary">
+        <!-- Résumé du panier en popup (ouvert par l'icône flottante, sur les 3 étapes) -->
+        <div id="cart-popup" class="cart-popup" aria-hidden="true">
+            <div class="cart-popup-backdrop" onclick="closeCart()"></div>
+            <div class="order-summary">
+            <button type="button" class="cart-popup-close" onclick="closeCart()" aria-label="Fermer">&times;</button>
             <h2 class="summary-title">Résumé du panier</h2>
             <div id="summary-items" class="summary-items">
                 <!-- Chargé dynamiquement par JS -->
@@ -807,7 +892,8 @@
             <button class="clear-cart-btn" onclick="clearCart()">
                 <i class="fas fa-trash-alt" style="margin-right:8px;"></i> Vider le panier
             </button>
-        </div><!-- end .order-summary -->
+            </div><!-- end .order-summary -->
+        </div><!-- end #cart-popup -->
 
         <!-- Success Message (full-width grid row) -->
         <div id="success-step" style="grid-column: 1 / -1; display:none;">
@@ -1012,12 +1098,13 @@
             if (fsMap) fsMap.setView([coords.lat, coords.lng], 17);
         }
 
-        // Fermer la carte avec Échap
+        // Fermer carte / popup panier avec Échap
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const modal = document.getElementById('map-fullscreen');
-                if (modal && modal.classList.contains('open')) closeMapFullscreen();
-            }
+            if (e.key !== 'Escape') return;
+            const map = document.getElementById('map-fullscreen');
+            if (map && map.classList.contains('open')) { closeMapFullscreen(); return; }
+            const cart = document.getElementById('cart-popup');
+            if (cart && cart.classList.contains('open')) closeCart();
         });
 
         function validateForm() {
@@ -1105,10 +1192,7 @@
                 c.classList.toggle('done', n < step);
             });
 
-            // Le résumé du panier n'apparaît qu'à la dernière étape (Paiement)
-            const container = document.querySelector('.checkout-container');
-            if (container) container.classList.toggle('summary-hidden', step !== 3);
-
+            // Le résumé est accessible via l'icône flottante sur les 3 étapes (popup)
             // La carte s'ouvre en plein écran au clic (pas d'init ici)
 
             if (step === 3) {
@@ -1188,7 +1272,30 @@
                 document.getElementById('total-price-display').innerText = "0 FCFA";
                 cartTotalFCFA = 0;
             }
+            // Badge de l'icône flottante = nombre d'articles
+            const badge = document.getElementById('cart-fab-badge');
+            if (badge) {
+                badge.textContent = cart.length;
+                badge.classList.toggle('empty', cart.length === 0);
+            }
             updatePayButton();
+        }
+
+        // --- POPUP RÉSUMÉ (icône flottante, animation in/out) ---
+        function openCart() {
+            refreshSummary();
+            const popup = document.getElementById('cart-popup');
+            popup.classList.add('open');
+            popup.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeCart() {
+            const popup = document.getElementById('cart-popup');
+            popup.classList.remove('open');
+            popup.setAttribute('aria-hidden', 'true');
+            // Ne pas rétablir le scroll si la carte plein écran est encore ouverte
+            const mapOpen = document.getElementById('map-fullscreen');
+            if (!mapOpen || !mapOpen.classList.contains('open')) document.body.style.overflow = '';
         }
 
         // --- MODIFIER LE PANIER DEPUIS LE RÉSUMÉ (quantité par taille + suppression) ---
@@ -1448,8 +1555,10 @@
         });
 
         function showSuccess(msg) {
+            closeCart();
             document.getElementById('checkout-main-content').style.display = 'none';
-            document.querySelector('.order-summary').style.display = 'none';
+            const fab = document.getElementById('cart-fab');
+            if (fab) fab.style.display = 'none';
             document.getElementById('success-step').style.display = 'block';
             document.getElementById('success-msg').innerText = msg;
             localStorage.removeItem('cart'); // le panier n'est vidé qu'après paiement confirmé
