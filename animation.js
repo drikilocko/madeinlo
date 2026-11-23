@@ -72,27 +72,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     preloader.style.display = 'none';
                 }
             });
-            // La ligne s'étire sur toute la largeur puis le voile se lève
-            tl.to(preloaderLine, { scaleX: 1, duration: 0.45, ease: 'power2.inOut' });
-            tl.to('.preloader-line', { opacity: 0, duration: 0.4, ease: 'power2.in' }, '+=0.1');
-            tl.to(preloader, { yPercent: -100, duration: 1, ease: 'power3.inOut' }, '-=0.15');
-            tl.add(() => revealContent(2.4), '<0.2');
+            // La ligne finit de se remplir (si besoin) puis le voile se lève
+            tl.to(preloaderLine, { scaleX: 1, duration: 0.12, ease: 'power2.out' });
+            tl.to('.preloader-line', { opacity: 0, duration: 0.25, ease: 'power2.in' }, '+=0.03');
+            tl.to(preloader, { yPercent: -100, duration: 0.7, ease: 'power3.inOut' }, '-=0.1');
+            tl.add(() => revealContent(1.0), '<0.2');
         };
 
-        // La ligne se remplit progressivement pendant le chargement
-        gsap.to(preloaderLine, { scaleX: 0.9, duration: 2.2, ease: 'power1.out' });
+        // La ligne se remplit en 0,5 s
+        gsap.to(preloaderLine, { scaleX: 1, duration: 0.5, ease: 'power2.inOut' });
 
-        // On entre une fois la page chargée, avec un minimum de ~1,1 s pour l'effet ;
-        // filet de sécurité : entrée garantie au bout de 2,6 s quoi qu'il arrive.
+        // On entre une fois la page chargée, avec un minimum de 0,5 s (le temps que la ligne se remplisse) ;
+        // filet de sécurité : entrée garantie au bout de 1,8 s quoi qu'il arrive.
         let pageLoaded = document.readyState === 'complete';
         let minElapsed = false;
-        setTimeout(() => { minElapsed = true; if (pageLoaded) finish(); }, 1100);
+        setTimeout(() => { minElapsed = true; if (pageLoaded) finish(); }, 500);
         if (pageLoaded) {
-            setTimeout(finish, 1100);
+            setTimeout(finish, 500);
         } else {
             window.addEventListener('load', () => { pageLoaded = true; if (minElapsed) finish(); });
         }
-        setTimeout(finish, 2600);
+        setTimeout(finish, 1800);
     }
     // --- FIN DE LA LOGIQUE DU PRÉLOADER ---
 

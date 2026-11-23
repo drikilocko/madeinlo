@@ -500,7 +500,7 @@ main>section {
 main>section#home {
     position: relative;
     width: 100%;
-    background-image: url('img/Sans titre-2.png');
+    background-image: url('img/hero.webp');
     padding: 0;
     background-size: 100% auto;
     /* Affiche mieux l'image sans trop de zoom */
