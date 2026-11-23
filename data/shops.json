@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "name": "Made in Lo - Lomé Centre",
+        "name": "MADE•IN•LO - Lomé Centre",
         "address": "Boulevard du 13 Janvier, Lomé",
         "lat": 6.1319,
         "lng": 1.2228,
@@ -11,7 +11,7 @@
     },
     {
         "id": 2,
-        "name": "Made in Lo - Tokoin",
+        "name": "MADE•IN•LO - Tokoin",
         "address": "Rue de Tokoin, Lomé",
         "lat": 6.1456,
         "lng": 1.2145,

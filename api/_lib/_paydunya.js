@@ -10,7 +10,7 @@ const IS_TEST = (process.env.PAYDUNYA_MODE || '').trim().toLowerCase() === 'test
 const API_BASE = IS_TEST ? 'https://app.paydunya.com/sandbox-api/v1' : 'https://app.paydunya.com/api/v1';
 
 export const STORE = {
-  name: 'Made in Lo',
+  name: 'MADE IN LO',
   tagline: 'Mode africaine contemporaine',
   postal_address: 'Lomé, Togo'
 };

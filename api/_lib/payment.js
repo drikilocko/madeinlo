@@ -104,7 +104,7 @@ export default async function handler(req, res) {
       try {
         invoice = await createInvoice({
           amount: total,
-          description: `Commande Made in Lo #${order.id}`,
+          description: `Commande MADE IN LO #${order.id}`,
           orderId: order.id,
           customer,
           urls: {

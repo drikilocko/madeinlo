@@ -680,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         <span class="prod-cat">${product.category}</span>
                                         ${soldOutBadgeHtml}
                                     </div>
-                                    <p class="prod-desc">${product.description || 'Une pièce unique signée Made in Lo.'}</p>
+                                    <p class="prod-desc">${product.description || 'Une pièce unique signée MADE•IN•LO.'}</p>
                                     
                                     <div class="size-selector-v2">
                                         <p>Taille :</p>
@@ -761,7 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const address = document.getElementById('chk-address').value;
                 const size = productView.querySelector('.s-btn.active')?.innerText || 'M';
 
-                const message = `Bonjour Made in Lo, je souhaite commander :\n\n` +
+                const message = `Bonjour MADE•IN•LO, je souhaite commander :\n\n` +
                     `Produit : ${product.name}\n` +
                     `Prix : ${product.price} FCFA\n` +
                     `Taille : ${size}\n\n` +
@@ -875,7 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Tiles Premium Dark (CartoDB DarkMatter)
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: 'Made in Lo'
+            attribution: 'MADE•IN•LO'
         }).addTo(shopMap);
 
         // Charger les shops depuis l'API
