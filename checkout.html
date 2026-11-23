@@ -392,6 +392,28 @@
         .step-actions .btn-secondary { margin-top: 0; flex: 0 0 auto; width: auto; min-width: 140px; }
         .step-next { margin-top: 24px; }
 
+        /* Bouton WhatsApp "un doute avant de payer" sous les actions */
+        .btn-wa-doubt {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-top: 12px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 1.5px solid #25D366;
+            background: rgba(37, 211, 102, 0.08);
+            color: #128c3e;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 0.92rem;
+            text-decoration: none;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .btn-wa-doubt:hover { background: #25D366; border-color: #25D366; color: #fff; }
+        .btn-wa-doubt i { font-size: 1.25rem; }
+
         /* --- Boutons sur mobile : empilés, pleine largeur, action principale en haut --- */
         @media (max-width: 560px) {
             .section-card { padding: 22px 18px; }
@@ -936,6 +958,11 @@
                             <span id="pay-btn-text">Payer</span>
                         </button>
                     </div>
+
+                    <!-- Un doute avant de payer ? Contact direct WhatsApp -->
+                    <a class="btn-wa-doubt" href="https://wa.me/22870894072?text=Bonjour%20MADE%E2%80%A2IN%E2%80%A2LO%2C%20j%27ai%20un%20doute%20avant%20de%20payer%20ma%20commande." target="_blank" rel="noopener noreferrer">
+                        <i class="fa-brands fa-whatsapp"></i> Un doute avant de payer ? Écrivez-nous
+                    </a>
                 </div>
 
                 <!-- Attente de confirmation du paiement -->
