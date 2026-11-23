@@ -2536,11 +2536,27 @@ body {
 
     .gallery-horizontal-card {
         flex: 0 0 72vw;
+        gap: 0.5rem;
     }
 
+    /* Le conteneur image et l'image partagent la MÊME hauteur : plus de vide
+       crème entre la photo et le texte, le prix remonte juste sous le nom */
+    .gallery-horizontal-card-visual {
+        height: 56vh;
+    }
+
+    .gallery-horizontal-card-visual img,
     .gallery-horizontal-card img {
-        height: 50vh;
+        height: 100% !important;
         border-radius: 0 !important;
+    }
+
+    .gallery-horizontal-card-info h3 {
+        margin-bottom: 0;
+    }
+
+    .gallery-horizontal-card-info p {
+        margin-top: 0.15rem;
     }
 
     /* Galerie shop sur mobile : 3 colonnes flex (comme sur PC) occupant 100% de l'espace, gap 0.25rem */
